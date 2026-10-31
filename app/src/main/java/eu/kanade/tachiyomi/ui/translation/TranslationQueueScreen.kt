@@ -1,5 +1,15 @@
 package eu.kanade.tachiyomi.ui.translation
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.collections.immutable.toPersistentList
+import tachiyomi.core.common.i18n.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -89,7 +99,6 @@ import eu.kanade.tachiyomi.data.translation.model.TranslationItem
 import eu.kanade.tachiyomi.ui.manga.MangaScreen
 import eu.kanade.tachiyomi.ui.setting.SettingsScreen
 import eu.kanade.tachiyomi.util.system.toast
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.StateFlow
@@ -179,6 +188,7 @@ private fun TranslationQueueContent(
     navigateUp: (() -> Unit)?,
 ) {
     val navigator = LocalNavigator.currentOrThrow
+    val context = LocalContext.current
     val items by viewModel.queueState.collectAsState()
     val isTranslatePaused by viewModel.isTranslatePaused.collectAsState()
     val isNightPaused by viewModel.isNightPaused.collectAsState()
@@ -226,6 +236,16 @@ private fun TranslationQueueContent(
     }
 
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    val translateAll by viewModel.translateAll.collectAsState()
+    TranslateAllDialog(
+        state = translateAll,
+        onConfirm = {
+            val queued = viewModel.confirmTranslateAll()
+            if (queued > 0) context.toast(context.stringResource(MR.strings.translate_downloaded_queued, queued))
+        },
+        onDismiss = viewModel::dismissTranslateAll,
+    )
 
     Scaffold(
         topBar = {
@@ -290,15 +310,27 @@ private fun TranslationQueueContent(
                                 )
                             }
                         }
-                        AppBarActions(
-                            persistentListOf(
+                    }
+                    val overflow = buildList {
+                        // Library-wide: queue every downloaded chapter that is not translated yet (confirmation first).
+                        if (masterEnabled) {
+                            add(
+                                AppBar.OverflowAction(
+                                    title = stringResource(MR.strings.action_translate_all_downloaded),
+                                    onClick = viewModel::startTranslateAll,
+                                ),
+                            )
+                        }
+                        if (groups.isNotEmpty()) {
+                            add(
                                 AppBar.OverflowAction(
                                     title = stringResource(MR.strings.action_cancel_all),
                                     onClick = viewModel::clearQueue,
                                 ),
-                            ),
-                        )
+                            )
+                        }
                     }
+                    if (overflow.isNotEmpty()) AppBarActions(overflow.toPersistentList())
                 },
                 scrollBehavior = scrollBehavior,
             )
@@ -892,6 +924,69 @@ private fun statusLine(item: TranslationItem): String {
     }
 }
 
+/** State of the library-wide "Translate all downloaded" flow (scan, then confirm). */
+private sealed interface TranslateAllUi {
+    data class Counting(val done: Int, val total: Int) : TranslateAllUi
+    data class Confirm(val targets: List<TranslationManager.UntranslatedDownloaded>) : TranslateAllUi {
+        val chapters: Int get() = targets.sumOf { it.chapters.size }
+    }
+    data object Empty : TranslateAllUi
+}
+
+@Composable
+private fun TranslateAllDialog(
+    state: TranslateAllUi?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    when (state) {
+        null -> Unit
+        is TranslateAllUi.Counting -> AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(MR.strings.action_translate_all_downloaded)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(MR.strings.translate_all_downloaded_counting))
+                    if (state.total > 0) {
+                        LinearProgressIndicator(
+                            progress = { state.done.toFloat() / state.total },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                        Text("${state.done} / ${state.total}", style = MaterialTheme.typography.bodySmall)
+                    } else {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text(stringResource(MR.strings.action_cancel)) }
+            },
+        )
+        is TranslateAllUi.Confirm -> AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(MR.strings.translate_all_downloaded_title)) },
+            text = {
+                Text(stringResource(MR.strings.translate_all_downloaded_confirm, state.chapters, state.targets.size))
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirm) { Text(stringResource(MR.strings.action_translate)) }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) { Text(stringResource(MR.strings.action_cancel)) }
+            },
+        )
+        TranslateAllUi.Empty -> AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(MR.strings.action_translate_all_downloaded)) },
+            text = { Text(stringResource(MR.strings.translate_all_downloaded_none)) },
+            confirmButton = {
+                TextButton(onClick = onDismiss) { Text(stringResource(MR.strings.action_ok)) }
+            },
+        )
+    }
+}
+
 private class TranslationQueueViewModel(
     private val translationManager: TranslationManager = Injekt.get(),
     private val engineService: TranslationEngineService = Injekt.get(),
@@ -945,6 +1040,39 @@ private class TranslationQueueViewModel(
     }
 
     fun clearQueue() = translationManager.clearQueue()
+
+    private val _translateAll = MutableStateFlow<TranslateAllUi?>(null)
+    val translateAll: StateFlow<TranslateAllUi?> = _translateAll.asStateFlow()
+    private var translateAllScan: Job? = null
+
+    /** Scan the library for downloaded, untranslated chapters, then ask for confirmation with the counts. */
+    fun startTranslateAll() {
+        translateAllScan?.cancel()
+        _translateAll.value = TranslateAllUi.Counting(0, 0)
+        translateAllScan = viewModelScope.launch {
+            val targets = translationManager.scanUntranslatedDownloaded { done, total ->
+                _translateAll.update { if (it is TranslateAllUi.Counting) TranslateAllUi.Counting(done, total) else it }
+            }
+            _translateAll.update {
+                if (it !is TranslateAllUi.Counting) it
+                else if (targets.isEmpty()) TranslateAllUi.Empty
+                else TranslateAllUi.Confirm(targets)
+            }
+        }
+    }
+
+    /** Queue what the scan found; returns the number of chapters queued. */
+    fun confirmTranslateAll(): Int {
+        val state = _translateAll.value as? TranslateAllUi.Confirm
+        _translateAll.value = null
+        return state?.let { translationManager.translateAllDownloaded(it.targets) } ?: 0
+    }
+
+    fun dismissTranslateAll() {
+        translateAllScan?.cancel()
+        translateAllScan = null
+        _translateAll.value = null
+    }
     fun pause(night: Boolean) = translationManager.pause(night)
     fun resume(night: Boolean) = translationManager.resume(night)
 

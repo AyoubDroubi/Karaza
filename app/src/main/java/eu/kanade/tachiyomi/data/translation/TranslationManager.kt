@@ -1528,9 +1528,10 @@ class TranslationManager(private val context: Context) {
                 } ?: break
                 publish()
                 TraceLog.log("queue", "chapter start m=${entry.manga.id} c=${entry.chapter.id} ${entry.chapter.name}")
+                val startedAt = System.currentTimeMillis()
                 val ok = try {
                     // 翻譯／重繪項算進忙碌訊號（夜讀讓路）；夜讀項自己不算
-                    if (night) translateOne(entry) else TranslationBusy.track { translateOne(entry) }
+                    if (night) translateOne(entry, startedAt) else TranslationBusy.track { translateOne(entry, startedAt) }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Throwable) {
@@ -1548,6 +1549,17 @@ class TranslationManager(private val context: Context) {
                 }
                 // 這章的夜讀檔可能變了（夜讀做了頁；翻譯／重繪覆寫頁圖時作廢了舊夜讀版）：設定 › 夜讀「儲存空間」下次只重算這章
                 nightStorage.chapterChanged(entry.manga, entry.chapter)
+                // Daily quota used up while translating this chapter: every further request would fail at once, so
+                // instead of marking this and every following chapter as failed, put the chapter back in the queue
+                // (its translated pages are kept and resume later) and pause the translation pool until the user resumes.
+                if (!ok && usesLlm(entry) && DailyQuota.hitSince(startedAt)) {
+                    synchronized(lock) { if (entries.contains(entry)) entry.status = TranslationItem.Status.QUEUE }
+                    TraceLog.log("queue", "daily quota used up at c=${entry.chapter.id}, translate pool paused")
+                    pause(night = false)
+                    publish()
+                    DailyQuota.notifyPaused(context)
+                    break
+                }
                 // 停止判斷與離開佇列在同一把鎖裡：分兩段時，enqueueNight 的 TRANSLATING 分支（設 stop／再跑一輪／強制重做）
                 // 可能落在中間，這項卻照樣以成功被移除 → 補頁或強制重做的要求消失、stop 旗標殘留到下次挑章。
                 val stopped = synchronized(lock) {
@@ -1646,7 +1658,10 @@ class TranslationManager(private val context: Context) {
      * **這項所屬那條消費者**的旗標（夜讀項→[stopActiveNight]、其餘→[stopActiveTranslate]）。
      * 夜讀項的 [onProgress] 會從多條夜讀 worker 呼叫（多頁並行）：它只在 [lock] 內寫進度再 [publish]，本來就可重入。
      */
-    private suspend fun translateOne(entry: Entry): Boolean {
+    /** Translation items call the LLM; night renders and re-renders reuse saved material and do not. */
+    private fun usesLlm(entry: Entry): Boolean = !entry.nightRender && entry.reRenderMethod == null
+
+    private suspend fun translateOne(entry: Entry, startedAt: Long): Boolean {
         val dir = chapterDir(entry.manga, entry.chapter) ?: return false // 沒下載 → 不算做成
         val onProgress: (Int, Int) -> Unit = { done, total ->
             synchronized(lock) {
@@ -1656,7 +1671,9 @@ class TranslationManager(private val context: Context) {
             publish()
         }
         val night = entry.nightRender
-        val shouldStop: () -> Boolean = { isStop(night) }
+        val llm = usesLlm(entry)
+        // Also stop at the next page once the provider's daily quota is used up (see [DailyQuota]).
+        val shouldStop: () -> Boolean = { isStop(night) || (llm && DailyQuota.hitSince(startedAt)) }
         if (night) {
             // 夜讀版只支援鬆散夾：夜讀檔要逐檔落在 <章>/.yakuyomi/，CBZ 內取不到（同重繪素材的限制）。
             // 非目錄→拋出（不是靜默回 false）：走 drainLoop 的 catch 標 ERROR 並把原因記進日誌，查得到為何變紅。
@@ -1771,6 +1788,80 @@ class TranslationManager(private val context: Context) {
 
     /** 設定 › 夜讀「重新產生舊版夜讀頁」的掃描結果：一本書裡有舊版夜讀頁的已下載鬆散章。 */
     data class OutdatedNight(val manga: Manga, val chapters: List<Chapter>)
+
+    /** One library title's downloaded chapters that are not translated yet (see [scanUntranslatedDownloaded]). */
+    data class UntranslatedDownloaded(val manga: Manga, val chapters: List<Chapter>)
+
+    /**
+     * Library-wide "Translate all downloaded": finds, for every library title, the downloaded chapters that are not
+     * translated yet. Only scans, does not queue. Skips titles whose source is excluded from translation, and
+     * chapters already waiting or running in the translation queue; failed chapters are included (queuing them
+     * retries them). Chapters come unread first, then in reading order. Titles without downloads are skipped
+     * through the download cache without touching files; for the rest the title folder is listed once and matched
+     * by chapter folder name (as in [scanOutdatedNight]). [onProgress] = (titles scanned, total titles). IO.
+     */
+    suspend fun scanUntranslatedDownloaded(
+        onProgress: (done: Int, total: Int) -> Unit = { _, _ -> },
+    ): List<UntranslatedDownloaded> = withContext(Dispatchers.IO) {
+        val downloadCache: DownloadCache = Injekt.get()
+        val waiting = synchronized(lock) {
+            entries.filter { !it.nightRender && it.status != TranslationItem.Status.ERROR }
+                .mapTo(HashSet()) { it.chapter.id }
+        }
+        val mangas = getFavorites.await().filterNot { isSourceExcluded(it) }
+        val out = ArrayList<UntranslatedDownloaded>()
+        onProgress(0, mangas.size)
+        mangas.forEachIndexed { i, manga ->
+            ensureActive()
+            val found: List<Chapter> = when {
+                manga.isLocal() -> getChaptersByMangaId.await(manga.id).filter { ch ->
+                    ensureActive()
+                    ch.id !in waiting && chapterDir(manga, ch) != null && !isTranslated(manga, ch)
+                }
+                downloadCache.getDownloadCount(manga) <= 0 -> emptyList()
+                else -> {
+                    val source = sourceManager.getOrStub(manga.source)
+                    val children = downloadProvider.findMangaDir(manga.title, source)?.listFiles().orEmpty()
+                        .mapNotNull { f -> f.name?.let { it to f } }
+                        .toMap()
+                    if (children.isEmpty()) {
+                        emptyList()
+                    } else {
+                        getChaptersByMangaId.await(manga.id).filter { ch ->
+                            ensureActive()
+                            if (ch.id in waiting) return@filter false
+                            val dir = downloadProvider.getValidChapterDirNames(ch.name, ch.scanlator, ch.url)
+                                .firstNotNullOfOrNull { children[it] }
+                                ?: return@filter false
+                            // A download still in progress has a temporary folder name, so it does not match here.
+                            val translated = if (dir.isDirectory) pageTranslator.isChapterTranslated(dir) else archiveHasMarker(dir)
+                            !translated
+                        }
+                    }
+                }
+            }
+            if (found.isNotEmpty()) {
+                out += UntranslatedDownloaded(
+                    manga,
+                    found.sortedWith(compareBy<Chapter>({ it.read }, { -it.sourceOrder })),
+                )
+            }
+            onProgress(i + 1, mangas.size)
+        }
+        out
+    }
+
+    /**
+     * Queue everything [scanUntranslatedDownloaded] found: failed chapters are retried, the rest are added at the end
+     * of the queue with the configured inpaint method (like the manga screen's "Translate"). Titles keep their order.
+     * Returns the number of chapters queued; 0 when translation is turned off.
+     */
+    fun translateAllDownloaded(targets: List<UntranslatedDownloaded>): Int {
+        if (!masterEnabled() || targets.isEmpty()) return 0
+        retry(targets.flatMap { t -> t.chapters.map { it.id } })
+        targets.forEach { translate(it.manga, it.chapters) }
+        return targets.sumOf { it.chapters.size }
+    }
 
     /** 設定 › 夜讀「重新產生舊版夜讀頁」那一列的狀態（[outdatedNightScan]）。 */
     sealed interface OutdatedNightScan {

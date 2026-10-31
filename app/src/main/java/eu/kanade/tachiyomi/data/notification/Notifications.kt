@@ -42,6 +42,7 @@ object Notifications {
     const val CHANNEL_TRANSLATOR_PROGRESS = "translator_progress_channel"
     const val ID_TRANSLATION_PROGRESS = -210
     const val ID_MODEL_DOWNLOAD = -211
+    const val ID_TRANSLATION_DAILY_QUOTA = -212
 
     // Yakuyomi：探索批次擷取背景任務。
     const val CHANNEL_BROWSE_FETCH = "browse_fetch_channel"
