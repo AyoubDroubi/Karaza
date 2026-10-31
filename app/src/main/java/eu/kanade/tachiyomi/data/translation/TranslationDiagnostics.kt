@@ -88,7 +88,15 @@ object TranslationDiagnostics {
         if (lines.isEmpty()) return
         val stamp = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US).format(Date())
         val where = "${manga ?: "?"} / ${chapter ?: "?"}"
-        val newLines = lines.map { "$stamp | $where | ${it.replace('\t', ' ').trim()}" }
+        // An entry starts with "<page>\t<reason>"; a reason that itself spanned several lines arrives as
+        // continuation lines without a tab. Stitch those back so one failure stays one log line.
+        val entries = ArrayList<String>()
+        for (line in lines) {
+            val l = line.trim()
+            if (l.isEmpty()) continue
+            if ('\t' in line || entries.isEmpty()) entries.add(l) else entries[entries.lastIndex] = entries.last() + " " + l
+        }
+        val newLines = entries.map { "$stamp | $where | ${it.replace('\t', ' ').replace(Regex("\\s+"), " ")}" }
         runCatching {
             synchronized(lock) {
                 val f = logFile(context)

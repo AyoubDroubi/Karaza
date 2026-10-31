@@ -41,7 +41,7 @@ object PageSizeCap {
     fun tooLargeReason(width: Int, height: Int): String {
         val mp = String.format(Locale.ROOT, "%.1f", width.toLong() * height.toLong() / 1_000_000.0)
         val cap = MAX_PIXELS / 1_000_000L
-        return "$REASON_PREFIX（$width×$height，約 $mp 百萬像素，上限 $cap 百萬像素），不翻譯、保留原圖"
+        return "$REASON_PREFIX ($width×$height, about $mp MP, limit $cap MP); not translated, original kept"
     }
 
     /**
@@ -50,5 +50,5 @@ object PageSizeCap {
      */
     fun isTooLargeReason(reason: String): Boolean = reason.startsWith(REASON_PREFIX)
 
-    private const val REASON_PREFIX = "頁圖太大"
+    private const val REASON_PREFIX = "Page image too large"
 }
