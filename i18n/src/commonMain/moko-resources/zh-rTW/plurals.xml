@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="lock_after_mins">
+        <item quantity="other">%1$s 分鐘後</item>
+    </plurals>
+    <plurals name="update_check_notification_ext_updates">
+        <item quantity="other">%d 個擴充套件可更新</item>
+    </plurals>
+    <plurals name="download_queue_summary">
+        <item quantity="other">剩餘 %1$s 項</item>
+    </plurals>
+    <plurals name="manga_num_chapters">
+        <item quantity="other">共 %1$s 章</item>
+    </plurals>
+    <plurals name="num_categories">
+        <item quantity="other">%d 個類別</item>
+    </plurals>
+    <plurals name="restore_completed_message">
+        <item quantity="other">歷時 %1$s，出現 %2$s 個錯誤</item>
+    </plurals>
+    <plurals name="notification_chapters_generic">
+        <item quantity="other">%1$d 篇新章節</item>
+    </plurals>
+    <plurals name="notification_chapters_multiple_and_more">
+        <item quantity="other">第 %1$s 章以及另外 %2$d 章</item>
+    </plurals>
+    <plurals name="num_trackers">
+        <item quantity="other">%d 個平臺</item>
+    </plurals>
+    <plurals name="missing_chapters_warning">
+        <item quantity="other">略過了 %d 章，也許是來源沒有這些章節，或其已被篩選規則排除</item>
+    </plurals>
+    <plurals name="notification_new_chapters_summary">
+        <item quantity="other">共 %d 部作品</item>
+    </plurals>
+    <plurals name="relative_time">
+        <item quantity="other">%1$d 天前</item>
+    </plurals>
+    <plurals name="next_unread_chapters">
+        <item quantity="other">接下來未讀的 %d 章</item>
+    </plurals>
+    <plurals name="download_amount">
+        <item quantity="other">後續 %d 章</item>
+    </plurals>
+    <plurals name="missing_chapters">
+        <item quantity="other">缺漏 %1$s 章</item>
+    </plurals>
+    <plurals name="day">
+        <item quantity="other">%d 天</item>
+    </plurals>
+    <plurals name="num_repos">
+        <item quantity="other">%d 個擴充套件商店</item>
+    </plurals>
+    <plurals name="upcoming_relative_time">
+        <item quantity="other">%1$d 天後</item>
+    </plurals>
+    <plurals name="pref_pages">
+        <item quantity="other">%1$s pages</item>
+    </plurals>
+    <plurals name="migrationListScreen.migrateDialog.migrateTitle">
+        <item quantity="other">遷移 %1$d 個項目？</item>
+    </plurals>
+    <plurals name="migrationListScreen.migrateDialog.copyTitle">
+        <item quantity="other">複製 %1$d 個項目？</item>
+    </plurals>
+    <plurals name="migrationListScreen.migrateDialog.skipText">
+        <item quantity="other">已跳過 %1$d 個項目</item>
+    </plurals>
+    <plurals name="notification_update_error">
+        <item quantity="other">%1$d 更新失敗</item>
+    </plurals>
+    <plurals name="translation_queue_summary">
+        <item quantity="other">%1$s 待翻</item>
+    </plurals>
+    <plurals name="pref_nightread_regen_outdated_count">
+        <item quantity="other">%d 話有舊規則產生的夜讀頁，點一下全部排入重新產生（只重做舊的頁）</item>
+    </plurals>
+    <plurals name="pref_nightread_regen_outdated_confirm">
+        <item quantity="other">把 %d 話的舊版夜讀頁排入重新產生？只重做舊版頁，用目前的亮度設定；夜讀佇列暫停中的話會一併繼續。每話要幾分鐘，進度在佇列頁。</item>
+    </plurals>
+    <plurals name="pref_nightread_regen_outdated_queued">
+        <item quantity="other">已排入 %d 話重新產生夜讀頁</item>
+    </plurals>
+    <plurals name="pref_nightread_storage_total">
+        <item quantity="other">%1$d 話，共 %2$s。點一下重新計算</item>
+    </plurals>
+    <plurals name="pref_nightread_clear_amount">
+        <item quantity="other">%1$d 話，%2$s</item>
+    </plurals>
+    <plurals name="pref_nightread_clear_read_confirm">
+        <item quantity="other">要刪除 %1$d 話已讀章節的夜讀版（%2$s）嗎？原圖、譯圖與翻譯素材都會保留，正在產生的話不會動。</item>
+    </plurals>
+    <plurals name="pref_nightread_clear_all_confirm">
+        <item quantity="other">要刪除全部夜讀版（%1$d 話，%2$s）嗎？原圖、譯圖與翻譯素材都會保留，正在產生的話不會動。</item>
+    </plurals>
+    <plurals name="nightread_storage_cleared">
+        <item quantity="other">已清除 %1$d 話，釋出 %2$s</item>
+    </plurals>
+    <plurals name="nightread_storage_clear_failed">
+        <item quantity="other">有 %d 話的部分檔案刪不掉</item>
+    </plurals>
+    <plurals name="nightread_storage_clear_skipped">
+        <item quantity="other">%d 話正在產生，沒有動</item>
+    </plurals>
+    <plurals name="queue_remaining_chapters">
+        <item quantity="other">剩 %1$d 話</item>
+    </plurals>
+    <plurals name="snapshot_saved">
+        <item quantity="other">已儲存快照（%1$d 本）</item>
+    </plurals>
+    <plurals name="browse_anchor_load_progress">
+        <item quantity="other">%1$d 頁 · %2$d 本</item>
+    </plurals>
+    <plurals name="browse_fetch_complete_ok">
+        <item quantity="other">已擷取 %1$d 本</item>
+    </plurals>
+    <plurals name="browse_anchor_load_complete_found">
+        <item quantity="other">已到錨點 — %1$d 本存成快照</item>
+    </plurals>
+    <plurals name="browse_anchor_load_complete_end">
+        <item quantity="other">%1$d 本存成快照</item>
+    </plurals>
+    <plurals name="browse_anchor_load_paused">
+        <item quantity="other">連續失敗已停止（來源可能封鎖中）— 目前已載入 %1$d 本。點「繼續」重試。</item>
+    </plurals>
+    <plurals name="capture_review_discard_confirm">
+        <item quantity="other">放棄這次截的 %1$d 頁？此動作無法復原。</item>
+    </plurals>
+    <plurals name="capture_review_delete_confirm">
+        <item quantity="other">刪除選取的 %1$d 頁？此動作無法復原。</item>
+    </plurals>
+    <plurals name="pref_translation_render_update_queued">
+        <item quantity="other">已排入 %d 章重繪</item>
+    </plurals>
+    <plurals name="rerender_skipped_no_materials">
+        <item quantity="other">略過 %d 話：翻譯時沒開「保留重繪素材」，沒有重繪素材</item>
+    </plurals>
+</resources>

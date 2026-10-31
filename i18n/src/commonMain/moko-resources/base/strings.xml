@@ -1,0 +1,1746 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Karaza</string>
+
+    <!-- Generic strings -->
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="selected">Selected</string>
+    <string name="not_selected">Not selected</string>
+    <string name="action_menu_overflow_description">More options</string>
+    <string name="action_bar_up_description">Navigate up</string>
+
+    <!-- Models -->
+    <string name="name">Name</string>
+    <string name="categories">Categories</string>
+    <string name="manga">Library entries</string>
+    <string name="chapters">Chapters</string>
+    <string name="track">Tracking</string>
+    <string name="delete_downloaded">Delete downloaded</string>
+    <string name="history">History</string>
+    <string name="scanlator">Scanlator</string>
+
+    <!-- Screen titles -->
+    <string name="label_more">More</string>
+    <string name="label_settings">Settings</string>
+    <string name="label_download_queue">Download queue</string>
+    <string name="label_translation_queue">Queue</string>
+    <string name="label_translation">Queue</string>
+    <string name="translation_retap_paused_unloaded">Paused translation and unloaded the engine</string>
+    <string name="translation_retap_unloaded">Unloaded the translation engine</string>
+    <string name="translation_retap_master_off">Translation turned off</string>
+    <string name="translation_retap_master_on">Translation on — loading the engine</string>
+    <string name="translation_status_queued">Queued</string>
+    <string name="translation_status_translating">Translating</string>
+    <string name="translation_status_error">Failed</string>
+    <string name="translation_epub_unsupported">EPUB chapters can\'t be translated yet — use a folder or CBZ/CBR/7z.</string>
+    <string name="queue_chapters_failed">%1$d failed</string>
+    <string name="queue_manga_paused">Paused</string>
+    <string name="action_priority_translate">Translate next</string>
+    <string name="action_expand_all">Expand all</string>
+    <string name="action_collapse_all">Collapse all</string>
+    <string name="action_filter_translated">Translated</string>
+    <string name="action_global_filter">Filter (all sources)</string>
+    <string name="action_open_entry">Open</string>
+    <string name="action_set_anchor">Set anchor</string>
+    <string name="action_is_anchor">Anchor</string>
+    <string name="action_clear_anchor">Clear anchor</string>
+    <string name="anchor_set_confirm">Mark this entry as the browse anchor for %1$s? You\'ll see it flagged while browsing this source\'s Latest list.</string>
+    <string name="anchor_badge">Anchor</string>
+    <string name="action_auto_load_to_anchor">Auto-load to anchor</string>
+    <string name="action_continue_auto_load">Continue loading to anchor</string>
+    <string name="action_stop_auto_load">Stop loading</string>
+    <string name="action_save_snapshot">Save snapshot</string>
+    <string name="action_clear_snapshot">Clear snapshot</string>
+    <string name="snapshot_overwrite_confirm">A snapshot already exists for this source. Overwrite it?</string>
+    <string name="snapshot_clear_confirm">Clear the saved snapshot for this source?</string>
+    <string name="listing_snapshot">Snapshot</string>
+    <string name="browse_snapshot_bar_title">Snapshot · %1$d</string>
+    <string name="browse_fetching">Fetching %1$d/%2$d</string>
+    <string name="action_browse_filter_favorite">In your library</string>
+    <string name="action_browse_filter_read">Started reading</string>
+    <string name="action_browse_filter_fetched">Details fetched</string>
+    <string name="action_fetch_details">Fetch details</string>
+    <string name="fetch_details_empty">Nothing to fetch in this list</string>
+    <string name="browse_fetch_running_title">Fetching details</string>
+    <string name="browse_fetch_complete_title">Fetch complete</string>
+    <string name="browse_fetch_complete_failed">%1$d of %2$d failed</string>
+    <string name="browse_fetch_busy">A fetch is already running in the background</string>
+    <string name="browse_anchor_load_started">Background loading started — it runs a few pages at a time; check the notification for progress</string>
+    <string name="action_scroll_to_anchor">Jump to anchor</string>
+    <string name="anchor_not_loaded">Anchor isn\'t in the loaded list yet</string>
+    <string name="browse_fetch_running_text">%1$s · %2$d/%3$d</string>
+    <string name="browse_anchor_load_running_title">Loading to anchor</string>
+    <string name="browse_anchor_load_running_text">%1$s · page %2$d · %3$d loaded</string>
+    <string name="browse_anchor_load_complete_title">Auto-load complete</string>
+    <string name="label_minutes">%1$d min</string>
+    <string name="pref_category_browse_anchor_load">Auto-load to anchor</string>
+    <string name="pref_browse_anchor_chunk_pages">Pages per batch</string>
+    <string name="pref_browse_anchor_chunk_pages_summary">Pages fetched per background batch. Fewer = less likely to get blocked by the source.</string>
+    <string name="pref_browse_anchor_interval">Batch interval</string>
+    <string name="pref_browse_anchor_interval_summary">How long to wait between batches. Longer = safer.</string>
+    <string name="pref_browse_anchor_load_info">Auto-load crawls toward the anchor in the background, a few pages at a time spread over long intervals, so the source only ever sees a normal-looking browse. Works with the screen off and resumes automatically after the app is killed or the device reboots. Reaching an anchor months back can take many hours — that\'s expected.</string>
+    <string name="fetch_details_summary">Fetched %1$d, %2$d failed</string>
+    <string name="fetch_details_failed_title">Failed to fetch</string>
+    <string name="action_source_filters">Source filters</string>
+    <string name="action_clear_filters">Clear filters</string>
+    <string name="label_library">Library</string>
+    <string name="label_recent_updates">Updates</string>
+    <string name="label_upcoming">Upcoming</string>
+    <string name="label_recent_manga">History</string>
+    <string name="label_sources">Sources</string>
+    <string name="label_backup">Backup and restore</string>
+    <string name="label_data_storage">Data and storage</string>
+    <string name="label_stats">Statistics</string>
+    <string name="label_migration">Migrate</string>
+    <string name="label_extensions">Extensions</string>
+    <string name="label_extension_info">Extension info</string>
+    <string name="label_help">Help</string>
+    <string name="label_support_us">Support Us</string>
+    <string name="label_default">Default</string>
+    <string name="label_warning">Warning</string>
+    <string name="label_auto">Auto</string>
+
+    <!-- Shared labels -->
+    <string name="label_started">Started</string>
+    <string name="label_local">Local</string>
+    <string name="label_downloaded">Downloaded</string>
+
+    <string name="unlock_app_title">Unlock %s</string>
+    <string name="confirm_lock_change">Authenticate to confirm change</string>
+
+    <!-- Actions -->
+    <string name="action_settings">Settings</string>
+    <string name="action_menu">Menu</string>
+    <string name="action_filter">Filter</string>
+    <string name="action_set_interval">Set interval</string>
+    <string name="action_filter_bookmarked">Bookmarked</string>
+    <string name="action_filter_tracked">Tracked</string>
+    <string name="action_filter_unread">Unread</string>
+    <string name="action_filter_interval_custom">Customized update frequency</string>
+    <!-- reserved for #4048 -->
+    <string name="action_filter_empty">Remove filter</string>
+    <string name="action_sort_alpha">Alphabetically</string>
+    <string name="action_sort_count">Total entries</string>
+    <string name="action_sort_total">Total chapters</string>
+    <string name="action_sort_last_read">Last read</string>
+    <string name="action_sort_last_manga_update">Last update check</string>
+    <string name="action_sort_unread_count">Unread count</string>
+    <string name="action_sort_next_updated">Next expected update</string>
+    <string name="action_sort_latest_chapter">Latest chapter</string>
+    <string name="action_sort_chapter_fetch_date">Chapter fetch date</string>
+    <string name="action_sort_date_added">Date added</string>
+    <string name="action_sort_tracker_score">Tracker score</string>
+    <string name="action_sort_random">Random</string>
+    <string name="action_sort_manual">Manual (drag to reorder)</string>
+    <string name="action_search">Search</string>
+    <string name="action_search_hint">Search…</string>
+    <string name="action_search_settings">Search settings</string>
+    <string name="action_global_search">Global search</string>
+    <string name="action_select_all">Select all</string>
+    <string name="action_select_inverse">Select inverse</string>
+    <string name="action_mark_as_read">Mark as read</string>
+    <string name="action_mark_as_unread">Mark as unread</string>
+    <string name="action_mark_previous_as_read">Mark previous as read</string>
+    <string name="action_translate">Translate</string>
+    <string name="action_download">Download</string>
+    <string name="action_bookmark">Bookmark chapter</string>
+    <string name="action_remove_bookmark">Unbookmark chapter</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_update_library">Update library</string>
+    <string name="action_enable_all">Enable all</string>
+    <string name="action_disable_all">Disable all</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_add">Add</string>
+    <string name="action_update_category">Update category</string>
+    <string name="action_open_random_manga">Open random entry</string>
+    <string name="action_add_category">Add category</string>
+    <string name="action_edit_categories">Edit categories</string>
+    <string name="action_rename_category">Rename category</string>
+    <string name="move_to_category">Move to category</string>
+    <string name="action_reorder_categories">Reorder categories</string>
+    <string name="action_move_category">Set categories</string>
+    <string name="delete_category_confirmation">Do you wish to delete the category \"%s\"?</string>
+    <string name="delete_category">Delete category</string>
+    <string name="action_edit_cover">Edit cover</string>
+    <string name="action_view_chapters">View chapters</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_previous_chapter">Previous chapter</string>
+    <string name="action_next_chapter">Next chapter</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_remove">Remove</string>
+    <string name="action_remove_everything">Remove everything</string>
+    <string name="action_start">Start</string>
+    <string name="action_resume">Resume</string>
+    <string name="action_open_in_browser">Open in browser</string>
+    <string name="action_show_manga">Show entry</string>
+    <string name="action_copy_to_clipboard">Copy to clipboard</string>
+    <string name="action_copy_link">Copy link</string>
+    <!-- Do not translate "WebView" -->
+    <string name="action_open_in_web_view">Open in WebView</string>
+    <string name="action_web_view" translatable="false">WebView</string>
+    <!-- Do not translate "WebView" -->
+    <string name="action_open_url_in_webview">Open URL in WebView</string>
+    <string name="open_url_in_webview_label">Website URL</string>
+    <string name="open_url_in_webview_hint" translatable="false">https://example.com</string>
+    <string name="action_migrate">Migrate</string>
+    <string name="action_display_mode">Display mode</string>
+    <string name="action_display">Display</string>
+    <string name="action_display_grid">Compact grid</string>
+    <string name="action_display_comfortable_grid">Comfortable grid</string>
+    <string name="action_display_list">List</string>
+    <string name="action_display_cover_only_grid">Cover-only grid</string>
+    <string name="action_display_download_badge">Downloaded chapters</string>
+    <string name="action_display_translation_badge">Translated chapters</string>
+    <string name="action_display_unread_badge">Unread chapters</string>
+    <string name="action_display_local_badge">Local source</string>
+    <string name="action_display_language_badge">Language</string>
+    <string name="action_display_show_tabs">Show category tabs</string>
+    <string name="action_display_show_number_of_items">Show number of items</string>
+    <string name="action_display_single_list_collapsible">Show all categories as one collapsible list</string>
+    <string name="action_display_show_continue_reading_button">Continue reading button</string>
+    <string name="action_display_floating_search_bar">Floating search (Library + Browse)</string>
+    <string name="pref_floating_search_bar_summary">Use a one-hand bottom search ball in the library and browse instead of the top toolbar</string>
+    <string name="action_disable">Disable</string>
+    <string name="action_pin">Pin</string>
+    <string name="action_unpin">Unpin</string>
+    <string name="action_apply">Apply</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_ok">OK</string>
+    <string name="action_cancel_all">Cancel all</string>
+    <string name="action_retry_all_failed">Retry all failed</string>
+    <string name="cancel_all_for_series">Cancel all for this series</string>
+    <string name="action_sort">Sort</string>
+    <string name="action_order_by_upload_date">By upload date</string>
+    <string name="action_order_by_chapter_number">By chapter number</string>
+    <string name="action_newest">Newest</string>
+    <string name="action_oldest">Oldest</string>
+    <string name="action_asc">Ascending</string>
+    <string name="action_desc">Descending</string>
+    <string name="action_move_to_top">Move to top</string>
+    <string name="action_move_to_top_all_for_series">Move series to top</string>
+    <string name="action_move_to_bottom">Move to bottom</string>
+    <string name="action_move_to_bottom_all_for_series">Move series to bottom</string>
+    <string name="action_notes">Notes</string>
+    <string name="action_edit_notes">Edit notes</string>
+    <string name="action_install">Install</string>
+    <string name="action_share">Share</string>
+    <string name="action_save">Save</string>
+    <string name="action_reset">Reset</string>
+    <string name="action_revert_to_default">Revert to default</string>
+    <!-- missing undo feature after Compose rewrite #7454 -->
+    <string name="action_undo">Undo</string>
+    <string name="action_close">Close</string>
+    <string name="action_saved_searches">Saved searches</string>
+    <string name="saved_searches_empty">No saved searches yet. Type a search, then save it here.</string>
+    <string name="saved_search_name">Search name</string>
+    <string name="action_open_log">Open log</string>
+    <string name="action_show_errors">Tap to see details</string>
+    <string name="action_restore">Restore</string>
+    <string name="action_webview_back">Back</string>
+    <string name="action_webview_forward">Forward</string>
+    <string name="action_webview_refresh">Refresh</string>
+    <string name="action_webview_close_tab">Close tab</string>
+    <string name="action_capture_page">Capture page</string>
+    <string name="webview_capture_dialog_title">Page capture</string>
+    <string name="webview_capture_failed">Capture failed</string>
+    <!-- Karaza: capture manga (screenshot -> local source) -->
+    <string name="capture_manga">Capture manga</string>
+    <string name="capture_book_name">Manga title</string>
+    <string name="capture_chapter_name">Chapter</string>
+    <string name="capture_missing_name">Enter a manga title and chapter first</string>
+    <string name="capture_go">Go</string>
+    <string name="capture_saved">Saved page %1$d</string>
+    <string name="capture_continuous_start">Continuous</string>
+    <string name="capture_continuous_stop">Stop</string>
+    <string name="capture_continuous_count">Captured %1$d</string>
+    <string name="capture_continuous_hint">Captured %1$d · turn to the next page to continue</string>
+    <string name="capture_continuous_saved_hint">Captured page %1$d · turn to the next page</string>
+    <string name="capture_review_title">Review capture</string>
+    <string name="capture_review_delete_selected">Delete (%1$d)</string>
+    <string name="capture_review_continue">Keep capturing</string>
+    <string name="capture_review_empty">No captures in this chapter</string>
+    <string name="capture_recapture_title">Re-capture page</string>
+    <string name="capture_recapture_action">Replace page %1$d</string>
+    <string name="capture_recapture_saved">Replaced page %1$d</string>
+    <string name="capture_review_discard">Discard this capture</string>
+    <string name="capture_review_cancel">Cancel capture</string>
+    <string name="capture_insert_before">Insert before this page</string>
+    <string name="capture_insert_after">Insert after this page</string>
+    <string name="capture_insert_title">Insert page</string>
+    <string name="capture_insert_action">Insert as page %1$d</string>
+    <string name="capture_insert_saved">Inserted page %1$d</string>
+    <string name="capture_missing_pages">Possible missing pages</string>
+    <!-- Karaza: capture floating toolbar + URL bar history -->
+    <string name="action_clear">Clear</string>
+    <string name="capture_toolbar_show">Show toolbar</string>
+    <string name="capture_toolbar_hide">Hide toolbar</string>
+    <string name="capture_url_history">URL history</string>
+    <!-- Karaza: capture browser favorites (manual, named aliases) -->
+    <string name="capture_bookmarks">Favorites</string>
+    <string name="capture_bookmark_add">Add to favorites</string>
+    <string name="capture_bookmark_alias">Alias</string>
+    <string name="capture_bookmarks_empty">No favorites yet</string>
+    <string name="capture_history_empty">No history yet</string>
+    <!-- Karaza: capture toolbar 5-key skeleton -->
+    <string name="capture_browse">Browse</string>
+    <string name="capture_new_manga">New manga</string>
+    <string name="capture_new_chapter">New chapter</string>
+    <!-- Karaza: capture new-manga / new-chapter panels -->
+    <string name="capture_use_page_title">Use page title</string>
+    <string name="capture_title_unavailable">This page has no title yet</string>
+    <string name="capture_existing_chapters">Captured chapters</string>
+    <string name="capture_no_chapters">No chapters captured yet</string>
+    <string name="capture_chapter_suggestions">Suggested chapter</string>
+    <string name="capture_clear_cookies_confirm">Clear all cookies for the built-in browser? You may need to sign in to sites again.</string>
+    <!-- Karaza: capture cover crop -->
+    <string name="capture_select_cover">Select cover</string>
+    <string name="capture_cover_reframe">Reframe</string>
+    <string name="capture_cover_crop_hint">Drag to frame the cover area</string>
+    <string name="capture_cover_capture">Capture cover</string>
+    <string name="capture_cover_preview">Cover preview</string>
+    <string name="capture_cover_saved">Cover saved</string>
+    <string name="capture_cover_failed">Cover capture failed</string>
+    <string name="capture_cover_too_small">Selection too small, drag a larger area</string>
+    <!-- Karaza: continue capturing from a local manga's detail page -->
+    <string name="capture_continue">Continue capturing</string>
+    <!-- Karaza: capture per-site settings (canvas width % + top/bottom crop) -->
+    <string name="capture_page_settings">Page settings</string>
+    <string name="capture_site_settings_for">Settings for %1$s</string>
+    <string name="capture_section_canvas">Canvas &amp; crop</string>
+    <string name="capture_canvas_width">Canvas width</string>
+    <string name="capture_canvas_narrower">Narrower</string>
+    <string name="capture_canvas_wider">Wider</string>
+    <string name="capture_crop_setup">Crop</string>
+    <string name="capture_crop_mode">Trim header &amp; footer</string>
+    <string name="capture_crop_none">No crop</string>
+    <string name="capture_crop_current">Crop: top %1$d%% · bottom %2$d%%</string>
+    <string name="capture_crop_hint">Drag the lines to trim the header/footer (top %1$d%% · bottom %2$d%%)</string>
+    <string name="capture_crop_auto">Auto-detect</string>
+    <string name="capture_crop_auto_none">Could not find the edges, drag the lines yourself</string>
+    <string name="capture_crop_clear">Don\'t crop</string>
+    <!-- Karaza: capture auto-trim (second, per-page crop that removes blank site background) -->
+    <string name="capture_auto_trim">Auto-trim blank edges</string>
+    <string name="capture_auto_trim_summary">Trims large blank areas above/below the page before saving, so double-page spreads and short pages don\'t drag the site\'s footer into the shot. Normal pages are left untouched.</string>
+    <!-- Karaza: capture auto page turn (simulated tap on the site's next-page button) -->
+    <string name="capture_autotap">Auto page turn</string>
+    <string name="capture_autotap_summary">Taps this site\'s next-page button after each capture</string>
+    <string name="capture_autotap_no_point">Set the tap position first, or turn off auto page turn</string>
+    <string name="capture_tap_point_setup">Set tap position</string>
+    <string name="capture_tap_point_none">Tap position not set</string>
+    <string name="capture_tap_point_current">Tap position: %1$d%% across · %2$d%% down</string>
+    <string name="capture_tap_point_hint">Drag the marker onto this site\'s next-page button (%1$d%% across · %2$d%% down)</string>
+    <string name="capture_tap_point_clear">Clear position</string>
+    <string name="capture_tap_delay">Tap delay</string>
+    <string name="capture_tap_delay_value">%1$d ms</string>
+    <string name="capture_tap_delay_summary">Too short and it may tap before the page has loaded; too long wastes time</string>
+    <string name="capture_tap_delay_shorter">Shorter</string>
+    <string name="capture_tap_delay_longer">Longer</string>
+    <string name="capture_target_pages">Pages</string>
+    <string name="capture_continuous_count_target">Captured %1$d/%2$d</string>
+    <string name="capture_continuous_hint_target">Captured %1$d/%2$d · turn to the next page to continue</string>
+    <string name="capture_continuous_hint_auto">Turning pages automatically · captured %1$d</string>
+    <string name="capture_continuous_hint_auto_target">Turning pages automatically · captured %1$d/%2$d</string>
+    <!-- Karaza: capture feedback + guard rails (toolbar target, next-step hint, stop reasons, save errors) -->
+    <string name="capture_current_target">%1$s · %2$s</string>
+    <string name="capture_saving_to">Saving to %1$s</string>
+    <string name="capture_next_step_browse">Next: browse to the manga page</string>
+    <string name="capture_next_step_book">Next: set the manga title</string>
+    <string name="capture_next_step_chapter">Next: set the chapter</string>
+    <string name="capture_stop_target_reached">Reached the page count you set — capture stopped</string>
+    <string name="capture_stop_tap_no_effect">Auto page turn had no effect — last page reached, or the tap position is off</string>
+    <string name="capture_stop_save_failed">Capture stopped, pages could not be saved: %1$s</string>
+    <string name="capture_stop_adjust_tap">Adjust position</string>
+    <string name="capture_save_error_no_storage">Storage location unavailable — set it in Settings › Data and storage</string>
+    <string name="capture_save_error_manga_dir">Could not create the manga folder</string>
+    <string name="capture_save_error_chapter_dir">Could not find or create the chapter folder</string>
+    <string name="capture_save_error_write">Could not write the page file</string>
+    <string name="capture_review_save_failed">Could not save this chapter, try again</string>
+    <string name="capture_bookmark_remove">Remove favorite</string>
+    <string name="capture_bookmark_remove_confirm">Remove “%1$s” from favorites?</string>
+    <string name="action_start_downloading_now">Start downloading now</string>
+    <string name="action_not_now">Not now</string>
+    <string name="action_add_anyway">Add anyway</string>
+
+    <!-- Operations -->
+    <string name="loading">Loading…</string>
+    <string name="internal_error">InternalError: Check crash logs for further information</string>
+
+    <!-- Shortcuts-->
+    <string name="app_not_available">App not available</string>
+
+    <!-- Onboarding -->
+    <string name="pref_onboarding_guide">Onboarding guide</string>
+    <string name="onboarding_heading">Welcome!</string>
+    <string name="onboarding_description">Let\'s set some things up first. You can always change these in the settings later too.</string>
+    <string name="onboarding_action_next">Next</string>
+    <string name="onboarding_action_finish">Get started</string>
+    <string name="onboarding_action_skip">Skip</string>
+    <string name="onboarding_storage_info">Select a folder where %1$s will store chapter downloads, backups, and more.\n\nA dedicated folder is recommended.\n\nSelected folder: %2$s</string>
+    <string name="onboarding_storage_action_select">Select a folder</string>
+    <string name="onboarding_storage_selection_required">A folder must be selected</string>
+    <string name="onboarding_storage_help_info">Updating from an older version and not sure what to select? Refer to the storage guide for more information.</string>
+    <string name="onboarding_storage_help_action">Storage guide</string>
+    <string name="onboarding_permission_install_apps">Install apps permission</string>
+    <string name="onboarding_permission_install_apps_description">To install source extensions.</string>
+    <string name="onboarding_permission_notifications">Notification permission</string>
+    <string name="onboarding_permission_notifications_description">Get notified for library updates and more.</string>
+    <string name="onboarding_permission_ignore_battery_opts">Background battery usage</string>
+    <string name="onboarding_permission_ignore_battery_opts_description">Avoid interruptions to long-running library updates, downloads, and backup restores.</string>
+    <string name="onboarding_permission_crashlytics">Send crash logs</string>
+    <string name="onboarding_permission_crashlytics_description">Send anonymized crash logs to the developers.</string>
+    <string name="onboarding_permission_analytics">Allow analytics</string>
+    <string name="onboarding_permission_analytics_description">Send anonymized usage data to improve app features.</string>
+    <string name="onboarding_permission_action_grant">Grant</string>
+    <string name="onboarding_guides_new_user">New to %s? We recommend checking out the getting started guide.</string>
+    <string name="onboarding_guides_returning_user">Reinstalling %s?</string>
+
+    <!-- Preferences -->
+      <!-- Subsections -->
+    <string name="pref_category_general">General</string>
+    <string name="pref_category_appearance">Appearance</string>
+    <string name="pref_category_library">Library</string>
+    <string name="pref_category_reader">Reader</string>
+    <string name="pref_category_downloads">Downloads</string>
+    <string name="pref_category_translation">Translation</string>
+    <string name="pref_translation_summary">AI translation: on-device detection/OCR/text-removal + cloud LLM</string>
+    <!-- Translation onboarding / quickstart -->
+    <string name="onboarding_translation_heading">Translate manga as you read</string>
+    <string name="onboarding_translation_description">Karaza can detect, OCR, erase and re-typeset speech bubbles for you. Everything except the translation itself runs on this device — your images never leave it. Only the recognized text is sent to the cloud LLM you choose (your own API key — this can cost money).\n\nTranslation is off by default. Set it up now, or any time under Settings → Translation.</string>
+    <string name="onboarding_translation_action">Open translation setup</string>
+    <string name="onboarding_highlights_heading">What makes Karaza different</string>
+    <string name="onboarding_highlights_search_title">One-hand floating search</string>
+    <string name="onboarding_highlights_search_desc">A bottom search ball for the library and browse</string>
+    <string name="onboarding_highlights_snapshot_title">Snapshots &amp; catch-up anchor</string>
+    <string name="onboarding_highlights_snapshot_desc">Browse a source offline; a background crawl catches up to where you left off</string>
+    <string name="onboarding_highlights_doublepage_title">Double-page spread</string>
+    <string name="onboarding_highlights_doublepage_desc">Merges two-page spreads into one</string>
+    <string name="onboarding_highlights_stats_title">Translation &amp; reading stats</string>
+    <string name="onboarding_highlights_stats_desc">See how much you have translated and read</string>
+    <string name="pref_translation_quickstart">Quickstart guide</string>
+    <string name="pref_translation_quickstart_summary">How to set up and use translation</string>
+    <string name="quickstart_what_title">On-device, bring-your-own-key</string>
+    <string name="quickstart_what_body">Detection, OCR and text removal all run on your phone. Only the OCR\'d text goes to the LLM provider you pick — using your own API key and endpoint. Your images, and the detection / OCR / erase steps, never leave the device. There is no analytics or telemetry.\n\nCloud translation may cost money, billed by your provider. Tapping Got it at the end means you understand this.</string>
+    <string name="quickstart_setup_title">Three things to get ready</string>
+    <string name="quickstart_setup_body">1. Pick a provider and paste your API key.\nSettings → Translation → Provider. Default is DeepSeek; OpenAI, Gemini, Groq, Qwen, OpenRouter and self-hosted (Sakura / custom) also work. Paste the key from your provider\'s dashboard — it is encrypted on this device. For a self-hosted or custom provider, also fill in the API base.\n\n2. Get the models (detector, OCR, text-removal).\nSettings → Translation → Models → Download models (about 250 MB, verified). Or bring your own: drop the model files into the models folder in your storage location. The Model status row shows a check or cross for each.\n\n3. Pick your languages.\nDefault is Japanese → Traditional Chinese (Taiwan). Change the target or source any time.</string>
+    <string name="quickstart_workflows_title">Two ways to translate</string>
+    <string name="quickstart_workflows_body">Translate on download — turn on Translate chapters on download. Every chapter you download is then translated automatically in the background, and the page images are replaced in place. Best when you download ahead and read later.\n\nLive (read-as-you-go) — turn on Live translation, a separate switch. When you open an unread chapter it is translated in the background and pages swap in as they become ready (a Translating X/Y pill shows at the top-left). Opening an undownloaded chapter downloads it first, then translates. Use Live translation categories to limit it to, or exclude, certain library categories.\n\nThe two switches are independent: use either, both, or neither — and both sit under the master Enable translation switch at the top of the page. Turn that off and nothing translates.</string>
+    <string name="quickstart_manual_title">By hand, and keeping it tidy</string>
+    <string name="quickstart_manual_body">Manual translate — on a manga\'s chapter list, downloaded chapters show a translate button. The icon spins while running, turns the accent color when done, and red on error. Long-press to multi-select, then tap Translate in the bottom bar.\n\nQueue — the Queue tab in the bottom navigation bar lists every translation and night-page job with its status. Pause or resume, cancel, or retry failed chapters there.\n\nRe-render — already translated a chapter but want cleaner text removal? Change the method in Settings (you will be asked to update existing chapters), or long-press a page → Text removal. No re-OCR or re-translation needed.</string>
+    <string name="quickstart_action_done">Got it</string>
+    <!-- Enhancements guide (a swipeable tour of everything this fork adds on top of mihon) -->
+    <string name="enhancements_guide_title">Karaza enhancements</string>
+    <string name="enhancements_guide_about_summary">Everything this fork adds on top of mihon</string>
+    <string name="enhancements_guide_open">See all enhancements</string>
+    <string name="enhancements_guide_action_done">Done</string>
+    <!-- Page 1: Translation -->
+    <string name="enhancements_guide_translation_title">Translation</string>
+    <string name="enhancements_guide_tr_inpaint_title">Real inpainting, not overlays</string>
+    <string name="enhancements_guide_tr_inpaint_desc">Other forks paint a box over the text or stamp new text on top. Karaza erases the original art, reconstructs it, then typesets the translation back into the bubble.</string>
+    <string name="enhancements_guide_tr_ondevice_title">On-device, only the LLM leaves</string>
+    <string name="enhancements_guide_tr_ondevice_desc">Detection, OCR and text removal all run on your phone; only the OCR\'d text is sent to the cloud LLM. Your images never leave the device.</string>
+    <string name="enhancements_guide_tr_workflows_title">Two workflows</string>
+    <string name="enhancements_guide_tr_workflows_desc">Translate whole chapters in the background on download, or live as you read.</string>
+    <string name="enhancements_guide_tr_byok_title">Your provider, your key</string>
+    <string name="enhancements_guide_tr_byok_desc">Any OpenAI-compatible LLM (DeepSeek by default; OpenAI, Gemini, Groq, Qwen, OpenRouter, self-hosted), with per-provider encrypted keys.</string>
+    <string name="enhancements_guide_tr_safe_title">Never worse than the original</string>
+    <string name="enhancements_guide_tr_safe_desc">A page is overwritten only when its translation succeeds — nothing is ever replaced with something worse.</string>
+    <!-- Page 2: Reader -->
+    <string name="enhancements_guide_reader_title">Reader</string>
+    <string name="enhancements_guide_rd_webtoon_title">Auto webtoon detection</string>
+    <string name="enhancements_guide_rd_webtoon_desc">Long vertical strips switch to continuous-vertical reading on their own; a per-manga choice always wins.</string>
+    <string name="enhancements_guide_rd_chapters_title">In-reader chapter list</string>
+    <string name="enhancements_guide_rd_chapters_desc">Jump to any chapter from a list inside the reader, without backing out to the details page.</string>
+    <string name="enhancements_guide_rd_eink_title">E-ink mode</string>
+    <string name="enhancements_guide_rd_eink_desc">One tap turns on grayscale, a white theme, and white-flash page refresh for e-readers.</string>
+    <string name="enhancements_guide_rd_notif_title">Cover in progress notifications</string>
+    <string name="enhancements_guide_rd_notif_desc">The background-translation notification shows the chapter\'s full cover, not just an icon.</string>
+    <!-- Page 3: Library -->
+    <string name="enhancements_guide_library_title">Library</string>
+    <string name="enhancements_guide_lb_reorder_title">Drag to reorder</string>
+    <string name="enhancements_guide_lb_reorder_desc">A \"Manual\" sort: long-press a cover and drag to set your own order, saved per category.</string>
+    <string name="enhancements_guide_lb_collapse_title">Single-list collapsible categories</string>
+    <string name="enhancements_guide_lb_collapse_desc">Show the whole library as one scrolling list with sticky, tap-to-collapse category headers.</string>
+    <string name="enhancements_guide_lb_covertheme_title">Cover-based theme</string>
+    <string name="enhancements_guide_lb_covertheme_desc">Optionally tint a manga\'s detail screen with colors pulled from its cover.</string>
+    <string name="enhancements_guide_lb_badge_title">Translated badge &amp; filter</string>
+    <string name="enhancements_guide_lb_badge_desc">A cover badge counts translated chapters; filter the library by translation state.</string>
+    <string name="enhancements_guide_lb_stats_title">Reading &amp; translation statistics</string>
+    <string name="enhancements_guide_lb_stats_desc">Per-day reading activity and translation usage, each with today / 7-day / 30-day / all views.</string>
+    <!-- Page 4: Browse & catch-up -->
+    <string name="enhancements_guide_browse_title">Browse &amp; catch-up</string>
+    <string name="enhancements_guide_br_filter_title">Global browse filter</string>
+    <string name="enhancements_guide_br_filter_desc">Filter any source\'s results by in-library / started reading, applied instantly without re-fetching.</string>
+    <string name="enhancements_guide_br_anchor_title">Per-source catch-up anchor</string>
+    <string name="enhancements_guide_br_anchor_desc">Mark your last-processed point; a background task crawls the Latest feed down to it — ban-safe and resumable across kills / reboots — saving everything above it as an offline snapshot.</string>
+    <string name="enhancements_guide_br_snapshot_title">Offline snapshot</string>
+    <string name="enhancements_guide_br_snapshot_desc">Save a source\'s loaded list and browse it later with zero network.</string>
+    <string name="enhancements_guide_br_bansafe_title">Ban-safe pacing</string>
+    <string name="enhancements_guide_br_bansafe_desc">No prefetching pages ahead, plus randomized jitter instead of a robotic fixed interval, so sensitive sources don\'t ban you.</string>
+    <!-- Page 5: Search -->
+    <string name="enhancements_guide_search_title">Search</string>
+    <string name="enhancements_guide_se_floating_title">Floating search</string>
+    <string name="enhancements_guide_se_floating_desc">A one-handed search pill that collapses to a ball when idle; long-press it for a quick menu.</string>
+    <string name="enhancements_guide_se_saved_title">Saved searches &amp; advanced syntax</string>
+    <string name="enhancements_guide_se_saved_desc">Save a search to recall later. Space or \",\" = AND, \"||\" = OR, \"-\" = exclude, \"()\" groups; prefixes genre: / author: / artist: / source: / notes:, quotes for values with spaces (genre:\"school life\"), and comparisons like unread&gt;0.</string>
+    <string name="enhancements_guide_se_compactnav_title">Compact navigation bar</string>
+    <string name="enhancements_guide_se_compactnav_desc">An icons-only, tighter bottom navigation bar option.</string>
+    <!-- Page 6: Large screens & foldables -->
+    <string name="enhancements_guide_largescreen_title">Large screens &amp; foldables</string>
+    <string name="enhancements_guide_ls_grid_title">Adaptive grid cover size</string>
+    <string name="enhancements_guide_ls_grid_desc">Library and browse columns auto-fit the actual screen width — phone, tablet, folded / unfolded, split-screen.</string>
+    <string name="enhancements_guide_ls_doublepage_title">Double-page spread</string>
+    <string name="enhancements_guide_ls_doublepage_desc">Read two pages side by side on large screens; wide/spread pages get their own full-width page, with a manual shift button.</string>
+    <string name="enhancements_guide_ls_tablet_title">Tablet reading mode</string>
+    <string name="enhancements_guide_ls_tablet_desc">A separate reading mode for large screens / unfolded, following the system Tablet UI setting.</string>
+    <string name="enhancements_guide_ls_desc_title">Collapsible description</string>
+    <string name="enhancements_guide_ls_desc_desc">Choose whether a manga\'s description opens expanded or collapsed.</string>
+    <string name="pref_translation_orientation">Text direction</string>
+    <string name="pref_translation_orientation_auto">Auto (follow source)</string>
+    <string name="pref_translation_orientation_vertical">Vertical (vertical-first)</string>
+    <string name="pref_translation_orientation_horizontal">Horizontal (horizontal-first)</string>
+    <string name="pref_translation_inpaint_method">Text removal method</string>
+    <string name="pref_translation_inpaint_boxfill">Fast (box-fill · color block over art)</string>
+    <string name="pref_translation_inpaint_auto_whole">AI removal (AOT rebuild · high quality)</string>
+    <string name="pref_translation_inpaint_auto_tile">AI removal (per-panel)</string>
+    <string name="pref_translation_source_lang_subtitle">A prompt hint; leave blank to let the LLM infer. The actual source is decided by the OCR model (BYOM).</string>
+    <string name="pref_translation_lang_japanese">Japanese</string>
+    <string name="pref_translation_lang_trad_chinese">Traditional Chinese (Taiwan)</string>
+    <string name="pref_translation_lang_simp_chinese">Simplified Chinese</string>
+    <string name="pref_translation_lang_english">English</string>
+    <string name="pref_translation_lang_korean">Korean</string>
+    <string name="pref_translation_lang_spanish">Spanish</string>
+    <string name="pref_translation_lang_french">French</string>
+    <string name="pref_translation_lang_german">German</string>
+    <string name="pref_translation_lang_portuguese">Portuguese</string>
+    <string name="pref_translation_lang_russian">Russian</string>
+    <string name="pref_translation_lang_arabic">Arabic</string>
+    <string name="pref_translation_diagnostics">Diagnostics</string>
+    <string name="pref_translation_test_ai">Test AI connection</string>
+    <string name="pref_translation_test_ai_summary">Send a short sample through %1$s with your key, model and language, and show the result or the exact error</string>
+    <string name="pref_translation_testing">Testing…</string>
+    <string name="pref_translation_test_ok">Connection works</string>
+    <string name="pref_translation_test_failed">Connection failed</string>
+    <string name="pref_translation_recent_errors">Recent translation errors</string>
+    <string name="pref_translation_recent_errors_summary">Latest chapter and page failures, newest first</string>
+    <string name="pref_translation_recent_errors_empty">No translation errors recorded.</string>
+    <string name="pref_translation_lang_auto_detect">Auto-detect</string>
+    <string name="pref_category_tracking">Tracking</string>
+    <string name="pref_category_advanced">Advanced</string>
+    <string name="pref_category_about">About</string>
+
+    <string name="pref_appearance_summary">Theme, date &amp; time format</string>
+    <string name="pref_library_summary">Categories, global update, chapter swipe</string>
+    <string name="pref_reader_summary">Reading mode, display, navigation</string>
+    <string name="pref_downloads_summary">Automatic download, download ahead</string>
+    <string name="pref_tracking_summary">One-way progress sync, enhanced sync</string>
+    <string name="pref_browse_summary">Sources, extensions, global search</string>
+    <string name="pref_backup_summary">Manual &amp; automatic backups, storage space</string>
+    <string name="pref_security_summary">App lock, secure screen</string>
+    <string name="pref_advanced_summary">Dump crash logs, battery optimizations</string>
+
+      <!-- General section -->
+    <string name="pref_category_theme">Theme</string>
+    <string name="pref_app_theme">App theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_monet">Dynamic</string>
+    <string name="theme_catppuccin">Catppuccin</string>
+    <string name="theme_tokyonight">Tokyo Night</string>
+    <string name="theme_greenapple">Green Apple</string>
+    <string name="theme_lavender">Lavender</string>
+    <string name="theme_midnightdusk">Midnight Dusk</string>
+    <string name="theme_monochrome">Monochrome</string>
+    <string name="theme_nord">Nord</string>
+    <string name="theme_strawberrydaiquiri">Strawberry Daiquiri</string>
+    <string name="theme_tako">Tako</string>
+    <string name="theme_tealturquoise">Teal &amp; Turquoise</string>
+    <string name="theme_yinyang">Yin &amp; Yang</string>
+    <string name="theme_yotsuba">Yotsuba</string>
+    <string name="theme_tidalwave">Tidal Wave</string>
+    <string name="pref_dark_theme_pure_black">Pure black dark mode</string>
+    <string name="pref_relative_format">Relative timestamps</string>
+    <!-- "Today" instead of "2023-12-31" -->
+    <string name="pref_relative_format_summary">\"%1$s\" instead of \"%2$s\"</string>
+    <string name="pref_date_format">Date format</string>
+    <string name="pref_display_images_description">Render images in manga descriptions</string>
+    <string name="pref_expand_manga_summary">Expand description by default</string>
+    <string name="pref_expand_manga_summary_summary">Show the full description when opening an entry instead of collapsing it.</string>
+    <string name="pref_bottom_nav_compact">Compact navigation bar</string>
+    <string name="pref_bottom_nav_compact_summary">Icons only, no labels — smaller and tighter.</string>
+    <string name="pref_cover_based_theme">Theme from cover</string>
+    <string name="pref_cover_based_theme_summary">Tint the entry screen using colors from each manga\'s cover.</string>
+
+    <string name="pref_manage_notifications">Manage notifications</string>
+    <string name="pref_app_language">App language</string>
+
+    <string name="pref_category_security">Security and privacy</string>
+    <string name="pref_security">Security</string>
+    <string name="pref_firebase">Analytics and Crash logs</string>
+
+    <string name="lock_with_biometrics">Require unlock</string>
+    <string name="lock_when_idle">Lock when idle</string>
+    <string name="lock_always">Always</string>
+    <string name="lock_never">Never</string>
+    <string name="hide_notification_content">Hide notification content</string>
+    <string name="secure_screen">Secure screen</string>
+    <string name="secure_screen_summary">Secure screen hides app contents when switching apps and block screenshots</string>
+    <string name="firebase_summary">Sending crash logs and analytics will allow us to identify and fix issues, improve performance, and make future updates more relevant to your needs</string>
+
+    <string name="pref_category_nsfw_content">NSFW (18+) sources</string>
+    <string name="pref_show_nsfw_source">Show in sources and extensions lists</string>
+    <string name="parental_controls_info">This does not prevent unofficial or potentially incorrectly flagged extensions from surfacing NSFW (18+) content within the app.</string>
+
+    <string name="relative_time_today">Today</string>
+
+      <!-- Library section -->
+    <string name="pref_category_display">Display</string>
+    <string name="pref_library_columns">Items per row</string>
+    <string name="portrait">Portrait</string>
+    <string name="landscape">Landscape</string>
+
+    <string name="pref_category_library_update">Global update</string>
+    <string name="pref_library_update_interval">Automatic updates</string>
+    <string name="update_never">Off</string>
+    <string name="update_6hour">Every 6 hours</string>
+    <string name="update_12hour">Every 12 hours</string>
+    <string name="update_24hour">Daily</string>
+    <string name="update_48hour">Every 2 days</string>
+    <string name="update_72hour">Every 3 days</string>
+    <string name="update_weekly">Weekly</string>
+    <string name="pref_library_update_restriction">Automatic updates device restrictions</string>
+    <string name="connected_to_wifi">Only on Wi-Fi</string>
+    <string name="network_not_metered">Only on unmetered network</string>
+    <string name="charging">When charging</string>
+    <string name="restrictions">Restrictions: %s</string>
+
+    <string name="pref_library_update_smart_update">Smart update</string>
+    <string name="pref_update_only_completely_read">Skip entries with unread chapter(s)</string>
+    <string name="pref_update_only_non_completed">Skip entries with \"Completed\" status</string>
+    <string name="pref_update_only_started">Skip unstarted entries</string>
+    <string name="pref_update_only_in_release_period">Predict next release time</string>
+    <string name="pref_library_update_show_tab_badge">Show unread count on Updates icon</string>
+
+    <string name="pref_library_update_refresh_metadata">Automatically refresh metadata</string>
+    <string name="pref_library_update_refresh_metadata_summary">Check for new cover and details when updating library</string>
+
+    <string name="default_category">Default category</string>
+    <string name="default_category_summary">Always ask</string>
+    <string name="pref_remember_last_category_selection">Remember last categories</string>
+    <string name="pref_remember_last_category_selection_summary">When adding a new entry, pre-check the categories you picked last time.</string>
+    <string name="pref_library_swipe_to_refresh">Pull to refresh</string>
+    <string name="pref_library_swipe_to_refresh_summary">Pull down the library to update entries. Off by default to avoid accidental mass updates.</string>
+    <string name="categorized_display_settings">Per-category settings for sort</string>
+    <string name="pref_library_update_categories_details">Entries in excluded categories will not be updated even if they are also in included categories.</string>
+    <string name="all">All</string>
+    <string name="none">None</string>
+    <string name="include">Include: %s</string>
+    <string name="exclude">Exclude: %s</string>
+
+    <string name="pref_behavior">Behavior</string>
+    <!-- This should be to the left for RTL locales -->
+    <string name="pref_chapter_swipe_end">Chapter on swipe to right</string>
+    <!-- This should be to the right for RTL locales -->
+    <string name="pref_chapter_swipe_start">Chapter on swipe to left</string>
+    <string name="pref_mark_duplicate_read_chapter_read">Mark duplicate read chapter as read</string>
+    <string name="pref_mark_duplicate_read_chapter_read_existing">After reading a chapter</string>
+    <string name="pref_mark_duplicate_read_chapter_read_new">After fetching new chapter</string>
+
+    <string name="pref_hide_missing_chapter_indicators">Hide missing chapter indicators</string>
+    <string name="pref_auto_refresh_manga_on_open">Refresh chapters when opening an entry</string>
+    <string name="pref_auto_refresh_manga_on_open_summary">Always fetch the latest chapters from the source when you open a manga, not just the first time</string>
+    <string name="pref_disallow_non_ascii_filenames">Disallow non-ASCII filenames</string>
+    <string name="pref_disallow_non_ascii_filenames_details">Ensures compatibility with certain storage media that don't support Unicode. When this is enabled, you'll need to manually rename source and manga folders by replacing non-ASCII characters with their lowercase UTF-8 hexadecimal representations. Chapter files don't need to be renamed.</string>
+
+      <!-- Extension section -->
+    <string name="multi_lang">Multi</string>
+    <string name="ext_updates_pending">Updates pending</string>
+    <string name="ext_update">Update</string>
+    <string name="ext_update_all">Update all</string>
+    <string name="ext_obsolete">Orphaned</string>
+    <string name="ext_install">Install</string>
+    <string name="ext_pending">Pending</string>
+    <string name="ext_downloading">Downloading</string>
+    <string name="ext_installing">Installing</string>
+    <string name="ext_installed">Installed</string>
+    <string name="ext_trust">Trust</string>
+    <string name="ext_untrusted">Untrusted</string>
+    <string name="ext_uninstall">Uninstall</string>
+    <string name="ext_remove">Remove</string>
+    <string name="ext_confirm_remove">Remove Extension?</string>
+    <string name="ext_app_info">App info</string>
+    <string name="untrusted_extension">Untrusted extension</string>
+    <string name="untrusted_extension_message">Malicious extensions can read any stored login credentials or execute arbitrary code.\n\nBy trusting this extension, you accept these risks.</string>
+    <string name="obsolete_extension_message">This extension is not associated with any store. It will not receive updates, may not function properly, and can cause issues with the app. Uninstalling it is recommended.</string>
+    <string name="remove_private_extension_message">Do you really want to remove \"%s\" extension?</string>
+    <string name="extension_api_error">Failed to fetch available extensions</string>
+    <string name="ext_info_version">Version</string>
+    <string name="ext_info_language">Language</string>
+    <string name="ext_info_age_rating">Age rating</string>
+    <string name="ext_nsfw_short">18+</string>
+    <string name="ext_nsfw_warning">Sources from this extension may contain NSFW (18+) content</string>
+    <string name="ext_permission_install_apps_warning">Permissions are needed to install extensions. Tap here to grant.</string>
+    <string name="ext_install_service_notif">Installing extension…</string>
+    <string name="ext_installer_pref">Installer</string>
+    <string name="ext_installer_legacy">Legacy</string>
+    <string name="ext_installer_packageinstaller" translatable="false">PackageInstaller</string>
+    <string name="ext_installer_shizuku" translatable="false">Shizuku</string>
+    <string name="ext_installer_private" translatable="false">Private</string>
+    <string name="ext_installer_shizuku_stopped">Shizuku is not running</string>
+    <string name="ext_installer_shizuku_unavailable_dialog">Install and start Shizuku to use Shizuku as extension installer.</string>
+    <string name="ext_revoke_trust">Revoke trusted unknown extensions</string>
+    <string name="downloading_with_progress">Downloading… (%d%%)</string>
+
+    <!-- Extension repos -->
+    <string name="action_open_repo">Open source repo</string>
+
+    <!-- Extension store -->
+    <string name="extensionStores">Extension stores</string>
+    <string name="action.addExtensionStore">Add extension store</string>
+    <string name="extensionStoresScreen.emptyLabel">You haven\'t added an extension store yet</string>
+    <string name="extensionStoresScreen.addStore.title">Add extension store</string>
+    <string name="extensionStoresScreen.addStore.alreadyExists">This extension store already exists</string>
+    <string name="extensionStoresScreen.addStore.processing">Processing…</string>
+    <string name="extensionStoresScreen.addStoreInput.inputLabel">Store index URL</string>
+    <string name="extensionStoresScreen.addStoreDeeplink.bodyText">Do you wish to add the extension store below?</string>
+    <string name="extensionStoresScreen.deleteStore.title">Remove extension store</string>
+    <string name="extensionStoresScreen.deleteStore.body">Do you wish to remove the extension store \"%1$s\" (%2$s)?</string>
+
+      <!-- Reader section -->
+    <string name="pref_fullscreen">Fullscreen</string>
+    <string name="pref_show_navigation_mode">Show tap zones overlay</string>
+    <string name="pref_show_navigation_mode_summary">Briefly show when reader is opened</string>
+    <string name="pref_dual_page_split">Split wide pages</string>
+    <string name="pref_category_double_page">Double-page (spread)</string>
+    <string name="pref_double_page_fill">Double-page fill</string>
+    <string name="pref_double_page_fill_width">Fit width</string>
+    <string name="pref_double_page_fill_height">Fit height</string>
+    <string name="pref_double_page_align">Double-page alignment</string>
+    <string name="pref_double_page_align_center">Center</string>
+    <string name="pref_double_page_align_side">Lower-page side</string>
+    <string name="pref_double_page_align_summary">Side alignment only applies with Fit height; side follows reading direction</string>
+    <string name="pref_dual_page_invert">Invert split page placement</string>
+    <string name="pref_dual_page_invert_summary">If the placement of the split wide pages don\'t match reading direction</string>
+    <string name="pref_page_rotate">Rotate wide pages to fit</string>
+    <string name="pref_page_rotate_invert">Flip orientation of rotated wide pages</string>
+    <string name="pref_double_tap_zoom">Double tap to zoom</string>
+    <string name="pref_cutout_short">Show content in cutout area</string>
+    <string name="pref_page_transitions">Animate page transitions</string>
+    <string name="pref_flash_page">Flash on page change</string>
+    <string name="pref_flash_page_summ">Reduces ghosting on e-ink displays</string>
+    <string name="pref_flash_duration">Flash duration</string>
+    <string name="pref_flash_duration_summary">%1$s ms</string>
+    <string name="pref_flash_page_interval">Flash every</string>
+    <string name="pref_flash_with">Flash with</string>
+    <string name="pref_flash_style_black">Black</string>
+    <string name="pref_flash_style_white">White</string>
+    <string name="pref_flash_style_white_black">White and Black</string>
+    <string name="pref_double_tap_anim_speed">Double tap animation speed</string>
+    <string name="pref_show_page_number">Show page number</string>
+    <string name="pref_vertical_navigator">Use vertical chapter navigator in</string>
+    <string name="pref_vertical_navigator_height">Vertical navigator height</string>
+    <string name="pref_webtoon_vertical_navigator_on_left">Place vertical navigator on the left side</string>
+    <string name="pref_show_reading_mode">Show reading mode</string>
+    <string name="pref_show_reading_mode_summary">Briefly show current mode when reader is opened</string>
+    <string name="pref_hardware_bitmap_threshold">Custom hardware bitmap threshold</string>
+    <string name="pref_hardware_bitmap_threshold_default">Default (%d)</string>
+    <string name="pref_hardware_bitmap_threshold_summary">If reader loads a blank image incrementally reduce the threshold.\nSelected: %s</string>
+    <string name="pref_always_decode_long_strip_with_ssiv_2">Use legacy decoder for long strip reader</string>
+    <string name="pref_always_decode_long_strip_with_ssiv_summary">Affects performance. Only enable if reducing bitmap threshold doesn\'t fix blank image issues</string>
+    <string name="pref_display_profile">Custom display profile</string>
+    <string name="pref_crop_borders">Crop borders</string>
+    <string name="pref_custom_brightness">Custom brightness</string>
+    <string name="pref_grayscale">Grayscale</string>
+    <string name="pref_inverted_colors">Inverted</string>
+    <string name="pref_custom_color_filter">Custom color filter</string>
+    <string name="pref_color_filter_mode">Color filter blend mode</string>
+    <string name="filter_mode_overlay">Overlay</string>
+    <string name="filter_mode_multiply">Multiply</string>
+    <string name="filter_mode_screen">Screen</string>
+    <string name="filter_mode_lighten">Dodge / Lighten</string>
+    <string name="filter_mode_darken">Burn / Darken</string>
+    <string name="pref_keep_screen_on">Keep screen on</string>
+    <string name="pref_skip_read_chapters">Skip chapters marked read</string>
+    <string name="pref_skip_filtered_chapters">Skip filtered chapters</string>
+    <string name="pref_skip_dupe_chapters">Skip duplicate chapters</string>
+    <string name="pref_reader_navigation">Navigation</string>
+    <string name="pref_read_with_volume_keys">Volume keys</string>
+    <string name="pref_read_with_volume_keys_inverted">Invert volume keys</string>
+    <string name="pref_read_with_tapping_inverted">Invert tap zones</string>
+    <string name="tapping_inverted_none">None</string>
+    <string name="tapping_inverted_horizontal">Horizontal</string>
+    <string name="tapping_inverted_vertical">Vertical</string>
+    <string name="tapping_inverted_both">Both</string>
+    <string name="pref_reader_actions">Actions</string>
+    <string name="pref_read_with_long_tap">Show actions on long tap</string>
+    <string name="pref_create_folder_per_manga">Save pages into separate folders</string>
+    <string name="pref_create_folder_per_manga_summary">Creates folders according to entries\' title</string>
+    <string name="pref_reader_theme">Background color</string>
+    <string name="white_background">White</string>
+    <string name="gray_background">Gray</string>
+    <string name="black_background">Black</string>
+    <string name="automatic_background">Auto</string>
+    <string name="pref_viewer_type">Default reading mode</string>
+    <string name="pref_tablet_reading_mode">Tablet reading mode</string>
+    <string name="pref_tablet_reading_mode_summary">Reading mode used while in tablet UI — large screens, split-screen/windowed, or an unfolded foldable. Controlled by Appearance &gt; Tablet UI mode.</string>
+    <string name="pref_auto_detect_webtoon">Auto-detect webtoon</string>
+    <string name="pref_auto_detect_webtoon_summary">When a series with no set reading mode has long-strip pages, switch to continuous vertical automatically.</string>
+    <string name="tablet_reading_mode_follow_phone">Follow phone</string>
+    <string name="l_nav">L shaped</string>
+    <string name="kindlish_nav">Kindle-ish</string>
+    <string name="edge_nav">Edge</string>
+    <string name="right_and_left_nav">Right and Left</string>
+    <string name="disabled_nav">Disabled</string>
+    <string name="nav_zone_prev">Prev</string>
+    <string name="nav_zone_next">Next</string>
+    <string name="nav_zone_left">Left</string>
+    <string name="nav_zone_right">Right</string>
+    <string name="left_to_right_viewer">Paged (left to right)</string>
+    <string name="right_to_left_viewer">Paged (right to left)</string>
+    <string name="vertical_viewer">Paged (vertical)</string>
+    <string name="webtoon_viewer">Long strip</string>
+    <string name="vertical_plus_viewer">Long strip with gaps</string>
+    <string name="double_page_rtl_viewer">Double page (right to left)</string>
+    <string name="double_page_ltr_viewer">Double page (left to right)</string>
+    <string name="action_shift_double_page">Shift double pages</string>
+    <string name="pager_viewer">Paged</string>
+    <string name="pref_viewer_nav">Tap zones</string>
+    <string name="pref_image_scale_type">Scale type</string>
+    <string name="scale_type_fit_screen">Fit screen</string>
+    <string name="scale_type_stretch">Stretch</string>
+    <string name="scale_type_fit_width">Fit width</string>
+    <string name="scale_type_fit_height">Fit height</string>
+    <string name="scale_type_original_size">Original size</string>
+    <string name="scale_type_smart_fit">Smart fit</string>
+    <string name="pref_navigate_pan">Pan wide images</string>
+    <string name="pref_landscape_zoom">Automatically zoom into wide images</string>
+    <string name="pref_zoom_start">Zoom start position</string>
+    <string name="zoom_start_automatic">Automatic</string>
+    <string name="zoom_start_left">Left</string>
+    <string name="zoom_start_right">Right</string>
+    <string name="zoom_start_center">Center</string>
+    <string name="double_tap_anim_speed_0">No animation</string>
+    <string name="double_tap_anim_speed_normal">Normal</string>
+    <string name="double_tap_anim_speed_fast">Fast</string>
+    <string name="pref_rotation_type">Default rotation</string>
+    <string name="rotation_type">Rotation</string>
+    <string name="rotation_free">Free</string>
+    <string name="rotation_portrait">Portrait</string>
+    <string name="rotation_reverse_portrait">Reverse portrait</string>
+    <string name="rotation_landscape">Landscape</string>
+    <string name="rotation_force_portrait">Locked portrait</string>
+    <string name="rotation_force_landscape">Locked landscape</string>
+    <string name="color_filter_r_value">Red</string>
+    <string name="color_filter_g_value">Green</string>
+    <string name="color_filter_b_value">Blue</string>
+    <string name="color_filter_a_value">Alpha</string>
+    <string name="pref_always_show_chapter_transition">Always show chapter transition</string>
+    <string name="pref_category_reading_mode">Reading mode</string>
+    <string name="pref_category_reading">Reading</string>
+    <string name="pref_webtoon_side_padding">Side padding</string>
+    <string name="pref_hide_threshold">Sensitivity for hiding menu on scroll</string>
+    <string name="pref_highest">Highest</string>
+    <string name="pref_high">High</string>
+    <string name="pref_low">Low</string>
+    <string name="pref_lowest">Lowest</string>
+    <string name="pref_webtoon_disable_zoom_out">Disable zoom out</string>
+
+      <!-- Downloads section -->
+    <string name="pref_category_delete_chapters">Delete chapters</string>
+    <string name="pref_remove_after_marked_as_read">After manually marked as read</string>
+    <string name="pref_remove_after_read">After reading automatically delete</string>
+    <string name="pref_remove_bookmarked_chapters">Allow deleting bookmarked chapters</string>
+    <string name="pref_remove_exclude_categories">Excluded categories</string>
+    <string name="no_location_set">No storage location set</string>
+    <string name="invalid_location">Invalid location: %s</string>
+    <string name="storage_failed_to_create_download_directory">Failed to create download directory</string>
+    <string name="storage_failed_to_create_directory">Failed to create directory: %s</string>
+    <string name="disabled">Disabled</string>
+    <string name="last_read_chapter">Last read chapter</string>
+    <string name="second_to_last">Second to last read chapter</string>
+    <string name="third_to_last">Third to last read chapter</string>
+    <string name="fourth_to_last">Fourth to last read chapter</string>
+    <string name="fifth_to_last">Fifth to last read chapter</string>
+    <string name="pref_category_auto_download">Auto-download</string>
+    <string name="pref_download_new">Download new chapters</string>
+    <string name="pref_download_new_unread_chapters_only">Skip downloading duplicate read chapters</string>
+    <string name="pref_download_new_categories_details">Entries in excluded categories will not be downloaded even if they are also in included categories.</string>
+    <string name="download_ahead">Download ahead</string>
+    <string name="auto_download_while_reading">Auto download while reading</string>
+    <string name="download_ahead_info">Only works if the current chapter + the next one are already downloaded.</string>
+    <string name="save_chapter_as_cbz">Save as CBZ archive</string>
+    <string name="split_tall_images">Split tall images</string>
+    <string name="split_tall_images_summary">Improves reader performance</string>
+    <string name="pref_download_concurrent_sources">Concurrent source downloads</string>
+    <string name="pref_download_concurrent_pages">Concurrent page downloads</string>
+    <string name="pref_download_concurrent_pages_summary">Pages downloaded simultaneously per source</string>
+
+    <!-- Tracking section -->
+    <string name="tracking_guide">Tracking guide</string>
+    <string name="pref_auto_update_manga_sync">Update progress after reading</string>
+    <string name="pref_auto_update_manga_on_mark_read">Update progress when marked as read</string>
+    <string name="services">Trackers</string>
+    <string name="tracking_info">One-way sync to update the chapter progress in external tracker services. Set up tracking for individual entries from their tracking button.</string>
+    <string name="enhanced_services">Enhanced trackers</string>
+    <string name="enhanced_services_not_installed">Available but source not installed: %s</string>
+    <string name="enhanced_tracking_info">Provides enhanced features for specific sources. Entries are automatically tracked when added to your library.</string>
+    <string name="track_activity_name">Tracker login</string>
+
+      <!-- Browse section -->
+    <string name="pref_hide_in_library_items">Hide entries already in library</string>
+    <string name="pref_show_recently_used_source">Show recently used source</string>
+    <string name="pref_show_local_source">Show local source</string>
+    <string name="pref_browse_default_to_latest">Default to Latest</string>
+    <string name="pref_browse_default_to_latest_summary">Open sources directly on their Latest list and hide the Latest button in the source list</string>
+    <string name="pref_browse_load_interval">Minimum page-load interval</string>
+    <string name="pref_browse_load_interval_summary">Throttle browsing pagination to avoid hammering the source (helps when filters hide most results)</string>
+    <string name="pref_browse_load_interval_seconds">%1$d s</string>
+
+      <!-- Data and storage section -->
+    <string name="pref_storage_location">Storage location</string>
+    <string name="pref_storage_location_info">Used for automatic backups, chapter downloads, and local source.</string>
+    <string name="pref_create_backup">Create backup</string>
+    <string name="pref_create_backup_summ">Can be used to restore current library</string>
+    <string name="pref_restore_backup">Restore backup</string>
+    <string name="pref_restore_backup_summ">Restore library from backup file</string>
+    <string name="pref_backup_interval">Automatic backup frequency</string>
+    <string name="action_create">Create</string>
+    <string name="backup_created">Backup created</string>
+    <string name="invalid_backup_file">Invalid backup file:</string>
+    <string name="invalid_backup_file_error">Full error:</string>
+    <string name="invalid_backup_file_missing_manga">Backup does not contain any library entries.</string>
+    <string name="invalid_backup_file_json">JSON backup not supported</string>
+    <string name="invalid_backup_file_unknown">Backup file is corrupted</string>
+    <string name="backup_restore_missing_sources">Missing sources:</string>
+    <string name="backup_restore_missing_trackers">Trackers not logged into:</string>
+    <string name="backup_restore_content_full">You may need to install any missing extensions and log in to tracking services afterwards to use them.</string>
+    <string name="restore_completed">Restore completed</string>
+    <string name="restore_duration">%1$02d min, %2$02d sec</string>
+    <string name="backup_in_progress">Backup is already in progress</string>
+    <string name="backup_choice">What do you want to backup?</string>
+    <string name="app_settings">App settings</string>
+    <string name="source_settings">Source settings</string>
+    <string name="private_settings">Include sensitive settings (e.g., tracker login tokens)</string>
+    <string name="non_library_settings">All read entries</string>
+    <string name="creating_backup">Creating backup</string>
+    <string name="creating_backup_error">Backup failed</string>
+    <string name="missing_storage_permission">Storage permissions not granted</string>
+    <string name="empty_backup_error">No library entries to back up</string>
+    <string name="create_backup_file_error">Couldn\'t create a backup file</string>
+    <string name="restore_miui_warning">Backup/restore may not function properly if MIUI Optimization is disabled.</string>
+    <string name="restore_in_progress">Restore is already in progress</string>
+    <string name="restoring_backup">Restoring backup</string>
+    <string name="restoring_backup_error">Restoring backup failed</string>
+    <string name="restoring_backup_canceled">Canceled restore</string>
+    <string name="backup_info">You should keep copies of backups in other places as well. Backups may contain sensitive data including any stored passwords; be careful if sharing.</string>
+    <string name="last_auto_backup_info">Last automatically backed up: %s</string>
+    <string name="label_data">Data</string>
+    <string name="pref_storage_usage">Storage usage</string>
+    <string name="available_disk_space_info">Available: %1$s / Total: %2$s</string>
+    <string name="pref_clear_chapter_cache">Clear chapter cache</string>
+    <string name="used_cache">Used: %1$s</string>
+    <string name="cache_deleted">Cache cleared, %1$d files deleted</string>
+    <string name="cache_delete_error">Error occurred while clearing</string>
+    <string name="pref_auto_clear_chapter_cache">Clear chapter cache on app launch</string>
+    <string name="export">Export</string>
+    <string name="library_list">Library List</string>
+    <string name="library_exported">Library Exported</string>
+
+    <!-- Sync section -->
+    <string name="syncing_library">Syncing library</string>
+    <string name="library_sync_complete">Library sync complete</string>
+
+      <!-- Advanced section -->
+    <string name="label_network">Networking</string>
+    <string name="pref_clear_cookies">Clear cookies</string>
+    <string name="pref_dns_over_https">DNS over HTTPS (DoH)</string>
+    <string name="pref_user_agent_string">Default user agent string</string>
+    <string name="error_user_agent_string_blank">User agent string can not be blank</string>
+    <string name="error_user_agent_string_invalid">Invalid user agent string</string>
+    <string name="pref_reset_user_agent_string">Reset default user agent string</string>
+    <string name="requires_app_restart">Requires app restart to take effect</string>
+    <string name="cookies_cleared">Cookies cleared</string>
+    <string name="pref_invalidate_download_cache">Reindex downloads</string>
+    <string name="pref_invalidate_download_cache_summary">Force app to recheck downloaded chapters</string>
+    <string name="download_cache_invalidated">Recreating download index</string>
+    <string name="pref_clear_database">Clear database</string>
+    <string name="pref_clear_database_summary">Delete history for entries that are not saved in your library</string>
+    <string name="clear_database_source_item_count">%1$d non-library entries in database</string>
+    <string name="clear_database_text">You’re about to remove entries from the database</string>
+    <string name="clear_database_history_warning">Read chapters and progress of non-library entries will be lost</string>
+    <string name="clear_db_exclude_read">Keep entries with read chapters</string>
+    <string name="clear_database_completed">Entries deleted</string>
+    <string name="database_clean">Nothing to clear</string>
+    <string name="pref_clear_webview_data">Clear WebView data</string>
+    <string name="webview_data_deleted">WebView data cleared</string>
+    <string name="pref_refresh_library_covers">Refresh library covers</string>
+    <string name="pref_reset_viewer_flags">Reset per-series reader settings</string>
+    <string name="pref_reset_viewer_flags_summary">Resets reading mode and orientation of all series</string>
+    <string name="pref_reset_viewer_flags_success">All reader settings reset</string>
+    <string name="pref_reset_viewer_flags_error">Couldn\'t reset reader settings</string>
+    <string name="pref_dump_crash_logs">Share crash logs</string>
+    <string name="pref_dump_crash_logs_summary">Saves error logs to a file for sharing with the developers</string>
+    <string name="label_background_activity">Background activity</string>
+    <string name="pref_disable_battery_optimization">Disable battery optimization</string>
+    <string name="pref_disable_battery_optimization_summary">Helps with background library updates and backups</string>
+    <string name="battery_optimization_disabled">Battery optimization is already disabled</string>
+    <string name="battery_optimization_setting_activity_not_found">Couldn\'t open device settings</string>
+    <string name="about_dont_kill_my_app">Some manufacturers have additional app restrictions that kill background services. This website has more info on how to fix it.</string>
+    <string name="pref_tablet_ui_mode">Tablet UI</string>
+    <string name="pref_verbose_logging">Verbose logging</string>
+    <string name="pref_verbose_logging_summary">Print verbose logs to system log (reduces app performance)</string>
+    <string name="pref_debug_info">Debug info</string>
+    <string name="pref_update_library_manga_titles">Update library manga titles to match source</string>
+    <string name="pref_update_library_manga_titles_summary">Warning: if a manga is renamed, it will be removed from the download queue (if present).</string>
+
+      <!-- About section -->
+    <string name="website">Website</string>
+    <string name="version">Version</string>
+    <string name="whats_new">What\'s new</string>
+    <string name="help_translate">Help translate</string>
+    <string name="licenses">Open source licenses</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="check_for_updates">Check for updates</string>
+
+    <!-- ACRA -->
+    <string name="pref_enable_acra">Send crash reports</string>
+    <string name="pref_acra_summary">Helps fix any bugs. No sensitive data will be sent</string>
+
+
+    <!-- More -->
+    <string name="fdroid_warning">F-Droid builds are not officially supported.\nTap to learn more.</string>
+    <string name="label_downloaded_only">Downloaded only</string>
+    <string name="pref_incognito_mode">Incognito mode</string>
+    <string name="pref_incognito_mode_summary">Pauses reading history</string>
+    <string name="pref_incognito_mode_extension_summary">Pause reading history for extension</string>
+    <string name="notification_incognito_text">Disable incognito mode</string>
+    <string name="downloaded_only_summary">Filters all entries in your library</string>
+    <string name="pref_eink_mode">E-ink mode</string>
+    <string name="pref_eink_mode_summary">Grayscale, white background, flash on page turn, animations off</string>
+
+
+    <!-- Login dialog -->
+    <string name="login_title">Log in to %1$s</string>
+    <string name="username">Username</string>
+    <string name="email">Email address</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="login_success">Logged in</string>
+    <string name="logout_title">Log out from %1$s?</string>
+    <string name="logout">Log out</string>
+    <string name="logout_success">You are now logged out</string>
+    <string name="unknown_error">Unknown error</string>
+
+    <!-- Library -->
+    <string name="updating_category">Updating category</string>
+    <string name="manga_from_library">From library</string>
+    <string name="downloaded_chapters">Downloaded chapters</string>
+    <string name="delete_local_files">Delete local files</string>
+    <string name="intervals_header">Intervals</string>
+    <!-- For badges/buttons on library covers. -->
+    <string name="overlay_header">Overlay</string>
+    <string name="tabs_header">Tabs</string>
+
+    <!-- Browse source -->
+    <!-- missing prompt after Compose rewrite #7901 -->
+    <string name="no_more_results">No more results</string>
+    <string name="no_results_found">No results found</string>
+    <string name="local_source">Local source</string>
+    <string name="other_source">Other</string>
+    <string name="last_used_source">Last used</string>
+    <string name="pinned_sources">Pinned</string>
+    <string name="action_global_search_hint">Global search…</string>
+    <string name="action_global_search_query">Search for \"%1$s\" globally</string>
+    <string name="latest">Latest</string>
+    <string name="popular">Popular</string>
+    <string name="browse">Browse</string>
+    <string name="has_results">Has results</string>
+    <string name="local_source_help_guide">Local source guide</string>
+    <string name="no_pinned_sources">You have no pinned sources</string>
+    <string name="chapter_not_found">Chapter not found</string>
+    <string name="local_invalid_format">Invalid chapter format</string>
+    <string name="local_filter_order_by">Order by</string>
+    <string name="date">Date</string>
+
+    <!-- Manga info -->
+    <string name="ongoing">Ongoing</string>
+    <string name="unknown">Unknown</string>
+    <string name="unknown_author">Unknown author</string>
+    <string name="author">Author</string>
+    <string name="artist">Artist</string>
+    <!-- reserved for #6163 -->
+    <string name="unknown_status">Unknown status</string>
+    <string name="licensed">Licensed</string>
+    <string name="publishing_finished">Publishing finished</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="on_hiatus">On hiatus</string>
+    <string name="add_to_library">Add to library</string>
+    <string name="in_library">In library</string>
+    <!-- missing confirm menu after Compose rewrite #7901 -->
+    <string name="remove_from_library">Remove from library</string>
+    <string name="unknown_title">Unknown title</string>
+    <string name="possible_duplicates_title">Possible duplicates</string>
+    <string name="possible_duplicates_summary">You have entries in your library with a similar name.\n\nSelect an entry to migrate or add anyway.</string>
+    <string name="manga_added_library">Added to library</string>
+    <string name="manga_removed_library">Removed from library</string>
+    <string name="manga_info_expand">More</string>
+    <string name="manga_info_collapse">Less</string>
+    <string name="delete_downloads_for_manga">Delete downloaded chapters?</string>
+    <string name="copied_to_clipboard_plain">Copied to clipboard</string>
+    <string name="copied_to_clipboard">Copied to clipboard:\n%1$s</string>
+    <string name="clipboard_copy_error">Failed to copy to clipboard</string>
+    <string name="source_not_installed">Source not installed: %1$s</string>
+    <string name="snack_add_to_library">Add to library?</string>
+    <string name="description_placeholder">No description</string>
+
+    <!-- Manga chapters -->
+    <string name="display_mode_chapter">Chapter %1$s</string>
+    <string name="manga_display_interval_title">Estimate every</string>
+    <string name="manga_display_modified_interval_title">Set to update every</string>
+    <!-- "... around 2 days" -->
+    <string name="manga_interval_expected_update">New chapters predicted to be released in around %1$s, checking around every %2$s.</string>
+    <string name="manga_interval_expected_update_null">This manga is either completed, or there is no predicted release date.</string>
+    <string name="manga_interval_expected_update_soon">Soon</string>
+    <string name="manga_interval_custom_amount">Custom update frequency:</string>
+    <string name="chapter_downloading_progress">Downloading (%1$d/%2$d)</string>
+    <string name="chapter_error">Error</string>
+    <string name="chapter_paused">Paused</string>
+    <string name="show_title">Source title</string>
+    <string name="show_chapter_number">Chapter number</string>
+    <string name="sort_by_source">By source</string>
+    <string name="sort_by_number">By chapter number</string>
+    <string name="sort_by_upload_date">By upload date</string>
+    <string name="manga_download">Download</string>
+    <string name="download_unread">Unread</string>
+    <string name="download_bookmarked">Bookmarked</string>
+    <string name="custom_cover">Custom cover</string>
+    <string name="manga_cover">Cover</string>
+    <string name="cover_saved">Cover saved</string>
+    <string name="error_saving_cover">Error saving cover</string>
+    <string name="error_sharing_cover">Error sharing cover</string>
+    <string name="confirm_delete_chapters">Are you sure you want to delete the selected chapters?</string>
+    <string name="chapter_settings">Chapter settings</string>
+    <string name="confirm_set_chapter_settings">Are you sure you want to save these settings as default?</string>
+    <string name="also_set_chapter_settings_for_library">Also apply to all entries in my library</string>
+    <string name="set_chapter_settings_as_default">Set as default</string>
+    <string name="no_chapters_error">No chapters found</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="exclude_scanlators">Exclude scanlators</string>
+    <string name="no_scanlators_found">No scanlators found</string>
+    <string name="confirm_tracker_update">Update trackers to chapter %d?</string>
+    <string name="trackers_updated_summary">Trackers updated to chapter %d</string>
+
+    <!-- Tracking Screen -->
+    <string name="manga_tracking_tab">Tracking</string>
+    <string name="add_tracking">Add tracking</string>
+    <string name="action_track">Track</string>
+    <string name="unread">Unread</string>
+    <string name="reading">Reading</string>
+    <string name="completed">Completed</string>
+    <string name="dropped">Dropped</string>
+    <string name="on_hold">On hold</string>
+    <string name="paused">Paused</string>
+    <string name="plan_to_read">Plan to read</string>
+    <string name="considering">Considering</string>
+    <string name="repeating">Rereading</string>
+    <string name="reading_list">Reading List</string>
+    <string name="wish_list">Wish List</string>
+    <string name="complete_list">Complete List</string>
+    <string name="on_hold_list">On Hold List</string>
+    <string name="unfinished_list">Unfinished List</string>
+    <string name="score">Score</string>
+    <string name="title">Title</string>
+    <string name="status">Status</string>
+    <string name="track_status">Status</string>
+    <string name="track_started_reading_date">Start date</string>
+    <string name="track_finished_reading_date">Finish date</string>
+    <string name="tracked_privately">Tracked privately</string>
+    <string name="action_toggle_private_on">Track privately</string>
+    <string name="action_toggle_private_off">Track publicly</string>
+    <string name="track_type">Type</string>
+    <string name="myanimelist_relogin">Please login to MAL again</string>
+    <string name="source_unsupported">Source is not supported</string>
+    <string name="error_no_match">No match found</string>
+    <string name="track_error">%1$s error: %2$s</string>
+    <string name="track_remove_date_conf_title">Remove date?</string>
+    <string name="track_remove_start_date_conf_text">This will remove your previously selected start date from %s</string>
+    <string name="track_remove_finish_date_conf_text">This will remove your previously selected finish date from %s</string>
+    <string name="track_delete_title">Remove %s tracking?</string>
+    <string name="track_delete_text">This will remove the tracking locally.</string>
+    <string name="track_delete_remote_text">Also remove from %s</string>
+
+    <!-- Category activity -->
+    <string name="error_category_exists">A category with this name already exists!</string>
+    <!-- missing undo feature after Compose rewrite #7454 -->
+    <string name="snack_categories_deleted">Categories deleted</string>
+
+    <!-- Dialog option with checkbox view -->
+    <string name="dialog_with_checkbox_remove_description">This will remove the read date of this chapter. Are you sure?</string>
+    <string name="dialog_with_checkbox_reset">Reset all chapters for this entry</string>
+
+    <!-- Image notifier -->
+    <string name="picture_saved">Picture saved</string>
+    <string name="error_saving_picture">Error saving picture</string>
+
+    <!-- Reader activity -->
+    <string name="custom_filter">Custom filter</string>
+    <string name="set_as_cover">Set as cover</string>
+    <string name="cover_updated">Cover updated</string>
+    <string name="share_page_info">%1$s: %2$s, page %3$d</string>
+    <string name="chapter_progress">Page: %1$d</string>
+    <string name="no_next_chapter">Next chapter not found</string>
+    <string name="decode_image_error">The image couldn\'t be loaded</string>
+    <string name="confirm_set_image_as_cover">Use this image as cover art?</string>
+    <string name="pref_category_for_this_series">For this series</string>
+    <string name="viewer">Reading mode</string>
+    <string name="transition_finished">Finished:</string>
+    <string name="transition_current">Current:</string>
+    <string name="transition_next">Next:</string>
+    <string name="transition_previous">Previous:</string>
+    <string name="transition_no_next">There\'s no next chapter</string>
+    <string name="transition_no_previous">There\'s no previous chapter</string>
+    <string name="transition_pages_loading">Loading pages…</string>
+    <string name="transition_pages_error">Failed to load pages: %1$s</string>
+    <string name="page_list_empty_error">No pages found</string>
+    <string name="loader_not_implemented_error">Source not found</string>
+
+    <!-- Updates -->
+    <string name="updating_library">Updating library</string>
+    <string name="update_already_running">An update is already running</string>
+    <string name="cant_open_last_read_chapter">Unable to open last read chapter</string>
+    <string name="updates_last_update_info">Library last updated: %s</string>
+    <string name="updates_last_update_info_just_now">Just now</string>
+    <string name="relative_time_span_never">Never</string>
+    <string name="action_view_upcoming">View Upcoming Updates</string>
+    <string name="action_filter_excluded_scanlators">Filter excluded scanlators</string>
+    <string name="pref_filter_update_categories_details">Updates in excluded categories will not be shown even if they are also in any included categories.</string>
+
+    <!-- Upcoming -->
+    <string name="upcoming_guide">Upcoming Guide</string>
+    <string name="upcoming_calendar_next">Next Month</string>
+    <string name="upcoming_calendar_prev">Previous Month</string>
+    <string name="pref_filter_upcoming_categories_details">Titles in excluded categories are not shown, even if they are also in any of the included categories.</string>
+
+    <!-- History -->
+    <string name="recent_manga_time">Ch. %1$s - %2$s</string>
+    <string name="pref_clear_history">Clear history</string>
+    <string name="clear_history_completed">History deleted</string>
+    <string name="clear_history_confirmation">Are you sure? All history will be lost.</string>
+
+    <!-- Source Screen -->
+    <string name="source_empty_screen">No source found</string>
+
+    <!-- Source Filter Screen -->
+    <string name="source_filter_empty_screen">No installed source found</string>
+
+    <!-- Source migration screen -->
+    <string name="migration_help_guide">Source migration guide</string>
+    <string name="migration_dialog_what_to_include">Select data to include</string>
+    <string name="migration_selection_prompt">Select a source to migrate from</string>
+    <string name="migrate">Migrate</string>
+    <!-- Make a copy (noun) when migrating. Don't use for copying to clipboard. -->
+    <string name="copy">Copy</string>
+    <string name="empty_screen">Well, this is awkward</string>
+    <string name="not_installed">Not installed</string>
+
+    <!-- Crash screen -->
+    <string name="crash_screen_title">Whoops!</string>
+    <string name="crash_screen_description">%s ran into an unexpected error. We suggest you share the crash logs in our support channel on Discord.</string>
+    <string name="crash_screen_restart_application">Restart the application</string>
+
+    <!-- Stats screen -->
+    <string name="label_overview_section">Overview</string>
+    <string name="label_completed_titles">Completed entries</string>
+    <string name="label_read_duration">Read duration</string>
+    <string name="label_titles_section">Entries</string>
+    <string name="label_titles_in_global_update">In global update</string>
+    <string name="label_total_chapters">Total</string>
+    <string name="label_read_chapters">Read</string>
+    <string name="label_tracker_section">Trackers</string>
+    <string name="label_tracked_titles">Tracked entries</string>
+    <string name="label_mean_score">Mean score</string>
+    <string name="label_used">Used</string>
+    <string name="label_reading_activity_section">Reading activity</string>
+    <string name="info_reading_stats_empty">No reading in this period yet.</string>
+    <string name="label_translation_section">Translation</string>
+    <string name="label_translated_chapters">Chapters</string>
+    <string name="label_translated_pages">Pages</string>
+    <string name="label_tokens_used">Tokens</string>
+    <string name="label_token_breakdown">Prompt %1$s · Completion %2$s</string>
+    <string name="label_stats_period_today">Today</string>
+    <string name="label_stats_period_week">7 days</string>
+    <string name="label_stats_period_month">30 days</string>
+    <string name="label_stats_period_all">All</string>
+    <string name="info_translation_stats_empty">No translations in this period yet.</string>
+    <string name="not_applicable">N/A</string>
+    <string name="day_short">%dd</string>
+    <string name="hour_short">%dh</string>
+    <string name="minute_short">%dm</string>
+    <string name="seconds_short">%ds</string>
+
+    <!-- Downloads activity and service -->
+    <string name="download_queue_error">Couldn\'t download chapters. You can try again in the downloads section</string>
+    <string name="download_insufficient_space">Couldn\'t download chapters due to low storage space</string>
+    <string name="download_queue_size_warning">Warning: large bulk downloads may lead to sources becoming slower and/or blocking %s. Tap to learn more.</string>
+
+    <!-- Library update service notifications -->
+    <string name="notification_updating_progress">Updating library… (%s)</string>
+    <string name="notification_size_warning">Large updates harm sources and may lead to slower updates and also increased battery usage. Tap to learn more.</string>
+    <string name="notification_new_chapters">New chapters found</string>
+    <string name="notification_chapters_single">Chapter %1$s</string>
+    <string name="notification_chapters_single_and_more">Chapter %1$s and %2$d more</string>
+    <string name="notification_chapters_multiple">Chapters %1$s</string>
+    <string name="learn_more">Tap to learn more</string>
+    <string name="notification_cover_update_failed">Failed to update cover</string>
+    <string name="notification_first_add_to_library">Please add the entry to your library before doing this</string>
+    <string name="library_errors_help">For help on how to fix library update errors, see %1$s</string>
+    <string name="skipped_reason_completed">Skipped because series is complete</string>
+    <string name="skipped_reason_not_caught_up">Skipped because there are unread chapters</string>
+    <string name="skipped_reason_not_started">Skipped because no chapters are read</string>
+    <string name="skipped_reason_not_always_update">Skipped because series does not require updates</string>
+    <string name="skipped_reason_not_in_release_period">Skipped because no release was expected today</string>
+
+    <!-- File Picker Titles -->
+    <string name="file_select_cover">Select cover image</string>
+    <string name="file_select_backup">Select backup file</string>
+    <string name="file_picker_error">No file picker app found</string>
+    <string name="file_picker_uri_permission_unsupported">Failed to acquire persistent folder access. The app may behave unexpectedly.</string>
+    <string name="file_null_uri_error">No file selected</string>
+
+    <!--UpdateCheck-->
+    <string name="update_check_confirm">Download</string>
+    <string name="update_check_open">Open on GitHub</string>
+    <!-- reserved for future use -->
+    <string name="update_check_eol">This Android version is no longer supported</string>
+    <string name="update_check_no_new_updates">No new updates available</string>
+
+    <!--UpdateCheck Notifications-->
+    <string name="update_check_notification_download_in_progress">Downloading…</string>
+    <string name="update_check_notification_update_available">New version available!</string>
+
+    <!-- Information Text -->
+    <string name="information_no_downloads">No downloads</string>
+    <string name="information_no_translations">No translation or night-page jobs in queue</string>
+    <string name="queue_all_off_message">Translation and night reading are both off. Turn one on in Settings to queue jobs</string>
+    <string name="information_no_recent">No recent updates</string>
+    <string name="information_no_recent_manga">Nothing read recently</string>
+    <string name="information_empty_library">Your library is empty</string>
+    <string name="information_no_manga_category">Category is empty</string>
+    <string name="information_no_entries_found">No entries found in this category</string>
+    <string name="getting_started_guide">Getting started guide</string>
+    <string name="information_empty_category">You have no categories. Tap the plus button to create one for organizing your library.</string>
+    <string name="information_empty_category_dialog">You don\'t have any categories yet.</string>
+    <string name="information_cloudflare_bypass_failure">Failed to bypass Cloudflare</string>
+    <string name="information_cloudflare_help">Tap here for help with Cloudflare</string>
+    <string name="information_required_plain">*required</string>
+    <!-- Do not translate "WebView" -->
+    <string name="information_webview_required">WebView is required for the app to function</string>
+    <!-- Do not translate "WebView" -->
+    <string name="information_webview_outdated">Please update the WebView app for better compatibility</string>
+    <string name="chapter_settings_updated">Updated default chapter settings</string>
+
+    <!-- Download Notification -->
+    <string name="download_notifier_downloader_title">Downloader</string>
+    <string name="download_notifier_title_error">Error</string>
+    <string name="download_notifier_unknown_error">Could not download chapter due to unexpected error</string>
+    <string name="download_notifier_text_only_wifi">No Wi-Fi connection available</string>
+    <string name="download_notifier_no_network">No network connection available</string>
+    <string name="download_notifier_download_paused">Downloads paused</string>
+    <string name="download_notifier_split_page_not_found">Page %d not found while splitting</string>
+    <string name="download_notifier_split_page_path_not_found">Couldn\'t find file path of page %d</string>
+    <string name="download_notifier_cache_renewal">Checking downloads</string>
+
+    <!-- Notification channels -->
+    <string name="channel_common">Common</string>
+    <string name="channel_progress">Progress</string>
+    <string name="channel_complete">Complete</string>
+    <string name="channel_errors">Errors</string>
+    <string name="channel_new_chapters">Chapter updates</string>
+    <string name="channel_app_updates">App updates</string>
+    <string name="channel_ext_updates">Extension updates</string>
+
+    <!-- S Pen actions -->
+    <string name="spen_previous_page">Previous page</string>
+    <string name="spen_next_page">Next page</string>
+
+    <!-- App widget -->
+    <string name="appwidget_updates_description">See your recently updated library entries</string>
+    <string name="appwidget_unavailable_locked">Widget not available when app lock is enabled</string>
+    <string name="remove_manga">You are about to remove \"%s\" from your library</string>
+
+    <!-- Common exceptions -->
+    <!-- Do not translate "WebView" -->
+    <string name="exception_http">HTTP %d, check website in WebView</string>
+    <string name="exception_offline">No Internet connection</string>
+    <string name="exception_unknown_host">Couldn\'t reach %s</string>
+
+    <!-- Notes screen -->
+    <string name="notes_placeholder">Enjoyed the part where…</string>
+
+    <string name="migrationConfigScreen.selectedHeader">Selected</string>
+    <string name="migrationConfigScreen.availableHeader">Available</string>
+    <string name="migrationConfigScreen.selectAllLabel">Select all</string>
+    <string name="migrationConfigScreen.selectNoneLabel">Select none</string>
+    <string name="migrationConfigScreen.selectEnabledLabel">Select enabled sources</string>
+    <string name="migrationConfigScreen.selectPinnedLabel">Select pinned sources</string>
+    <string name="migrationConfigScreen.continueButtonText">Continue</string>
+    <string name="migrationConfigScreen.dataToMigrateHeader">Data to migrate</string>
+    <string name="migrationConfigScreen.removeDownloadsTitle">Delete downloads of current entry after migration</string>
+    <string name="migrationConfigScreen.additionalSearchQueryLabel">Additional keywords (optional)</string>
+    <string name="migrationConfigScreen.additionalSearchQuerySupportingText">Helps narrow down search results by adding additional keywords</string>
+    <string name="migrationConfigScreen.hideUnmatchedTitle">Hide entries without a match</string>
+    <string name="migrationConfigScreen.hideWithoutUpdatesTitle">Hide entries without newer chapters</string>
+    <string name="migrationConfigScreen.hideWithoutUpdatesSubtitle">Only show entry if the match has additional chapters</string>
+    <string name="migrationConfigScreen.enhancedOptionsWarning">These options are slow and dangerous and may lead to restrictions from sources</string>
+    <string name="migrationConfigScreen.deepSearchModeTitle">Advanced search mode</string>
+    <string name="migrationConfigScreen.deepSearchModeSubtitle">Breaks down the title into keywords for a wider search</string>
+    <string name="migrationConfigScreen.prioritizeByChaptersTitle">Match based on chapter number</string>
+    <string name="migrationConfigScreen.prioritizeByChaptersSubtitle">If enabled, chooses the match furthest ahead. Otherwise, picks the first match by source priority.</string>
+    <string name="migrationListScreenTitle">Migration</string>
+    <string name="migrationListScreenTitleWithProgress">Migration (%1$d/%2$d)</string>
+    <string name="migrationListScreen.copyActionLabel">Copy</string>
+    <string name="migrationListScreen.migrateActionLabel">Migrate</string>
+    <string name="migrationListScreen.noMatchFoundText">No alternatives found</string>
+    <string name="migrationListScreen.latestChapterLabel">Latest: %1$s</string>
+    <string name="migrationListScreen.unknownLatestChapter">Unknown</string>
+    <string name="migrationListScreen.searchManuallyActionLabel">Search manually</string>
+    <string name="migrationListScreen.skipActionLabel">Don\'t migrate</string>
+    <string name="migrationListScreen.migrateNowActionLabel">Migrate now</string>
+    <string name="migrationListScreen.copyNowActionLabel">Copy now</string>
+    <string name="migrationListScreen.copyNowActionLabel">Copy now</string>
+    <string name="migrationListScreen.exitDialogTitle">Stop migrating?</string>
+    <string name="migrationListScreen.exitDialog.stopLabel">Stop</string>
+    <string name="migrationListScreen.exitDialog.cancelLabel">Cancel</string>
+    <string name="migrationListScreen.migrateDialog.copyLabel">Copy</string>
+    <string name="migrationListScreen.migrateDialog.migrateLabel">Migrate</string>
+    <string name="migrationListScreen.migrateDialog.cancelLabel">Cancel</string>
+    <string name="migrationListScreen.progressDialog.cancelLabel">Cancel</string>
+    <string name="migrationListScreen.matchWithoutChapterToast">No chapters found, this entry cannot be used for migration</string>
+
+    <string name="supportUsScreen.perks">Patrons get access to exclusive channels, with more perks to come.</string>
+    <string name="supportUsScreen.donationPlatform.patreon">Patreon (preferred)</string>
+    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
+    <string name="supportUsScreen.currentlySupportedBy">Karaza is currently backed by %d+ patrons. We want to thank each and everyone of you. Let's make Karaza even better together.</string>
+    <string name="supportUsScreen.contactForDetailsMessage">For alternative options or any related questions, join our Discord server.</string>
+    <string name="supportUsScreen.contactPlatform">Discord</string>
+
+    <string name="donationCampaign.title">Enjoying the app?</string>
+    <string name="donationCampaign.paragraph1">Hi! I’m the main developer behind Karaza, and I’d like to ask you to consider supporting its development financially. With enough support, I’ll be able to work on Karaza full-time and focus on long-standing issues as well as highly requested features.</string>
+    <string name="donationCampaign.paragraph2">You can donate through either Patreon (preferred) or OpenCollective. If you have questions or would like to support using alternative methods, feel free to reach out to me through Karaza's Discord server.</string>
+    <string name="donationCampaign.paragraph3">Regardless, Karaza will continue to be maintained by me and the volunteers, and it will stay open source.</string>
+    <string name="donationCampaign.contactPlatform">Discord</string>
+    <string name="donationCampaign.dismiss">Dismiss</string>
+
+    <!-- Karaza: translation settings -->
+    <string name="pref_translation_group_provider">Provider</string>
+    <string name="pref_translation_group_language">Language</string>
+    <string name="pref_translation_group_models">Models</string>
+    <string name="pref_translation_group_inpaint">Text removal</string>
+    <string name="pref_translation_group_typeset">Typesetting</string>
+    <string name="pref_translation_group_performance">Performance (device-dependent)</string>
+    <string name="pref_translation_group_recognition">Recognition (detection / OCR)</string>
+    <string name="pref_translation_group_live">Live translation</string>
+    <string name="pref_translation_show_advanced">Show advanced options</string>
+    <string name="pref_translation_show_advanced_summary">Expand all fine-tuning parameters (most users can skip)</string>
+    <string name="pref_translation_master">Enable translation</string>
+    <string name="pref_translation_master_summary">Master switch. When off, nothing is translated automatically (on download or while reading)</string>
+    <string name="translation_master_off_message">Translation is off. Turn on \"Enable translation\" in Settings to translate.</string>
+    <string name="pref_translation_on_download">Translate chapters on download</string>
+    <string name="pref_translation_on_download_summary">Detection / OCR / text removal run on-device; translation uses a cloud LLM</string>
+    <string name="pref_translation_live">Live translation (as you read)</string>
+    <string name="pref_translation_live_summary">Translates an unread chapter page by page and swaps pages in; needs an API key + models, separate from translate-on-download</string>
+    <string name="pref_translation_live_categories">Live translation categories</string>
+    <string name="pref_translation_live_categories_message">Include categories = translate only those; exclude = skip them; none = all</string>
+    <string name="pref_translation_live_inpaint_method">Live text removal</string>
+    <string name="pref_translation_live_inpaint_summary">Text-removal method for live translation, kept separate from downloads. AI removal by default — it is fast enough now and runs while the translation request is in flight. Switch to fast (box-fill) on slower devices.</string>
+    <string name="pref_translation_excluded_sources">Sources to skip</string>
+    <string name="pref_translation_excluded_sources_summary">Picked sources won\'t auto-translate (manual still works): %s</string>
+    <string name="pref_translation_remove_after_read_summary">%s (synced with download settings)</string>
+    <string name="pref_translation_provider">LLM provider</string>
+    <string name="pref_translation_provider_summary">%s · keys kept per provider</string>
+    <string name="pref_translation_provider_qwen">Qwen (Tongyi Qianwen)</string>
+    <string name="pref_translation_provider_sakura">Sakura (self-hosted)</string>
+    <string name="pref_translation_provider_custom">Custom (OpenAI-compatible)</string>
+    <string name="pref_translation_api_base">API base</string>
+    <string name="pref_translation_api_base_summary">Self-hosted / custom endpoint, e.g. http://192.168.1.5:8080/v1</string>
+    <string name="pref_translation_api_key">API key (BYOK)</string>
+    <string name="pref_translation_api_key_summary">%s key (encrypted on device)</string>
+    <string name="pref_translation_model">Model</string>
+    <string name="pref_translation_model_default_summary">Default: %s</string>
+    <string name="pref_translation_fetch_models">↻ Fetch available models</string>
+    <string name="pref_translation_fetch_models_summary">Fetch the provider\'s latest model list to pick from (enter the key first)</string>
+    <string name="pref_translation_fetching">Fetching…</string>
+    <string name="pref_translation_fetch_models_empty">Couldn\'t fetch the model list; enter a model id manually</string>
+    <string name="pref_translation_pick_model">Select model (%d)</string>
+    <string name="pref_translation_privacy">Privacy</string>
+    <string name="pref_translation_privacy_summary">Only OCR\'d text leaves the device — tap for the full disclosure</string>
+    <string name="pref_translation_privacy_full">When translating:\n• Only the OCR\'d text is sent to the LLM provider you configure (your own key, your own endpoint).\n• Images, detection, OCR, and text removal all run on your device and never leave it.\n• Your API key is encrypted on-device with the Android Keystore.\n• This app adds no analytics or telemetry.\n• What you send and your usage follow your chosen provider\'s terms; cloud translation may incur costs.</string>
+    <string name="pref_translation_model_status">Model status</string>
+    <string name="pref_translation_model_status_checking">Checking…</string>
+    <string name="pref_translation_model_status_missing">%1$s (missing = put the models in the storage models/ folder, or tap Download models)</string>
+    <string name="translation_models_outdated_action">Old-format models — the v2 engine can\'t use them. Go to Settings → Translation and tap “Update models” to re-download.</string>
+    <string name="translation_models_missing_action">No translation models yet. Go to Settings → Translation to download them.</string>
+    <string name="pref_translation_model_status_outdated">⚠️ Old-format models detected — translation is off until you update. The v2 engine needs the NCNN model set: tap “Update models” below to re-download.</string>
+    <string name="pref_translation_download_models">Download models</string>
+    <string name="pref_translation_update_models">Update models</string>
+    <string name="pref_translation_download_models_idle">Auto-download the models (~250 MB) from the release + sha256 verify</string>
+    <string name="pref_translation_download_models_done">Download complete</string>
+    <string name="pref_translation_download_models_error">Failed: %s (tap to retry)</string>
+    <string name="pref_translation_target_lang">Target language</string>
+    <string name="pref_translation_source_lang">Source language</string>
+    <string name="pref_translation_render_update_title">Update translated chapters</string>
+    <string name="pref_translation_render_update_upgrade">Text-removal method changed. Re-render all translated chapters with the current settings? It only upgrades removal quality, never downgrades (keeps the best result); loose downloaded chapters with saved materials only.</string>
+    <string name="pref_translation_render_update_layout">Typesetting changed. Re-render all translated chapters with the new layout? Each keeps its own removal method, only the layout changes; loose downloaded chapters with saved materials only.</string>
+    <string name="pref_translation_render_update_none">No translated chapters to update (or materials not kept)</string>
+    <string name="pref_translation_render_manual_note">Changes below only apply to pages translated from now on; re-render translated chapters manually to apply them</string>
+    <string name="pref_translation_thread_auto">Auto (%d cores)</string>
+    <string name="pref_translation_thread_count">%d threads</string>
+    <string name="pref_translation_keep_materials">Keep re-render materials</string>
+    <string name="pref_translation_keep_materials_summary">Saves the original + mask + text regions per page so you can re-render with another removal method later (no re-OCR/translate); roughly doubles storage</string>
+    <string name="pref_translation_color_mode">Text color</string>
+    <string name="pref_translation_color_auto">Auto (black/white by background)</string>
+    <string name="pref_translation_color_mono">Always black with a white outline</string>
+    <string name="pref_translation_font_border">Text outline</string>
+    <string name="pref_translation_font_border_summary">An outline makes text on busy backgrounds easier to read</string>
+    <string name="pref_translation_ocr_concurrency">OCR concurrency</string>
+    <string name="pref_translation_ocr_concurrency_summary">How many OCR lines run at once (auto = cores); higher is faster up to the core count. %s</string>
+    <string name="pref_translation_adv_current">. Current: %s</string>
+    <string name="pref_translation_bbox_pad">Removal padding px</string>
+    <string name="pref_translation_bbox_pad_desc">Expands the removal area to cover edge kana; 0–64. Too small misses edge kana, too large eats into nearby art</string>
+    <string name="pref_translation_font_size_max">Max font size px</string>
+    <string name="pref_translation_font_size_max_desc">20–120. Too small leaves big bubbles unfilled, too large blows up short lines</string>
+    <string name="pref_translation_font_size_min">Min font size px</string>
+    <string name="pref_translation_font_size_min_desc">6–40. Below this it overflows rather than shrinking</string>
+    <string name="pref_translation_art_stroke">On-art outline width ratio</string>
+    <string name="pref_translation_art_stroke_desc">Font size × this; 0–0.5. Too small is hard to read, too large the outline eats the glyph</string>
+    <string name="pref_translation_col_trim">Fewer chars per vertical column</string>
+    <string name="pref_translation_col_trim_desc">0–10. Higher means smaller text and more columns</string>
+    <string name="pref_translation_row_trim">Fewer chars per horizontal row</string>
+    <string name="pref_translation_row_trim_desc">0–10. The horizontal version of column trim</string>
+    <string name="pref_translation_font_scale">Overall font scale</string>
+    <string name="pref_translation_font_scale_desc">0.3–1.5. Below 1 fits the cell better with a margin</string>
+    <string name="pref_translation_seg_threshold">Removal mask threshold (seg)</string>
+    <string name="pref_translation_seg_threshold_desc">0–1. Lower catches more strokes (fixes kana left beside kanji), higher misses fine strokes</string>
+    <string name="pref_translation_min_prob">OCR confidence threshold</string>
+    <string name="pref_translation_min_prob_desc">0–1. Lines below this are dropped; too low keeps noise/garbage, too high drops text</string>
+    <string name="pref_translation_ignore_sfx">Skip sound effects (SFX)</string>
+    <string name="pref_translation_ignore_sfx_summary">Skips colored / decorative sound effects and leaves them untranslated (keeps the original flavor). It only skips translating them — they stay on the page, they aren\'t erased.</string>
+    <!-- Karaza: advanced badge + advanced recognition params (OCR crop / detector) -->
+    <string name="pref_advanced_badge">Advanced</string>
+    <string name="pref_translation_strip_pad">OCR crop padding px</string>
+    <string name="pref_translation_strip_pad_desc">Expands the detection box by N px before the OCR crop, to fix \"box too thin → CTC reads blank → bubble skipped\". 0–12; 4 is the measured sweet spot, 8+ regresses</string>
+    <string name="pref_translation_detect_unsharp">Sharpen detector input</string>
+    <string name="pref_translation_detect_unsharp_summary">Sharpens the image fed to detection. Marginal benefit and worse on some pages; off by default</string>
+    <string name="pref_translation_use_bicubic">OCR crop interpolation</string>
+    <string name="pref_translation_use_bicubic_desc">How the OCR crop is resampled. Bicubic recovers small kana (so sentence-final negation isn\'t translated as the opposite); slightly slower than bilinear</string>
+    <string name="pref_translation_interp_bicubic">Bicubic (recommended)</string>
+    <string name="pref_translation_interp_bilinear">Bilinear</string>
+    <string name="pref_translation_dbnet_size">Detection size px</string>
+    <string name="pref_translation_dbnet_size_desc">Detection resolution; 768–1536. 1024 is the sweet spot; 960 is rough, 1280+ is slower and mis-reads, 768 misses text</string>
+    <!-- Karaza: more advanced params (OCR sharpen / removal resolution+dilation / tate-chu-yoko / LLM temperature) -->
+    <string name="pref_translation_ocr_unsharp">Sharpen OCR crop</string>
+    <string name="pref_translation_ocr_unsharp_summary">Sharpens the OCR crop to counter the blur from upscaling narrow columns, recovering small kana that would otherwise be misread. On by default (no downside on lines that already read cleanly); off falls back to no sharpening, which is blurrier and can miss small kana.</string>
+    <string name="pref_translation_tile_size">Removal resolution px</string>
+    <string name="pref_translation_tile_size_desc">Resolution of the whole-image AI text removal. 768 is the quality / memory sweet spot; 512 blurs busy areas; 1024 doubles memory and hits the ceiling that translation already sets.</string>
+    <string name="pref_translation_mask_dilate">Mask dilation</string>
+    <string name="pref_translation_mask_dilate_desc">How far the removal mask grows (value ÷ 2 = radius in px); 8–40. Manga text drawn over faces or hair has a white outline the mask must swallow, or removal leaves a white patch. Too small leaves white patches; 24 is the measured value.</string>
+    <string name="pref_translation_tate_chu_yoko">Tate-chu-yoko (horizontal-in-vertical)</string>
+    <string name="pref_translation_tate_chu_yoko_summary">In vertical text, lays short ASCII runs (2–4 digits or letters, or \"!?\") flat in one cell, so ages like \"20\" or \"!?\" aren\'t stacked and read sideways. Only affects ASCII inside vertical text; CJK is unchanged.</string>
+    <string name="pref_translation_temperature">LLM temperature</string>
+    <string name="pref_translation_temperature_desc">LLM sampling temperature; 0.0–1.0. Lower (toward 0) is more consistent and literal; higher (toward 1) is more flexible but can drift from the original. Most people don\'t need to change it</string>
+    <string name="pref_translation_thinking">Thinking mode</string>
+    <string name="pref_translation_thinking_summary">Let the model think before it answers. Off by default: most newer models think by default, but line-by-line manga translation gains very little from it while getting noticeably slower and using several times the tokens (so it costs more). Only turn it on if translation quality is clearly falling short. Not every provider can turn it off completely (OpenAI\'s o-series can only be dialed to its lowest setting; Gemini 3 and Groq\'s GPT-OSS can only be reduced).</string>
+    <string name="pref_translation_diagnostic_log">Diagnostic log</string>
+    <string name="pref_translation_diagnostic_log_summary">Record each translation and night-read stage (with per-page timings) to a private file, to catch native or out-of-memory crashes that logcat and the built-in crash log miss. API keys are never recorded. Affects performance — only turn on when you need to diagnose.</string>
+    <string name="pref_translation_share_diagnostic_log">Share diagnostic log</string>
+    <string name="pref_translation_share_diagnostic_log_summary">Send the recorded log (previous and current launch), plus the system crash dump from the latest native crash if one happened in the last 7 days, so problems can be investigated</string>
+    <string name="pref_translation_diagnostic_log_empty">No diagnostic log yet</string>
+    <string name="model_role_detect">Detector</string>
+    <string name="model_role_ocr">OCR</string>
+    <string name="model_role_inpaint">Text removal</string>
+    <!-- Karaza: model auto-download (manager + notifications) -->
+    <string name="model_dl_preparing">Preparing…</string>
+    <string name="model_dl_downloading">Downloading %s</string>
+    <string name="model_dl_verifying">Verifying %s…</string>
+    <string name="model_dl_done_one">%s done</string>
+    <string name="model_dl_failed">Unknown error</string>
+    <string name="model_dl_notif_title">Downloading models %d%%</string>
+    <string name="model_dl_notif_done">Models downloaded</string>
+    <string name="model_dl_notif_done_text">All 3 models are ready</string>
+    <string name="model_dl_notif_failed">Model download failed</string>
+    <!-- Karaza: notification channel names (Downloader group) -->
+    <string name="channel_translation_progress">Translation &amp; night reading</string>
+    <string name="channel_browse_fetch">Browse fetching</string>
+    <string name="model_dl_progress_subtitle">%1$s (%2$d%%)</string>
+    <string name="model_dl_error_network">Network error — check your connection</string>
+    <string name="model_dl_error_checksum">File check failed; the download may be corrupted</string>
+    <string name="model_dl_error_http">Server error (HTTP %1$d)</string>
+    <!-- Karaza: engine status + preload -->
+    <string name="engine_unavailable">Engine unavailable (missing models/key or build failed)</string>
+    <string name="translate_exception">Translation exception</string>
+    <string name="engine_preload_desc">Translation engine</string>
+    <string name="engine_status_loading">Translation engine: loading…</string>
+    <string name="engine_status_warm">Translation engine: preloaded</string>
+    <string name="engine_status_cold">Translation engine: not preloaded</string>
+    <string name="engine_status_models_outdated">⚠️ Models need updating to translate</string>
+    <string name="engine_status_models_missing">⚠️ Translation models not downloaded</string>
+    <string name="engine_unload">Unload preload (free ~250MB)</string>
+    <string name="engine_preload_action">Preload engine</string>
+    <!-- Karaza: reader live-translate + page actions -->
+    <string name="reader_engine_loading">Loading engine…</string>
+    <string name="reader_translating_progress">Translating %1$d/%2$d</string>
+    <string name="reader_translating">Translating</string>
+    <string name="reader_translating_queued">Translation queued</string>
+    <string name="reader_translate_this_page">Translate this page</string>
+    <string name="reader_chapter_list">Chapters</string>
+    <string name="reader_translate_this_chapter">Translate this chapter</string>
+    <string name="reader_stop_chapter_translate">Stop translating this chapter</string>
+    <string name="reader_change_removal">Text removal</string>
+    <string name="reader_rerendering">Re-rendering…</string>
+    <string name="reader_rerender_done">Page re-rendered</string>
+    <string name="reader_rerender_failed">Re-render failed (no materials or error)</string>
+    <string name="reader_rerender_no_materials">This page has no re-render materials (\"Keep re-render materials\" was off when it was translated), so it can\'t be re-rendered or restored to the original</string>
+    <string name="reader_translate_page_no_original">This page is already translated and its original wasn\'t kept, so it can\'t be translated again</string>
+    <string name="reader_translate_page_too_large">This page is too large to translate (over 40 megapixels). The original is kept</string>
+    <string name="reader_translating_page">Translating this page…</string>
+    <string name="reader_translate_page_done">Page translated</string>
+    <string name="reader_translate_page_failed">Translation failed (skipped or error)</string>
+    <string name="reader_translate_chapter_started">Started translating this chapter</string>
+    <string name="reader_translate_chapter_stopped">Stopped translating this chapter</string>
+    <!-- Karaza: re-render -->
+    <string name="action_rerender">Re-render</string>
+    <string name="rerender_method_title">Re-render text-removal method</string>
+    <string name="rerender_boxfill">Fast (box-fill)</string>
+    <string name="rerender_auto_whole">AI removal</string>
+    <string name="rerender_auto_tile">AI removal (per-panel)</string>
+    <string name="rerender_original">Original (restore untranslated)</string>
+    <string name="rerender_all_book">Re-render whole book (current removal setting)</string>
+    <string name="rerender_none">No translated chapters to re-render</string>
+    <!-- Karaza: night read -->
+    <string name="pref_translation_nightread">Auto-generate night pages</string>
+    <string name="pref_translation_nightread_summary">After a chapter is downloaded (and translated, when translation is on), generate a darkened night-reading copy of each page. Also works for manga you don\'t translate (needs the character-segmentation models; slow — several seconds per page)</string>
+    <string name="reader_nightread_chapter_started">Queued night pages for this chapter</string>
+    <string name="nightread_archive_unsupported">Night pages only work for loose image folders; archive (CBZ/RAR/7z/EPUB) chapters were skipped</string>
+    <string name="action_nightread">Generate night pages</string>
+    <string name="queue_kind_nightread">Night pages</string>
+    <string name="nightread_status_rendering">Generating</string>
+    <string name="pref_category_nightread">Night reading</string>
+    <string name="pref_nightread_summary">Darkened page copies for reading at night: auto-generation scope, brightness, models</string>
+    <string name="pref_nightread_categories">Auto-generate categories</string>
+    <string name="pref_nightread_categories_message">Include categories = generate only for those; exclude = skip them; none = all. Manual generation is not affected</string>
+    <string name="pref_nightread_excluded_sources">Sources to skip</string>
+    <string name="pref_nightread_excluded_sources_summary">Chapters from these sources are not auto-generated (manual still works): %s</string>
+    <string name="pref_nightread_skip_color">Skip color pages</string>
+    <string name="pref_nightread_skip_color_summary">Color pages are only desaturated and look worse; skip them and show the original instead</string>
+    <string name="pref_nightread_fill_level">Fill level (synced with the reader\'s floating button)</string>
+    <string name="pref_nightread_fill_level_summary">How much white may be painted black. Standard = panel gutters, page margins, speech bubbles and large, simple white areas; More also paints smaller simple ones. Busy artwork and characters are never painted at either level. Both levels are prepared when a chapter is generated, so this only picks which one is shown; switch while reading with the floating button: %s</string>
+    <string name="nightread_fill_standard">Standard (gutters, margins, bubbles, large simple whites)</string>
+    <string name="nightread_fill_more">More (+ smaller simple whites)</string>
+    <string name="pref_nightread_brightness_info">Applies to night pages generated from now on; to update a chapter, use “Regenerate this chapter with current settings” in the reader\'s long-press menu</string>
+    <string name="pref_nightread_brightness">Preset</string>
+    <string name="nightread_brightness_standard">Standard (bright)</string>
+    <string name="nightread_brightness_soft">Soft</string>
+    <string name="nightread_brightness_softer">Softer</string>
+    <string name="nightread_brightness_custom">Custom</string>
+    <string name="pref_nightread_ink">Text</string>
+    <string name="pref_nightread_ink_summary">Brightness of text inside bubbles</string>
+    <string name="pref_nightread_edge_ink">Outlines</string>
+    <string name="pref_nightread_edge_ink_summary">Brightness of panel borders, bubble outlines and edges of filled areas</string>
+    <string name="pref_nightread_stroke_obj">Character edges</string>
+    <string name="pref_nightread_stroke_obj_summary">Brightness of the thin outline drawn around characters</string>
+    <string name="pref_nightread_bg">Background level</string>
+    <string name="pref_nightread_bg_summary">Darkness of filled areas (margins, bubbles, backgrounds)</string>
+    <string name="pref_nightread_dim_ceil">Scene brightness ceiling</string>
+    <string name="pref_nightread_dim_ceil_summary">How bright paper white is allowed to stay inside artwork</string>
+    <string name="pref_nightread_glow_cap">Ink glow cap</string>
+    <string name="pref_nightread_glow_cap_summary">Maximum brightness of line art after glow (kept below the scene ceiling)</string>
+    <string name="pref_nightread_page_concurrency">Pages at once</string>
+    <string name="pref_nightread_page_concurrency_summary">How many night pages are generated in parallel. Only applies while night processing runs alone; while translation or live translation runs, it automatically drops to one page at a time, a single thread and low priority. Current: %s</string>
+    <string name="pref_nightread_page_concurrency_auto">Auto (%d on this device)</string>
+    <string name="pref_nightread_download_models">Download night models</string>
+    <string name="pref_nightread_download_models_idle">Two character-segmentation models (about 147 MB); the detector is shared with translation and skipped if already present</string>
+    <string name="pref_nightread_delete_models">Delete night models</string>
+    <string name="pref_nightread_delete_models_summary">Removes the two character-segmentation models (about 147 MB); the detector stays for translation</string>
+    <string name="pref_nightread_model_status_missing">%1$s — missing; download the night models</string>
+    <string name="pref_translation_delete_models">Delete translation models</string>
+    <string name="pref_translation_delete_models_summary">Removes OCR and text-removal models; the detector is kept if night reading still uses it</string>
+    <string name="model_dl_other_group_busy">Another model group is downloading…</string>
+    <string name="model_role_detect_shared">Detector (shared)</string>
+    <string name="model_role_charseg_yolo">Segmentation A</string>
+    <string name="model_role_charseg_cseg">Segmentation B</string>
+    <string name="queue_pause_translate">Pause translation</string>
+    <string name="queue_resume_translate">Resume translation</string>
+    <string name="queue_pause_night">Pause night pages</string>
+    <string name="queue_resume_night">Resume night pages</string>
+    <string name="pref_reader_nightread_mode">Night reading</string>
+    <string name="pref_reader_nightread_mode_summary">Show the darkened night page when one exists</string>
+    <string name="nightread_missing_models">Night-reading models are missing — download the models again.</string>
+    <string name="pref_nightread_master">Night reading</string>
+    <string name="pref_nightread_master_summary">Show night-page buttons and let night jobs run</string>
+    <string name="action_nightread_chapter">Generate night pages for this chapter</string>
+    <string name="action_nightread_chapter_regen_tiers">Regenerate night pages</string>
+    <string name="action_nightread_chapter_regen_current">Regenerate this chapter with current settings</string>
+    <string name="nightread_generate_confirm">Generate night pages for this chapter?</string>
+    <string name="nightread_regenerate_confirm">Regenerate night pages for this chapter? The old single-level version will be replaced.</string>
+    <string name="nightread_chapter_updatable">Night-reading rules were updated: some pages here were made with the old rules. Tap to regenerate them.</string>
+    <string name="nightread_chapter_status_done">Night pages ready</string>
+    <string name="nightread_chapter_status_queued">Night pages queued</string>
+    <string name="nightread_chapter_status_rendering">Generating night pages</string>
+    <string name="nightread_chapter_status_error">Night pages failed. Tap to try again.</string>
+    <string name="action_nightread_chapter_update">Update night pages (rules updated)</string>
+    <string name="pref_nightread_regen_outdated">Regenerate outdated night pages</string>
+    <string name="pref_nightread_regen_outdated_scanning">Scanning library… (%1$d/%2$d)</string>
+    <string name="pref_nightread_regen_outdated_scanning_start">Scanning library…</string>
+    <string name="pref_nightread_regen_outdated_none">All night pages use the current rules. Tap to scan again.</string>
+    <string name="pref_nightread_regen_outdated_confirm_skip_color">“Skip color pages” is on, so the old night versions of color pages will be removed.</string>
+    <string name="pref_nightread_regen_outdated_nothing">Nothing to queue: these chapters are already being generated or were deleted</string>
+    <string name="pref_nightread_regen_outdated_failed">Couldn\'t scan the library (check storage access). Tap to try again.</string>
+    <string name="nightread_generating_progress">Generating night pages %1$d/%2$d</string>
+    <string name="nightread_needs_loose_download">Night reading needs the chapter downloaded as a folder first</string>
+    <string name="nightread_generating">Generating night pages…</string>
+    <string name="nightread_queued_waiting">Queued for night pages (waiting)</string>
+    <string name="nightread_queue_paused">Night queue is paused</string>
+    <string name="nightfab_mode">Night reading</string>
+    <string name="nightfab_state_on">On</string>
+    <string name="nightfab_state_off">Off</string>
+    <string name="nightfab_to_night">Switch to night reading</string>
+    <string name="nightfab_to_day">Switch to day reading</string>
+    <string name="nightfab_level_standard">Fill: standard</string>
+    <string name="nightfab_level_more">Fill: more</string>
+    <string name="nightfab_tier_not_generated">Not generated for this chapter</string>
+    <string name="nightfab_move_left">Move to left side</string>
+    <string name="nightfab_move_right">Move to right side</string>
+    <string name="nightfab_no_difference">No difference on this page at this level</string>
+    <string name="nightfab_tier_generating">Generating</string>
+    <string name="nightfab_tier_legacy">Old version, needs regenerating</string>
+    <string name="pref_reader_nightread_fill_level">Night fill level</string>
+    <string name="nightread_level_chip_standard">Standard</string>
+    <string name="nightread_level_chip_more">More</string>
+    <string name="pref_nightread_group_display">Display (instant)</string>
+    <string name="pref_nightread_group_generate">Generation (applies to pages generated from now on)</string>
+    <string name="pref_nightread_group_advanced">Advanced (applies to pages generated from now on)</string>
+    <!-- Karaza night reading: background running (Settings › Night reading) -->
+    <string name="pref_nightread_group_background">Background processing</string>
+    <string name="pref_nightread_battery">Keep working with the screen off</string>
+    <string name="pref_nightread_battery_restricted">When the screen is off, the system may freeze the night-reading and translation queues. Status: restricted by battery optimization. Tap to allow running in the background.</string>
+    <string name="pref_nightread_battery_unrestricted">When the screen is off, the system may freeze the night-reading and translation queues. Status: not restricted by battery optimization.</string>
+    <string name="pref_nightread_battery_background_restricted">When the screen is off, the system may freeze the night-reading and translation queues. Status: the system restricts this app\'s background activity. Tap to open app info, then set Battery to Unrestricted.</string>
+    <string name="pref_nightread_battery_oem_note">On vivo and some other brands, also turn on “Allow high background power consumption” for this app in the phone manager or battery settings.</string>
+    <!-- Karaza night reading: online (not downloaded) chapters in the reader -->
+    <string name="nightread_online_download_confirm">This chapter has to be downloaded before a night version can be made. Download it?</string>
+    <string name="nightread_online_download_started">Downloading. The night version will be made when the download finishes</string>
+    <string name="nightread_online_download_waiting">Still downloading. The night version will be made when the download finishes</string>
+    <!-- Karaza night reading: storage used by night versions (Settings › Night reading) -->
+    <string name="pref_nightread_group_storage">Storage</string>
+    <string name="pref_nightread_storage_usage">Space used by night versions</string>
+    <string name="pref_nightread_storage_scanning_start">Calculating…</string>
+    <string name="pref_nightread_storage_scanning">Calculating… (%1$d/%2$d series)</string>
+    <string name="pref_nightread_storage_clearing">Clearing… (%1$d/%2$d chapters)</string>
+    <string name="pref_nightread_storage_none">No night versions stored. Tap to recalculate.</string>
+    <string name="pref_nightread_storage_failed">Couldn\'t read the storage location (check storage access). Tap to try again.</string>
+    <string name="pref_nightread_clear_read">Clear night versions of read chapters</string>
+    <string name="pref_nightread_clear_all">Clear all night versions</string>
+    <string name="pref_nightread_clear_nothing">Nothing to clear</string>
+</resources>

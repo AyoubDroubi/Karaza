@@ -1,0 +1,50 @@
+pluginManagement {
+    includeBuild("gradle/build-logic")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven(url = "https://www.jitpack.io")
+    }
+}
+
+dependencyResolutionManagement {
+    versionCatalogs {
+        create("mihonx") {
+            from(files("gradle/mihon.versions.toml"))
+        }
+    }
+
+    @Suppress("UnstableApiUsage")
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    @Suppress("UnstableApiUsage")
+    repositories {
+        google()
+        mavenCentral()
+        maven(url = "https://www.jitpack.io")
+    }
+}
+
+// Yakuyomi：以 composite build 接入引擎 repo（submodule yakuyomi-engine）→ app 依賴 li.joye.yakuyomi:engine（翻譯）、
+// :nightread-android（夜讀）、:inference-core（共用核心）；三者都設了 group，自動替換、不必手寫 dependencySubstitution
+includeBuild("yakuyomi-engine")
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+rootProject.name = "Karaza"
+include(":app")
+include(":baseline-profile")
+include(":core-metadata")
+include(":core:archive")
+include(":core:common")
+include(":core:viewmodel")
+include(":data")
+include(":flexible-adapter")
+include(":domain")
+include(":i18n")
+include(":presentation-core")
+include(":presentation-widget")
+include(":source-api")
+include(":source-local")
+include(":telemetry")

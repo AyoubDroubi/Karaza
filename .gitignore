@@ -1,0 +1,24 @@
+# Build files
+.gradle
+.kotlin
+build
+
+# IDE files
+*.iml
+.idea/*
+!.idea/icon.svg
+/captures
+
+# Configuration files
+keystore.properties
+local.properties
+
+# macOS specific files
+.DS_Store
+api-keys.properties
+# Release signing (keep secret — never commit)
+keystore.properties
+*.jks
+*.keystore
+# Shared debug key (not a secret): keeps CI debug builds installable as updates.
+!app/debug.keystore
