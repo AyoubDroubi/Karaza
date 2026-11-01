@@ -167,7 +167,13 @@ class TranslationEngineService(private val context: Context) {
 
     /** Batch step 1: detection + OCR of [src] (not recycled). Engine unavailable → a Done(Failed) result. */
     suspend fun preparePage(src: Bitmap, methodRaw: String): PrepareResult =
-        withEngine(methodRaw, native = true, onUnavailable = { PrepareResult.Done(PageResult.Failed(it)) }) {
+        // Prepare runs only detection + OCR, so it does not count as the engine's warm-up (the inpainter is still cold).
+        withEngine(
+            methodRaw,
+            native = true,
+            marksWarm = false,
+            onUnavailable = { PrepareResult.Done(PageResult.Failed(it)) },
+        ) {
             it.prepare(src)
         }
 
@@ -176,6 +182,7 @@ class TranslationEngineService(private val context: Context) {
         withEngine(
             methodRaw,
             native = false,
+            marksWarm = false,
             onUnavailable = { reason -> BatchTranslation(pages.map { PageTranslation(it, error = reason) }, 0, false) },
         ) { it.translateBatch(pages) }
 
@@ -186,7 +193,7 @@ class TranslationEngineService(private val context: Context) {
         translation: PageTranslation,
         methodRaw: String,
     ): PageResult =
-        withEngine(methodRaw, native = true, onUnavailable = { PageResult.Failed(it) }) {
+        withEngine(methodRaw, native = true, marksWarm = true, onUnavailable = { PageResult.Failed(it) }) {
             it.complete(src, prepared, translation)
         }
 
@@ -194,11 +201,13 @@ class TranslationEngineService(private val context: Context) {
      * Same engine handling as [translatePage]: make sure the engine exists, count the call as in flight (so the engine
      * is never closed under it), and run the first native inference of a freshly built engine alone under the lock
      * (warm-up, see [translatePage]); later calls run concurrently. [native] = false for network-only work, which
-     * neither needs nor counts as the warm-up.
+     * never runs under the lock. Native calls run alone until a call with [marksWarm] (one that also exercises the
+     * inpainter) has completed.
      */
     private suspend fun <T> withEngine(
         methodRaw: String,
         native: Boolean,
+        marksWarm: Boolean,
         onUnavailable: (String) -> T,
         block: suspend (TranslationEngine) -> T,
     ): T {
@@ -213,7 +222,7 @@ class TranslationEngineService(private val context: Context) {
             inFlight.incrementAndGet()
             if (native && !warmedUp) {
                 try {
-                    Result.success(block(e).also { warmedUp = true })
+                    Result.success(block(e).also { if (marksWarm) warmedUp = true })
                 } catch (ex: kotlinx.coroutines.CancellationException) {
                     throw ex
                 } catch (ex: Throwable) {
