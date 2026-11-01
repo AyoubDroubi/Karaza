@@ -32,6 +32,6 @@ class LocalTranslatorPromptTest {
     @Test
     fun `pinned model file`() {
         LocalModel.SHA256.length shouldBe 64
-        LocalModel.URL shouldStartWith "https://huggingface.co/IndexTeam/Index-Translate-2B-GGUF/resolve/main/"
+        LocalModel.URL shouldStartWith "https://huggingface.co/IndexTeam/Index-Translate-2B-GGUF/resolve/449c9e6457b3632d328c6cbb78ae8e8e0c8059a5/"
     }
 }

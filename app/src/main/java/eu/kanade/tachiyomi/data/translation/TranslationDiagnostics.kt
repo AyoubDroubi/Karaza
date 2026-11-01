@@ -89,6 +89,8 @@ object TranslationDiagnostics {
         if (!LocalModel.isSupported) return base.copy(error = "On-device translation needs a 64-bit ARM phone.")
         val model = Injekt.get<LocalModel>()
         if (!model.isReady()) return base.copy(error = "The on-device model is not downloaded yet.")
+        // Only one copy of the model in memory: free the engine's (it reloads on the next page).
+        Injekt.get<TranslationEngineService>().shutdown()
         val start = System.currentTimeMillis()
         val translator = LocalTranslator(context, model.file, prefs.targetLangName.get())
         return try {
