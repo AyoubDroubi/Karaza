@@ -778,7 +778,6 @@
     <string name="migration_selection_prompt">Elektu fonton el kiu migri</string>
     <string name="empty_screen">Nu, estas embarase</string>
     <string name="not_installed">Ne instalitaj</string>
-    <string name="crash_screen_description">%s trafis neatenditan eraron. Ni sugestas ke vi kunigu la prikolapsajn protokolojn ĉe nia subteneja kanalo ĉe Discord.</string>
     <string name="crash_screen_restart_application">Relanĉi la aplikaĵon</string>
     <string name="label_overview_section">Superrigardo</string>
     <string name="label_read_duration">Legada daŭro</string>
@@ -895,16 +894,4 @@
     <string name="extensionStoresScreen.deleteStore.title">Forigi etendaĵejon</string>
     <string name="extensionStoresScreen.deleteStore.body">Ĉu vi volas forigi la etendaĵejon \"%1$s\" (%2$s)?</string>
     <string name="pref_webtoon_vertical_navigator_on_left">Loki vertikalan navigilon ĉe la maldekstra flanko</string>
-    <string name="supportUsScreen.perks">Donacantoj ricevas aliron al ekskluzivaj kanaloj, kaj pli da avantaĝoj poste.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (preferata)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza estas nun finance subtenata de %d+ patronoj. Ni volas danki ĉiun el vi. Ni plibonigu Karaza eĉ pli kune.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">Por alternativaj opcioj aŭ iaj ajn rilataj demandoj, aniĝu al nia Discord-servilo.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">Ĉu vi ŝatas la apon?</string>
-    <string name="donationCampaign.paragraph1">Sal! Mi estas ĉefa programisto de Karaza kaj mi ŝatus peti vin konsideri finance subteni ĝian evoluigon. Kun sufiĉa subteno mi povos labori pri Karaza plentempe kaj koncentriĝi pri delonge ekzistantaj problemoj kaj ankaŭ pri tre petitaj funkcioj.</string>
-    <string name="donationCampaign.paragraph2">Vi povas donaci per Patreon (preferata) aŭ OpenCollective. Se vi havas demandojn aŭ vi volus subteni per alternativaj metodoj, ne hezitu kontakti min ĉe la Discord-servilo de Karaza.</string>
-    <string name="donationCampaign.paragraph3">Sendepende de tio, Karaza daŭre estos prizorgata de mi kaj la volontuloj, kaj ĝi restos malfermitkoda.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Kaŝi</string>
 </resources>

@@ -85,7 +85,11 @@ class ModelDownloadManager(private val context: Context) {
         update(State.Running(group, context.stringResource(MR.strings.model_dl_preparing), 0))
         scope.launch {
             try {
-                val manifest = ModelDownloader.fetchManifest()
+                // Manifest bundled in the APK (copy of the engine's models.json): file list and sha256 values are
+                // pinned at build time, so a changed remote file cannot swap the models the app downloads and runs.
+                val manifest = ModelDownloader.parseManifest(
+                    context.assets.open(BUNDLED_MANIFEST).bufferedReader().use { it.readText() },
+                )
                 // 只下這組的檔（偵測器兩組都含；ensure 對已存在且 sha256 相符的檔直接跳過 → 另一組已帶進來就不重抓）。
                 val models = manifest.filter { group in TranslationEngineConfig.groupsOfRole(it.role) }
                 val dir = TranslationEngineConfig.downloadedDir(context)
@@ -266,6 +270,9 @@ class ModelDownloadManager(private val context: Context) {
     }
 
     private companion object {
+        /** Asset path of the bundled manifest; keep it identical to yakuyomi-engine/models.json. */
+        const val BUNDLED_MANIFEST = "models/models.json"
+
         /** 引擎 [ModelDownloader] 的 HTTP 失敗訊息格式：`HTTP <狀態碼>`。 */
         val HTTP_STATUS = Regex("""HTTP (\d+)""")
     }

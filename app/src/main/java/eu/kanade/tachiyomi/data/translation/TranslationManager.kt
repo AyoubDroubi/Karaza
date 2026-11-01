@@ -376,7 +376,18 @@ class TranslationManager(private val context: Context) {
     private fun isPoolPaused(night: Boolean): Boolean = if (night) _isNightPaused.value else _isTranslatePaused.value
 
     private fun setPoolPaused(night: Boolean, paused: Boolean) {
+        // Every unpause through here is a user action (resume, start now, retry...), so it also lifts the
+        // daily-quota hold; automatic enqueues use [unpauseTranslateUnlessQuotaHeld] instead.
+        if (!night && !paused) DailyQuota.release(context)
         if (night) _isNightPaused.value = paused else _isTranslatePaused.value = paused
+    }
+
+    /**
+     * Automatic enqueues (download hook, reader, "translate" buttons) restart a paused translation pool, except while
+     * the provider's daily quota is used up: then the queue stays paused until the user resumes it.
+     */
+    private fun unpauseTranslateUnlessQuotaHeld() {
+        if (!DailyQuota.isHeld()) _isTranslatePaused.value = false
     }
 
     /** Yakuyomi（佇列分組）：被整本暫停的 (漫畫, pool) 鍵快照，給佇列 UI 顯示每組的暫停/繼續狀態。 */
@@ -672,6 +683,19 @@ class TranslationManager(private val context: Context) {
      *   **注意**：只重排 QUEUE 項——正在翻（TRANSLATING）的翻譯/重繪章不會被中途搶占（會翻完當前章才換下一章），
      *   此為已知限制。夜讀項與此無關：它由另一條消費者在自己的執行緒跑，翻譯排入不必等它、也不用搶占它。
      */
+    /** Adds [chapters] at the end of the queue (already-queued ones only lose their single-chapter pause). Under [lock]. */
+    private fun appendTranslateLocked(manga: Manga, chapters: List<Chapter>, method: String) {
+        val ids = chapters.mapTo(HashSet()) { it.id }
+        val present = HashSet<Long>()
+        entries.forEach {
+            if (!it.nightRender && it.chapter.id in ids) { // 夜讀項不擋翻譯
+                present.add(it.chapter.id)
+                it.paused = false // 明確再排＝解除單章暫停（否則章節列點「翻譯」對被 ⏸ 的章是無聲 no-op）
+            }
+        }
+        chapters.forEach { if (it.id !in present) entries.add(Entry(manga, it, method = method)) }
+    }
+
     fun translate(manga: Manga, chapters: List<Chapter>, atFront: Boolean = false, method: String? = null) {
         if (chapters.isEmpty()) return
         if (!masterEnabled()) return // 硬總開關：關閉時自動/手動翻一律不排入
@@ -703,19 +727,11 @@ class TranslationManager(private val context: Context) {
                 }
                 entries.addAll(0, batch)
             } else {
-                val ids = chapters.mapTo(HashSet()) { it.id }
-                val present = HashSet<Long>()
-                entries.forEach {
-                    if (!it.nightRender && it.chapter.id in ids) { // 夜讀項不擋翻譯
-                        present.add(it.chapter.id)
-                        it.paused = false // 明確再排＝解除單章暫停（否則章節列點「翻譯」對被 ⏸ 的章是無聲 no-op）
-                    }
-                }
-                chapters.forEach { if (it.id !in present) entries.add(Entry(manga, it, method = m)) }
+                appendTranslateLocked(manga, chapters, m)
             }
         }
         publish()
-        _isTranslatePaused.value = false // 明確要求翻譯 → 解除翻譯 pool 暫停、直接開跑（對照下載：排入即啟動）；夜讀 pool 不動
+        unpauseTranslateUnlessQuotaHeld() // 明確要求翻譯 → 解除翻譯 pool 暫停、直接開跑（對照下載：排入即啟動）；夜讀 pool 不動
         ensureDrain()
         TranslationJob.start(context)
         persist()
@@ -1304,11 +1320,14 @@ class TranslationManager(private val context: Context) {
     }
 
     /** 重試失敗的章（重新排隊；含夜讀項，總開關關著的那類會留在 QUEUE、等它再開才跑）。 */
-    fun retry(chapterIds: List<Long>) {
+    fun retry(chapterIds: List<Long>, translationsOnly: Boolean = false) {
         if (!anyEnabled()) return // 兩個總開關都關：沒有消費者能動、不重試
         val ids = chapterIds.toHashSet()
         val kinds = synchronized(lock) {
-            entries.filter { it.chapter.id in ids && it.status == TranslationItem.Status.ERROR }
+            entries.filter {
+                it.chapter.id in ids && it.status == TranslationItem.Status.ERROR &&
+                    (!translationsOnly || (!it.nightRender && it.reRenderMethod == null))
+            }
                 .onEach {
                     it.status = TranslationItem.Status.QUEUE
                     it.paused = false // 明確重試 → 連單章暫停一起解除
@@ -1528,7 +1547,7 @@ class TranslationManager(private val context: Context) {
                 } ?: break
                 publish()
                 TraceLog.log("queue", "chapter start m=${entry.manga.id} c=${entry.chapter.id} ${entry.chapter.name}")
-                val startedAt = System.currentTimeMillis()
+                val startedAt = DailyQuota.now()
                 val ok = try {
                     // 翻譯／重繪項算進忙碌訊號（夜讀讓路）；夜讀項自己不算
                     if (night) translateOne(entry, startedAt) else TranslationBusy.track { translateOne(entry, startedAt) }
@@ -1556,8 +1575,8 @@ class TranslationManager(private val context: Context) {
                     synchronized(lock) { if (entries.contains(entry)) entry.status = TranslationItem.Status.QUEUE }
                     TraceLog.log("queue", "daily quota used up at c=${entry.chapter.id}, translate pool paused")
                     pause(night = false)
+                    DailyQuota.hold(context) // after pause(): keeps automatic enqueues from restarting the pool
                     publish()
-                    DailyQuota.notifyPaused(context)
                     break
                 }
                 // 停止判斷與離開佇列在同一把鎖裡：分兩段時，enqueueNight 的 TRANSLATING 分支（設 stop／再跑一輪／強制重做）
@@ -1673,7 +1692,8 @@ class TranslationManager(private val context: Context) {
         val night = entry.nightRender
         val llm = usesLlm(entry)
         // Also stop at the next page once the provider's daily quota is used up (see [DailyQuota]).
-        val shouldStop: () -> Boolean = { isStop(night) || (llm && DailyQuota.hitSince(startedAt)) }
+        val quotaStop: () -> Boolean = { llm && DailyQuota.hitSince(startedAt) }
+        val shouldStop: () -> Boolean = { isStop(night) || quotaStop() }
         if (night) {
             // 夜讀版只支援鬆散夾：夜讀檔要逐檔落在 <章>/.yakuyomi/，CBZ 內取不到（同重繪素材的限制）。
             // 非目錄→拋出（不是靜默回 false）：走 drainLoop 的 catch 標 ERROR 並把原因記進日誌，查得到為何變紅。
@@ -1709,7 +1729,7 @@ class TranslationManager(private val context: Context) {
             // CBZ 翻譯：保留舊 translateArchiveInPlace 的雙條件——
             //   換檔＝翻有進度 or manifest 已覆蓋（持久化部分成果、避免續傳重做）；
             //   成功＝manifest 全覆蓋（部分成功仍回 false → drain 標 ERROR 留佇列、下次補剩頁）。
-            processArchiveInPlace(dir, onProgress, shouldStop) { tmpU ->
+            processArchiveInPlace(dir, onProgress, shouldStop, keepProgressOnStop = { quotaStop() }) { tmpU ->
                 // 夜讀素材不存：打包跳過 .yakuyomi/、壓縮檔章也不能夜讀，存了白做
                 val n = pageTranslator.translateChapter(
                     tmpU,
@@ -1796,7 +1816,7 @@ class TranslationManager(private val context: Context) {
      * Library-wide "Translate all downloaded": finds, for every library title, the downloaded chapters that are not
      * translated yet. Only scans, does not queue. Skips titles whose source is excluded from translation, and
      * chapters already waiting or running in the translation queue; failed chapters are included (queuing them
-     * retries them). Chapters come unread first, then in reading order. Titles without downloads are skipped
+     * retries them). Chapters are listed in reading order. Titles without downloads are skipped
      * through the download cache without touching files; for the rest the title folder is listed once and matched
      * by chapter folder name (as in [scanOutdatedNight]). [onProgress] = (titles scanned, total titles). IO.
      */
@@ -1841,10 +1861,7 @@ class TranslationManager(private val context: Context) {
                 }
             }
             if (found.isNotEmpty()) {
-                out += UntranslatedDownloaded(
-                    manga,
-                    found.sortedWith(compareBy<Chapter>({ it.read }, { -it.sourceOrder })),
-                )
+                out += UntranslatedDownloaded(manga, found.sortedByDescending { it.sourceOrder })
             }
             onProgress(i + 1, mangas.size)
         }
@@ -1858,9 +1875,26 @@ class TranslationManager(private val context: Context) {
      */
     fun translateAllDownloaded(targets: List<UntranslatedDownloaded>): Int {
         if (!masterEnabled() || targets.isEmpty()) return 0
-        retry(targets.flatMap { t -> t.chapters.map { it.id } })
-        targets.forEach { translate(it.manga, it.chapters) }
-        return targets.sumOf { it.chapters.size }
+        val method = translationPreferences.inpaintMethod.get()
+        val ids = targets.flatMapTo(HashSet()) { t -> t.chapters.map { it.id } }
+        // One pass under the lock and one publish/persist for the whole library (translate() per title would
+        // serialize the whole queue once per title). Failed translation items are retried in place.
+        synchronized(lock) {
+            entries.forEach {
+                if (it.chapter.id in ids && !it.nightRender && it.reRenderMethod == null &&
+                    it.status == TranslationItem.Status.ERROR
+                ) {
+                    it.status = TranslationItem.Status.QUEUE
+                }
+            }
+            targets.forEach { appendTranslateLocked(it.manga, it.chapters, method) }
+        }
+        publish()
+        setPoolPaused(night = false, paused = false) // explicit user request: also lifts a daily-quota hold
+        ensureDrain()
+        TranslationJob.start(context)
+        persist()
+        return ids.size
     }
 
     /** 設定 › 夜讀「重新產生舊版夜讀頁」那一列的狀態（[outdatedNightScan]）。 */
@@ -2113,6 +2147,8 @@ class TranslationManager(private val context: Context) {
         cbz: UniFile,
         onProgress: (Int, Int) -> Unit,
         shouldStop: () -> Boolean,
+        // Stopped for a reason that should still keep the finished pages (the daily quota ran out): repack them.
+        keepProgressOnStop: () -> Boolean = { false },
         process: suspend (UniFile) -> ProcessResult,
     ): Boolean {
         val parent = cbz.parentFile ?: return false
@@ -2131,7 +2167,7 @@ class TranslationManager(private val context: Context) {
             val tmpU = UniFile.fromFile(tmp) ?: return false
             // 2. 處理（就地覆蓋暫存頁；翻譯另寫 manifest、重繪另更新素材 method）
             val result = process(tmpU)
-            if (shouldStop()) return false // 被暫停/取消中止 → 丟棄暫存、原檔不動（不壓回半成品）
+            if (shouldStop() && !keepProgressOnStop()) return false // 被暫停/取消中止 → 丟棄暫存、原檔不動（不壓回半成品）
             if (!result.swap) return false // 全失敗（沒翻成/沒重繪到）→ 不動原檔、可重試
             // 3. 重壓到暫存 zip（原檔此時完好）。先清掉上次打包失敗殘留的孤兒暫存。
             parent.findFile("$cbzName$TMP_SUFFIX")?.delete()

@@ -44,6 +44,9 @@ class PreferenceBackupCreator(
     private fun Map<String, *>.toBackupPreferences(): List<BackupPreference> {
         return this
             .filterKeys { !Preference.isAppState(it) }
+            // AI provider API keys never go into backups (they are device-bound ciphertext anyway, and could be
+            // plaintext if the Keystore was unavailable when they were saved).
+            .filterKeys { !it.startsWith("translation_api_key") }
             .mapNotNull { (key, value) ->
                 when (value) {
                     is Int -> BackupPreference(key, IntPreferenceValue(value))

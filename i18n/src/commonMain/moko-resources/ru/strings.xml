@@ -631,7 +631,6 @@
     <string name="pref_security_summary">Блокировка приложения, защита экрана</string>
     <string name="pref_advanced_summary">Выгрузка журнала сбоев, оптимизация батареи</string>
     <string name="crash_screen_title">Ой, ошибочка вышла!</string>
-    <string name="crash_screen_description">%s столкнулось с непредвиденной ошибкой. Мы рекомендуем поделиться журналом сбоев в нашем Discord-сервере в ветке поддержки.</string>
     <string name="unknown_title">Неизвестное название</string>
     <string name="invalid_location">Недопустимое расположение: %s</string>
     <string name="error_user_agent_string_invalid">Недопустимый параметр user agent</string>
@@ -892,18 +891,6 @@
     <string name="action_filter_excluded_scanlators">Фильтровать исключенных переводчиков</string>
     <string name="download_bookmarked">В закладках</string>
     <string name="label_support_us">Поддержите нас</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (Предпочтительно)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza сейчас поддерживается %d+ спонсорами. Мы хотим поблагодарить каждого из вас. Давайте сделаем Karaza лучше.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="supportUsScreen.perks">Спонсоры получать доступ к эксклюзивным каналам с будущими привилегиями и возможностями.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">Нравится приложение?</string>
-    <string name="donationCampaign.paragraph1">Приветствую! Я главный разработчик Karaza и хотел бы попросить вас об финансовой поддержке проекта. При достаточной поддержке я смогу работать над Karaza в полную силу и сосредоточиться как на давно существующих проблемах, так и на функциях, которые пользователи уже давно просят добавить.</string>
-    <string name="donationCampaign.paragraph2">Вы можете поддержать проект через Patreon (Предпочтительно) или OpenCollective. Если у вас есть вопросы или хотите поддержать, используя другие способы, вы можете связаться со мной через Discord-сервер нашего приложения.</string>
-    <string name="donationCampaign.paragraph3">Независимо от поддержки, Karaza останется с открытым исходным кодом, и я с волонтёрами будем и дальше его поддерживать.</string>
-    <string name="donationCampaign.dismiss">Отклонить</string>
-    <string name="supportUsScreen.contactForDetailsMessage">Если у вас есть другие способы поддержки или вопросы по этому поводу, можете присоединиться к нашему Discord-серверу.</string>
     <string name="extensionStores">Хранилище расширений</string>
     <string name="action.addExtensionStore">Добавить хранилище расширений</string>
     <string name="extensionStoresScreen.emptyLabel">Вы ещё не добавляли хранилище расширений</string>

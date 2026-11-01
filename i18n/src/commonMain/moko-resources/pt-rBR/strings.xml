@@ -631,7 +631,6 @@
     <string name="pref_advanced_summary">Exportar registros de travamento, otimizações de bateria</string>
     <string name="crash_screen_title">Ooops!</string>
     <string name="crash_screen_restart_application">Reiniciar o aplicativo</string>
-    <string name="crash_screen_description">%s teve um erro inesperado. Nós sugerimos que você compartilhe os registros de travamento em nosso canal de suporte no Discord.</string>
     <string name="unknown_title">Título desconhecido</string>
     <string name="invalid_location">Local inválido: %s</string>
     <string name="error_user_agent_string_invalid">Valor de user agent inválido</string>
@@ -892,18 +891,6 @@
     <string name="action_filter_excluded_scanlators">Filtrar scanlators excluídos</string>
     <string name="label_support_us">Apoie-nos</string>
     <string name="pref_download_concurrent_sources">Download simultâneo de fontes</string>
-    <string name="supportUsScreen.perks">Patrons tem acesso a canais exclusivos, com mais recursos por vir.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (preferido)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza atualmente conta com o apoio de %d+ patrons. Nós queremos agradecer cada um de vocês. Vamos fazer Karaza ainda melhor juntos.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">Para opções alternativas ou qualquer perguntas relacionadas, se junte ao nosso servidor no Discord.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">Gostando do aplicativo?</string>
-    <string name="donationCampaign.paragraph1">Olá! Eu sou o principal desenvolvedor por trás do Karaza, e eu gostaria de perguntar se você consideraria apoiar o desenvolvimento financeiramente. Com apoio suficiente, eu poderei trabalhar integralmente no Karaza e focar em problemas pendentes tanto quanto em funcionalidades muito solicitadas.</string>
-    <string name="donationCampaign.paragraph2">Você pode doar através do Patreon (preferencialmente) ou OpenCollective. Se você tiver perguntas ou gostaria de apoiar utilizando métodos alternativos, sinta-se livre para se aproximar através do servidor no Discord do Karaza.</string>
-    <string name="donationCampaign.paragraph3">Apesar disso, Karaza continuará a se mantido por mim e pelos voluntários, e se manterá de código aberto.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Ignorar</string>
     <string name="extensionStores">Loja de extensões</string>
     <string name="action.addExtensionStore">Adicionar loja de extensões</string>
     <string name="extensionStoresScreen.emptyLabel">Você não adicionou uma loja de extensões ainda</string>

@@ -216,7 +216,7 @@ class PageTranslator(private val context: Context) {
                             } catch (c: CancellationException) {
                                 throw c
                             } catch (t: Throwable) {
-                                PageDecode.Unreadable("解碼例外 ${t.javaClass.simpleName}: ${t.message}")
+                                PageDecode.Unreadable("Page could not be decoded: ${t.javaClass.simpleName}: ${t.message}")
                             }
                             val bmp = when (decoded) {
                                 is PageDecode.Ok -> decoded.bitmap
@@ -528,7 +528,7 @@ class PageTranslator(private val context: Context) {
             } catch (c: CancellationException) {
                 throw c
             } catch (t: Throwable) {
-                PageDecode.Unreadable("原圖素材解碼例外 ${t.javaClass.simpleName}: ${t.message}")
+                PageDecode.Unreadable("Saved original page could not be decoded: ${t.javaClass.simpleName}: ${t.message}")
             }
         } else {
             decodePageCapped(pageFile)
@@ -918,19 +918,19 @@ class PageTranslator(private val context: Context) {
         // 素材子夾 get-or-create 一次（與 saveMaterials 同鎖：同章可能正被翻譯佇列併發建夾）。建不出來＝一頁都存不了 → 拋。
         val matDir = synchronized(materialsDirLock) {
             chapterDir.findFile(MATERIALS_DIR) ?: chapterDir.createDirectory(MATERIALS_DIR)
-        } ?: throw IllegalStateException("無法建立 .karaza 子夾（此儲存位置可能不支援，建議改用內部儲存）")
+        } ?: throw IllegalStateException("Could not create the working folder here (this storage location may not support it; try internal storage)")
 
         // 版本記號寫得出來才開始（[NightPages.STAMP_PROBE]）：寫不出來的話做完的每頁都會一直是舊版，使用者每按一次更新
         // 整章（整庫）就重做一次。先試、不行就整章報錯（佇列標 ERROR），原因也寫進這章的錯誤檔。
         if (!probeStampWritable(matDir)) {
-            val reason = "規則版本記號寫不出來（此儲存位置可能不支援這種空檔），整章沒有產生"
+            val reason = "Could not write the version marker (this storage location may not support empty files); chapter not processed"
             writeNightErrors(chapterDir, listOf("*\t$reason"))
             throw IllegalStateException(reason)
         }
 
         // 模型：先全解析（缺就拋、還沒開任何 native handle），開組交給 NightPump（在 worker 上開、依模式選組）。
         val detectorPath = TranslationEngineConfig.resolveDetectorModel(context)
-            ?: throw IllegalStateException("偵測模型（dbnet）缺失，無法產生夜讀版")
+            ?: throw IllegalStateException("Text detection model (dbnet) is missing; download the models first")
         val (yoloParam, csegParam) = TranslationEngineConfig.resolveCharSegModels(context)
         if (yoloParam == null && csegParam == null) {
             throw IllegalStateException(context.stringResource(MR.strings.nightread_missing_models))
@@ -968,7 +968,7 @@ class PageTranslator(private val context: Context) {
                     }
                 },
                 estimate = { job ->
-                    val bounds = probeNightBounds(job.img) ?: throw IllegalStateException("頁圖解碼失敗")
+                    val bounds = probeNightBounds(job.img) ?: throw IllegalStateException("Page image could not be decoded")
                     job.bounds = bounds
                     NightConcurrency.estBytes(bounds.workPx, inpaintMask = job.hasMask)
                 },
@@ -976,9 +976,9 @@ class PageTranslator(private val context: Context) {
                 onError = { job, t ->
                     TraceLog.log("night", "${job.name} EXCEPTION ${t.javaClass.simpleName}: ${t.message}")
                     logcat(LogPriority.ERROR, t) { "夜讀頁例外（已隔離、續其他頁）${job.name}" }
-                    chapter.error("${job.name}\t例外 ${t.javaClass.simpleName}: ${t.message}")
+                    chapter.error("${job.name}\tError ${t.javaClass.simpleName}: ${t.message}")
                 },
-                onOomFinal = { job -> chapter.error("${job.name}\t記憶體不足（OutOfMemoryError），留待下次補做") },
+                onOomFinal = { job -> chapter.error("${job.name}\tOut of memory; will retry next time") },
                 shouldStop = shouldStop,
             )
         } finally {
@@ -1150,14 +1150,14 @@ class PageTranslator(private val context: Context) {
         val name = job.name
         val round = NightRound(chapter.matDir, name, chapter.webpFmt)
         try {
-            val bounds = job.bounds ?: probeNightBounds(img) ?: throw IllegalStateException("頁圖解碼失敗")
+            val bounds = job.bounds ?: probeNightBounds(img) ?: throw IllegalStateException("Page image could not be decoded")
             // 過期競態的前置快照：decode 前記成品頁 (mtime, size)，寫完後再比（見下）。
             val stamp = img.lastModified() to img.length()
             TraceLog.log("night", "$name decode.start")
             // 逐頁效能探針（見 NightPerfProbe）：分辨 CPU 限速、記憶體回收與讓路。
             val probe = NightPerfProbe.start()
             val tDecode = SystemClock.elapsedRealtime()
-            val page = decodeForNight(img, bounds.sample) ?: throw IllegalStateException("頁圖解碼失敗")
+            val page = decodeForNight(img, bounds.sample) ?: throw IllegalStateException("Page image could not be decoded")
             val decodeMs = SystemClock.elapsedRealtime() - tDecode
             val stats = NightReadStats()
             var extraCount = 0
@@ -1291,7 +1291,7 @@ class PageTranslator(private val context: Context) {
                 round.discard()
                 TraceLog.log("night", "$name CLEAR FAILED old night files kept")
                 logcat(LogPriority.WARN) { "夜讀頁 $name 舊夜讀檔刪不掉，放棄這頁、留待下次補做" }
-                chapter.error("$name\t舊夜讀檔刪不掉，留待下次補做")
+                chapter.error("$name\tOld night-mode file could not be deleted; will retry next time")
                 return NightPageOutcome.DONE
             }
             // 5. 改名後再驗一次過期，然後刪舊格式
@@ -1306,7 +1306,7 @@ class PageTranslator(private val context: Context) {
                 lateNightMaterials(chapter.matDir, name, pickSource, bounds.w, bounds.h, stamp.second)
             ) {
                 deleteNightFiles(chapter.matDir, NightPages.artifactNames(name))
-                return nightPageStale(chapter, name, "翻譯素材在產生期間才寫好，留待下次補做")
+                return nightPageStale(chapter, name, "Translation materials were written during processing; will retry next time")
             }
             // 完成標記落地 → 三檔格式與舊版單檔作廢（有 std 就只讀兩檔）。刪不掉也無害：不會再被顯示，下次開跑清掉。
             deleteNightFiles(chapter.matDir, NightPages.oldFormatNames(name))
@@ -1342,7 +1342,7 @@ class PageTranslator(private val context: Context) {
             round.discard()
             TraceLog.log("night", "$name EXCEPTION ${t.javaClass.simpleName}: ${t.message}")
             logcat(LogPriority.ERROR, t) { "夜讀頁例外（已隔離、續其他頁）$name" }
-            chapter.error("$name\t例外 ${t.javaClass.simpleName}: ${t.message}")
+            chapter.error("$name\tError ${t.javaClass.simpleName}: ${t.message}")
             return NightPageOutcome.DONE
         }
     }
@@ -1388,7 +1388,7 @@ class PageTranslator(private val context: Context) {
     private fun nightPageStale(
         chapter: NightChapter,
         name: String,
-        reason: String = "頁圖在產生期間被覆寫，留待下次補做",
+        reason: String = "Page image was overwritten during processing; will retry next time",
     ): NightPageOutcome {
         TraceLog.log("night", "$name STALE during render, night files dropped: $reason")
         logcat(LogPriority.WARN) { "夜讀頁 $name 丟棄：$reason" }
@@ -1665,7 +1665,7 @@ class PageTranslator(private val context: Context) {
         val tmpName = NightPages.tmpName(finalName)
         if (!compressToFile(matDir, tmpName, bmp, format, nightQuality(format))) {
             runCatching { matDir.findFile(tmpName)?.delete() }
-            throw IllegalStateException("夜讀版寫檔失敗")
+            throw IllegalStateException("Could not write the night-mode page")
         }
         val tmp = matDir.findFile(tmpName) ?: throw IllegalStateException("夜讀版暫存檔寫完卻找不到")
         if (tmp.length() <= 0L) {
@@ -2014,7 +2014,7 @@ class PageTranslator(private val context: Context) {
         val format = WriteBackFormat.forFileName(file.name)
         // 編碼器遇到超過格式上限的尺寸會直接失敗：先擋（反正下面也是先編碼才開頁檔，這裡只是讓原因清楚）。
         if (!format.fits(bmp.width, bmp.height)) {
-            throw java.io.IOException("頁檔 ${file.name} 尺寸 ${bmp.width}x${bmp.height} 超過 $format 上限 ${format.maxSide}")
+            throw java.io.IOException("Page ${file.name} is ${bmp.width}x${bmp.height}, larger than the $format limit ${format.maxSide}")
         }
         val fmt = when (format) {
             WriteBackFormat.PNG -> Bitmap.CompressFormat.PNG
@@ -2032,7 +2032,7 @@ class PageTranslator(private val context: Context) {
         val encoded = java.io.ByteArrayOutputStream(1 shl 20)
         // 編碼失敗（記憶體不足等）：頁檔還沒碰，原封不動
         if (!bmp.compress(fmt, WriteBackFormat.QUALITY, encoded)) {
-            throw java.io.IOException("頁檔編碼失敗 ${file.name}")
+            throw java.io.IOException("Could not encode page ${file.name}")
         }
         val os = runCatching { openTruncating(file) }
             .onFailure { logcat(LogPriority.WARN, it) { "頁檔截斷寫開不了，退回一般寫入 ${file.name}" } }
@@ -2041,7 +2041,7 @@ class PageTranslator(private val context: Context) {
         try {
             os.use { encoded.writeTo(it) }
         } catch (t: Throwable) {
-            throw PageWriteInterrupted("頁檔寫到一半失敗 ${file.name}", t)
+            throw PageWriteInterrupted("Writing page ${file.name} failed part-way", t)
         }
     }
 
@@ -2099,7 +2099,7 @@ class PageTranslator(private val context: Context) {
                 true
             } ?: false
         } catch (e: Exception) {
-            return PageDecode.Unreadable("讀不出頁圖尺寸 ${e.javaClass.simpleName}: ${e.message}")
+            return PageDecode.Unreadable("Could not read the page size: ${e.javaClass.simpleName}: ${e.message}")
         }
         if (!opened) return PageDecode.Unreadable("頁圖開不了讀取串流")
         return when (val v = PageSizeCap.check(bounds.outWidth, bounds.outHeight)) {

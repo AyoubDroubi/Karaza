@@ -629,7 +629,6 @@
     <string name="invalid_location">Ogiltig plats: %s</string>
     <string name="missing_storage_permission">Lagrings rättigheter inte tillagda</string>
     <string name="skipped_reason_not_always_update">Hoppat över för att serien inte behöver uppdateras</string>
-    <string name="crash_screen_description">%s stötte på ett oväntat fel. Vi föreslår att du delar med dig av kraschloggen i vår supportkanal på Discord.</string>
     <string name="pref_appearance_summary">Tema, datum och tidsformat</string>
     <string name="pref_browse_summary">Källor, tillägg, global sökning</string>
     <string name="crash_screen_restart_application">Starta om applikationen</string>
@@ -825,13 +824,6 @@
     <string name="storage_failed_to_create_download_directory">Misslyckades med att skapa nedladdningskatalog</string>
     <string name="migrationListScreen.migrateDialog.cancelLabel">Avbryt</string>
     <string name="migrationListScreen.progressDialog.cancelLabel">Avbryt</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (föredragen)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.paragraph1">Hej! Jag är den huvudsakliga utvecklaren på Karaza och jag skulle vilja be dig överväga att stödja utvecklingen ekonomiskt. Med nog med stöd skulle jag kunna jobba heltid på Karaza och fokusera på långvariga problem så väl som synnerligen efterfrågade funktioner.</string>
-    <string name="donationCampaign.paragraph3">Oavsett vad så kommer Karaza fortsättas att underhållas av mig och volontärerna, och kommer förbli öppen källkod.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Avfärda</string>
     <string name="label_support_us">Stöd oss</string>
     <string name="action_display_unread_badge">Olästa kapitel</string>
     <string name="action_notes">Anteckningar</string>
@@ -898,11 +890,6 @@
     <string name="migrationListScreen.migrateDialog.copyLabel">Kopiera</string>
     <string name="migrationListScreen.migrateDialog.migrateLabel">Migrera</string>
     <string name="migrationListScreen.matchWithoutChapterToast">Inga kapitel fanns, den här artikeln kan inte användas för migrering</string>
-    <string name="supportUsScreen.perks">Stödjare på Patreon får tillgång till exklusiva kanaler, med fler förmåner i framtiden.</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza stöds för närvarande av %d+ personer på Patreon. Vi vill tacka var och en av er. Låt oss göra Karaza ännu bättre tillsammans.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">För alternativa alternativ eller andra relaterade frågor, gå med i vår Discord-server.</string>
-    <string name="donationCampaign.title">Tycker du om appen?</string>
-    <string name="donationCampaign.paragraph2">Du kan donera antingen via Patreon (föredraget) eller OpenCollective. Om du har frågor eller skulle vilja ge stöd via alternativa metoder, tveka inte att kontakta mig genom Karazas Discord-server.</string>
     <string name="label_auto">Automatisk</string>
     <string name="extensionStores">Tilläggsdepåer</string>
     <string name="action.addExtensionStore">Lägg till tilläggsdepå</string>

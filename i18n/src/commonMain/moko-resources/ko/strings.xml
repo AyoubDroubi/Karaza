@@ -631,7 +631,6 @@
     <string name="pref_downloads_summary">자동 다운로드, 미리 다운로드</string>
     <string name="crash_screen_title">앗!</string>
     <string name="crash_screen_restart_application">애플리케이션 재시작</string>
-    <string name="crash_screen_description">%s에 예기치 않은 오류가 발생했습니다. 충돌 로그를 공식 디스코드 채널에 공유하는 것을 추천합니다.</string>
     <string name="unknown_title">알 수 없는 제목</string>
     <string name="invalid_location">잘못된 위치: %s</string>
     <string name="error_user_agent_string_invalid">잘못된 사용자 에이전트 문자열</string>
@@ -892,18 +891,6 @@
     <string name="action_filter_excluded_scanlators">스캔레이터를 제외한 필터</string>
     <string name="download_bookmarked">북마크됨</string>
     <string name="label_support_us">저희를 지원해 주세요</string>
-    <string name="supportUsScreen.perks">후원해 주시는 분들은 더 많은 혜택이 적용될 예정인 독점 채널에 접속할 수 있습니다.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (선호됨)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza는 현재 %d+의 후원자 분들의 도움을 받고 있습니다. 모든 분들께 감사를 전하고 싶습니다. 함께 Karaza를 더욱 발전시켜 나갑시다.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">대체 옵션 또는 관련 질문이 있으실 경우, Discord 서버에 방문해 주십시오.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">앱을 즐기고 있으신가요?</string>
-    <string name="donationCampaign.paragraph1">안녕하세요! Karaza 메인 개발자입니다. 귀하께서 이 앱 개발에 대한 재정적 지원을 고려해주셨으면 합니다. 충분한 지원이 있다면 Karaza를 풀 타임으로 작업하여 오랫동안 지속되어 온 이슈와 요청이 많았던 기능들에 집중할 수 있을 것입니다.</string>
-    <string name="donationCampaign.paragraph2">Pateron(선호됨) 또는 OpenCollective를 통해 기부하실 수 있습니다. 질문이 있거나 다른 기부 방법에 대한 지원이 필요하신 경우, 언제든지 Karaza의 Discord 서버를 통해 연락해 주십시오.</string>
-    <string name="donationCampaign.paragraph3">기부 여부와 무관하게, Karaza는 저와 자원봉사자 분들에 의해 계속 유지보수되며 오픈 소스로 남아있을 것입니다.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">닫기</string>
     <string name="extensionStores">확장 앱 스토어</string>
     <string name="action.addExtensionStore">확장 앱 스토어 추가</string>
     <string name="extensionStoresScreen.emptyLabel">확장 앱 스토어를 아직 추가하지 않았습니다</string>

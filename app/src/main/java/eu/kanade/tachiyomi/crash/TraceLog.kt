@@ -139,7 +139,7 @@ object TraceLog {
     }
 
     private val LEGACY_SIG = Regex("""(ensureEngine\.rebuild sig=)(.*?)( hadEngine=)""")
-    private val KEY_LIKE = Regex("""\b(sk-[A-Za-z0-9_\-]{16,}|AIza[0-9A-Za-z_\-]{30,})""")
+    private val KEY_LIKE = Regex("""\b(sk-[A-Za-z0-9_\-]{16,}|AIza[0-9A-Za-z_\-]{30,}|gsk_[A-Za-z0-9]{20,}|xai-[A-Za-z0-9]{20,})""")
 
     private fun buildLine(ctx: Context, tag: String, msg: String): String {
         val t = System.currentTimeMillis() - startTime

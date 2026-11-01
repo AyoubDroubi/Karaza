@@ -1,5 +1,11 @@
 package eu.kanade.presentation.more.settings.widget
 
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
@@ -33,6 +39,7 @@ fun EditTextPreferenceWidget(
     value: String,
     onConfirm: suspend (String) -> Boolean,
     titleBadge: String? = null,
+    secret: Boolean = false,
 ) {
     var isDialogShown by remember { mutableStateOf(false) }
 
@@ -68,6 +75,12 @@ fun EditTextPreferenceWidget(
                     },
                     isError = textFieldValue.text.isBlank(),
                     singleLine = true,
+                    visualTransformation = if (secret) MaskAllButLast4 else VisualTransformation.None,
+                    keyboardOptions = if (secret) {
+                        KeyboardOptions(keyboardType = KeyboardType.Password)
+                    } else {
+                        KeyboardOptions.Default
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
             },
@@ -96,3 +109,13 @@ fun EditTextPreferenceWidget(
         )
     }
 }
+
+/** Shows only the last 4 characters of a secret, so a pasted key can be checked without exposing it. */
+private object MaskAllButLast4 : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val n = text.length
+        val masked = buildString(n) { for (i in 0 until n) append(if (i < n - 4) '•' else text[i]) }
+        return TransformedText(AnnotatedString(masked), OffsetMapping.Identity)
+    }
+}
+

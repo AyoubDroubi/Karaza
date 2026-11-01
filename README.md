@@ -20,9 +20,9 @@
 
 ## Install
 
-Download the latest APK from the [Releases](https://github.com/AyoubDroubi/Karaza/releases) or from a successful build on the
-[Actions](https://github.com/AyoubDroubi/Karaza/actions) tab (Artifacts → `app-arm64-v8a-debug.apk` for most phones).
-Requires Android 8.0 or newer.
+Download the APK from the latest successful build on the [Actions](https://github.com/AyoubDroubi/Karaza/actions) tab:
+open the run, download **`karaza-debug-apk`** under Artifacts (you need to be signed in to GitHub), unzip it and install
+`app-arm64-v8a-debug.apk` (right for most phones). Requires Android 8.0 or newer.
 
 ## Set up translation
 
@@ -39,6 +39,12 @@ Requires Android 8.0 or newer.
 - **Tracking**: connect AniList, MyAnimeList, Kitsu and others in *Settings → Tracking*, then add a title from its details page.
 - **Cloudflare / site errors**: open the source in the built-in WebView, complete the check, then return to the app.
 - **Moving a title to another source**: *Browse → Migrate*.
+
+### Local files
+
+Put comics in the `local` folder inside your storage location, one folder per title, with one sub-folder or archive
+(`.cbz`, `.zip`, `.cbr`, `.rar`, `.7z`, `.epub`) per chapter. An optional `cover.jpg` in the title folder sets the cover.
+Then open *Browse → Local source*. Local chapters can be translated like downloaded ones (except EPUB).
 - **Problems or ideas**: [open an issue](https://github.com/AyoubDroubi/Karaza/issues).
 
 ## Build

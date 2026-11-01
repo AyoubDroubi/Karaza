@@ -41,8 +41,8 @@ android {
     defaultConfig {
         applicationId = "app.karaza"
 
-        versionCode = 67
-        versionName = "0.23.0"
+        versionCode = 68
+        versionName = "1.0.0"
 
         buildConfigField("String", "COMMIT_COUNT", "\"${getLatestCommitCount()}\"")
         buildConfigField("String", "COMMIT_SHA", "\"${getLatestCommitSha()}\"")

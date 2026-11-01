@@ -107,10 +107,10 @@ class TranslationPreferences(
     val quickstartShown = preferenceStore.getBoolean("translation_quickstart_shown", false)
 
     /** 目標語言（LLM 直接照這個翻）；預設台灣繁中，對齊引擎 TranslatorConfig.toLangName。 */
-    val targetLangName = preferenceStore.getString("translation_target_lang", DEFAULT_TARGET_LANG)
+    val targetLangName = preferenceStore.getString("translation_target_lang", DEFAULT_TARGET_LANG_NEW_INSTALL)
 
     /** 來源語言標註（進 prompt；留空＝讓 LLM 自己判。實際來源由 OCR 模型決定＝BYOM）。 */
-    val sourceLangName = preferenceStore.getString("translation_source_lang", DEFAULT_SOURCE_LANG)
+    val sourceLangName = preferenceStore.getString("translation_source_lang", DEFAULT_SOURCE_LANG_NEW_INSTALL)
 
     /** 排版方向（auto/vertical/horizontal），對應引擎 RenderConfig.orientation。 */
     val orientation = preferenceStore.getString("translation_orientation", DEFAULT_ORIENTATION)
@@ -280,6 +280,12 @@ class TranslationPreferences(
         //   鏡像而非共用：本類在 :domain，:domain 不依賴引擎（只 :app 依賴）→ 不能 import 引擎常數。
         //   改一邊請同步改 engine/Config.kt，否則 few-shot 保留/清除判斷會 drift。
         /** 預設目標＝台灣繁中。非此值時 PageTranslator 不放引擎內建的日→繁中 few-shot（避免範例語言衝突）。 */
+        /** Karaza's defaults for a fresh install: English comics translated to Arabic. */
+        const val DEFAULT_TARGET_LANG_NEW_INSTALL = "Arabic"
+        const val DEFAULT_SOURCE_LANG_NEW_INSTALL = "English"
+
+        // The two constants below are the stored keys of the Traditional Chinese / Japanese options (and the engine's
+        // built-in few-shot pair); they are no longer the defaults.
         const val DEFAULT_TARGET_LANG = "Traditional Chinese (Taiwan, 台灣慣用的繁體中文用語)"
         const val DEFAULT_SOURCE_LANG = "Japanese"
         const val DEFAULT_ORIENTATION = "auto"

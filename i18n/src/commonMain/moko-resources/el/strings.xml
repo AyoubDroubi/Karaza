@@ -631,7 +631,6 @@
     <string name="crash_screen_restart_application">Επανεκκίνηση της εφαρμογής</string>
     <string name="pref_downloads_summary">Αυτόματη λήψη, λήψη εκ των προτέρων</string>
     <string name="pref_advanced_summary">Αρχεία καταγραφής σφαλμάτων, βελτιστοποιήσεις μπαταρίας</string>
-    <string name="crash_screen_description">Το %s αντιμετώπισε ένα απροσδόκητο σφάλμα. Σας προτείνουμε να μοιραστείτε τα αρχεία καταγραφής σφαλμάτων στο κανάλι υποστήριξης μας στο Discord.</string>
     <string name="unknown_title">Άγνωστος τίτλος</string>
     <string name="invalid_location">Μη έγκυρη τοποθεσία: %s</string>
     <string name="error_user_agent_string_invalid">Μη έγκυρη συμβολοσειρά πράκτορα χρήστη</string>
@@ -903,16 +902,4 @@
     <string name="extensionStoresScreen.deleteStore.title">Κατάργηση καταστήματος επεκτάσεων</string>
     <string name="extensionStoresScreen.deleteStore.body">Θέλετε να καταργήσετε το κατάστημα επεκτάσεων \"%1$s\" (%2$s);</string>
     <string name="pref_webtoon_vertical_navigator_on_left">Τοποθέτηση του κάθετου πλοηγού στην αριστερή πλευρά</string>
-    <string name="supportUsScreen.perks">Οι Patrons έχουν πρόσβαση σε αποκλειστικά κανάλια, ενώ θα ακολουθήσουν και άλλα προνόμια.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (προτιμάται)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Το Karaza υποστηρίζεται αυτήν τη στιγμή από %d+ χρήστες. Θέλουμε να ευχαριστήσουμε τον καθένα από εσάς ξεχωριστά. Ας κάνουμε το Karaza ακόμα καλύτερο μαζί.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">Για εναλλακτικές επιλογές ή οποιεσδήποτε σχετικές ερωτήσεις, εγγραφείτε στον Discord server.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">Σας αρέσει η εφαρμογή;</string>
-    <string name="donationCampaign.paragraph1">Γεια σας! Είμαι ο κύριος προγραμματιστής πίσω από το Karaza και θα ήθελα να σας ζητήσω να εξετάσετε το ενδεχόμενο οικονομικής υποστήριξης στην ανάπτυξή του. Με επαρκή υποστήριξη, θα μπορώ να εργάζομαι στο Karaza με πλήρη απασχόληση και να επικεντρωθώ σε μακροχρόνια προβλήματα καθώς και σε λειτουργίες που έχουν μεγάλη ζήτηση.</string>
-    <string name="donationCampaign.paragraph2">Μπορείτε να κάνετε δωρεά μέσω του Patreon (προτιμάται) ή του OpenCollective. Εάν έχετε ερωτήσεις ή θέλετε να υποστηρίξετε χρησιμοποιώντας εναλλακτικές μεθόδους, μη διστάσετε να επικοινωνήσετε μαζί μου μέσω του Discord server του Karaza.</string>
-    <string name="donationCampaign.paragraph3">Ανεξάρτητα από αυτό, το Karaza θα συνεχίσει να συντηρείται από εμένα και τους εθελοντές και θα παραμείνει ανοιχτού κώδικα.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Απόρριψη</string>
 </resources>

@@ -36,6 +36,9 @@ class NetworkHelper(
         if (preferences.verboseLogging.get()) {
             val httpLoggingInterceptor = HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.HEADERS
+                // Logs end up in shared crash logs: never write credentials (tracker tokens, cookies, API keys).
+                listOf("Authorization", "Cookie", "Set-Cookie", "Proxy-Authorization", "x-api-key", "x-goog-api-key")
+                    .forEach(::redactHeader)
             }
             builder.addNetworkInterceptor(httpLoggingInterceptor)
         }
