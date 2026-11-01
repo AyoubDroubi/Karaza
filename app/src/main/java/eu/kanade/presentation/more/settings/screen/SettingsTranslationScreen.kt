@@ -54,6 +54,7 @@ import tachiyomi.domain.translation.service.TranslationPreferences
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.collectAsState
+import eu.kanade.tachiyomi.data.translation.local.LocalModel
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import tachiyomi.core.common.i18n.pluralStringResource as ctxPluralStringResource
@@ -130,9 +131,21 @@ object SettingsTranslationScreen : SearchableSettings {
         val providerId by prefs.provider.collectAsState()
         val providerPreset = remember(providerId) { LlmProviders.byId(providerId) }
         val modelVal by prefs.model.collectAsState()
+        // On-device model (no API key): listed after the cloud providers.
+        val isLocal = providerId == LocalModel.PROVIDER_ID
+        val localModel = remember { Injekt.get<LocalModel>() }
+        val localState by localModel.state.collectAsState()
+        var confirmDeleteLocal by remember { mutableStateOf(false) }
         // 顯示名走 [providerLabel]（引擎的 displayName 有幾家是寫死的中文）。
-        val providerEntries = LlmProviders.ALL.associate { it.id to providerLabel(it) }.toImmutableMap()
-        val providerName = providerLabel(providerPreset)
+        val providerEntries = (
+            LlmProviders.ALL.associate { it.id to providerLabel(it) } +
+                (LocalModel.PROVIDER_ID to stringResource(MR.strings.pref_translation_provider_local))
+            ).toImmutableMap()
+        val providerName = if (isLocal) {
+            stringResource(MR.strings.pref_translation_provider_local)
+        } else {
+            providerLabel(providerPreset)
+        }
         var modelPicker by remember { mutableStateOf<List<String>?>(null) }
         var fetchingModels by remember { mutableStateOf(false) }
         // Diagnostics: live LLM round-trip test + app-wide log of recent translation failures.
@@ -230,6 +243,26 @@ object SettingsTranslationScreen : SearchableSettings {
                 },
                 dismissButton = {
                     TextButton(onClick = { pendingEnableSwitch = null }) {
+                        Text(text = stringResource(MR.strings.action_cancel))
+                    }
+                },
+            )
+        }
+        if (confirmDeleteLocal) {
+            AlertDialog(
+                onDismissRequest = { confirmDeleteLocal = false },
+                title = { Text(text = stringResource(MR.strings.pref_translation_local_delete)) },
+                text = { Text(text = stringResource(MR.strings.pref_translation_local_delete_confirm)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            confirmDeleteLocal = false
+                            localModel.delete()
+                        },
+                    ) { Text(text = stringResource(MR.strings.action_delete)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirmDeleteLocal = false }) {
                         Text(text = stringResource(MR.strings.action_cancel))
                     }
                 },
@@ -605,11 +638,40 @@ object SettingsTranslationScreen : SearchableSettings {
                             true
                         },
                     ),
+                    // On-device model: download / progress / ready / retry in one row; delete in its own row.
+                    Preference.PreferenceItem.TextPreference(
+                        title = stringResource(MR.strings.pref_translation_local_model, LocalModel.DISPLAY_NAME),
+                        subtitle = when {
+                            !LocalModel.isSupported -> stringResource(MR.strings.pref_translation_local_unsupported)
+                            else -> when (val st = localState) {
+                                LocalModel.State.Missing -> stringResource(MR.strings.pref_translation_local_missing)
+                                is LocalModel.State.Downloading ->
+                                    stringResource(MR.strings.pref_translation_local_downloading, st.percent)
+                                LocalModel.State.Verifying -> stringResource(MR.strings.pref_translation_local_verifying)
+                                LocalModel.State.Ready -> stringResource(MR.strings.pref_translation_local_ready)
+                                is LocalModel.State.Failed ->
+                                    stringResource(MR.strings.pref_translation_local_failed, st.message)
+                            }
+                        },
+                        onClick = {
+                            if (LocalModel.isSupported) {
+                                when (localState) {
+                                    LocalModel.State.Missing, is LocalModel.State.Failed -> localModel.download()
+                                    is LocalModel.State.Downloading -> localModel.cancelDownload()
+                                    else -> Unit
+                                }
+                            }
+                        },
+                    ).takeIf { isLocal },
+                    Preference.PreferenceItem.TextPreference(
+                        title = stringResource(MR.strings.pref_translation_local_delete),
+                        onClick = { confirmDeleteLocal = true },
+                    ).takeIf { isLocal && localState == LocalModel.State.Ready },
                     Preference.PreferenceItem.EditTextPreference(
                         preference = prefs.apiBase,
                         title = stringResource(MR.strings.pref_translation_api_base),
                         subtitle = stringResource(MR.strings.pref_translation_api_base_summary),
-                    ).takeIf { providerPreset.baseEditable },
+                    ).takeIf { providerPreset.baseEditable && !isLocal },
                     Preference.PreferenceItem.EditTextPreference(
                         preference = prefs.apiKeyFor(providerId),
                         title = stringResource(MR.strings.pref_translation_api_key),
@@ -618,7 +680,7 @@ object SettingsTranslationScreen : SearchableSettings {
                             providerName,
                         ),
                         secret = true,
-                    ),
+                    ).takeIf { !isLocal },
                     Preference.PreferenceItem.EditTextPreference(
                         preference = prefs.model,
                         title = stringResource(MR.strings.pref_translation_model),
@@ -628,7 +690,7 @@ object SettingsTranslationScreen : SearchableSettings {
                                 providerPreset.defaultModel,
                             )
                         },
-                    ),
+                    ).takeIf { !isLocal },
                     Preference.PreferenceItem.SwitchPreference(
                         preference = prefs.translationBatching,
                         title = stringResource(MR.strings.pref_translation_batching),
@@ -636,6 +698,7 @@ object SettingsTranslationScreen : SearchableSettings {
                     ),
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(MR.strings.pref_translation_fetch_models),
+                        enabled = !isLocal,
                         subtitle = if (fetchingModels) {
                             stringResource(MR.strings.pref_translation_fetching)
                         } else {
@@ -675,7 +738,7 @@ object SettingsTranslationScreen : SearchableSettings {
                             if (!testingAi) {
                                 scope.launch {
                                     testingAi = true
-                                    aiTestResult = TranslationDiagnostics.testConnection(prefs)
+                                    aiTestResult = TranslationDiagnostics.testConnection(context, prefs)
                                     testingAi = false
                                 }
                             }

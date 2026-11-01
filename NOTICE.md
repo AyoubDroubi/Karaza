@@ -27,6 +27,10 @@ from [manga-image-translator](https://github.com/zyddnys/manga-image-translator)
     says MIT; training data includes Manga109.
 - **Fonts**: [Tajawal](https://fonts.google.com/specimen/Tajawal) Bold is bundled for Arabic text, under the SIL Open Font
   License 1.1 (`app/src/main/assets/fonts/Tajawal-OFL.txt`). Other scripts use the system fonts.
+- **llama.cpp** ([ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp), MIT) runs the optional on-device translation
+  model; it is a git submodule in `llm/llama.cpp` with its license.
+- **On-device translation model** (optional, downloaded on request, not bundled):
+  [IndexTeam/Index-Translate-2B](https://huggingface.co/IndexTeam/Index-Translate-2B-GGUF) (Apache-2.0).
 - **FlexibleAdapter** ([arkon/FlexibleAdapter](https://github.com/arkon/FlexibleAdapter), Apache-2.0) is vendored in
   `flexible-adapter/` with its license.
 

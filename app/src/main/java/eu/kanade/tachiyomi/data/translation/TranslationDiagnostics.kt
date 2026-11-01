@@ -3,8 +3,12 @@ package eu.kanade.tachiyomi.data.translation
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import eu.kanade.tachiyomi.data.translation.local.LocalModel
+import eu.kanade.tachiyomi.data.translation.local.LocalTranslator
 import li.joye.yakuyomi.engine.LlmTranslator
 import tachiyomi.domain.translation.service.TranslationPreferences
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -41,7 +45,8 @@ object TranslationDiagnostics {
         "Get behind me. NOW!",
     )
 
-    suspend fun testConnection(prefs: TranslationPreferences): TestResult = withContext(Dispatchers.IO) {
+    suspend fun testConnection(context: Context, prefs: TranslationPreferences): TestResult = withContext(Dispatchers.IO) {
+        if (TranslationEngineConfig.usesLocalModel(prefs)) return@withContext testLocal(context, prefs)
         val cfg = EngineConfigMapping.buildEngineConfig(prefs, prefs.inpaintMethod.get()).translator
         val key = prefs.activeApiKey()
         val base = TestResult(
@@ -70,6 +75,34 @@ object TranslationDiagnostics {
             },
             onFailure = { t -> base.copy(millis = millis, error = "${t.javaClass.simpleName}: ${t.message}") },
         )
+    }
+
+    /** The on-device model: load it and translate the sample once (shows load + translation time together). */
+    private suspend fun testLocal(context: Context, prefs: TranslationPreferences): TestResult {
+        val base = TestResult(
+            ok = false,
+            millis = 0,
+            provider = "On-device",
+            model = LocalModel.DISPLAY_NAME,
+            target = prefs.targetLangName.get(),
+        )
+        if (!LocalModel.isSupported) return base.copy(error = "On-device translation needs a 64-bit ARM phone.")
+        val model = Injekt.get<LocalModel>()
+        if (!model.isReady()) return base.copy(error = "The on-device model is not downloaded yet.")
+        val start = System.currentTimeMillis()
+        val translator = LocalTranslator(context, model.file, prefs.targetLangName.get())
+        return try {
+            val page = translator.translatePages(listOf(SAMPLE)).pages.first()
+            val translated = page.translations.zip(SAMPLE).count { (out, src) -> out.isNotBlank() && out != src }
+            base.copy(
+                ok = page.error == null && translated == SAMPLE.size,
+                millis = System.currentTimeMillis() - start,
+                lines = page.translations,
+                error = page.error,
+            )
+        } finally {
+            translator.close() // frees the model (about 2 GB) right away
+        }
     }
 
     // ---------------------------------------------------------------- recent errors

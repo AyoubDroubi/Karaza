@@ -1,3 +1,6 @@
 [submodule "yakuyomi-engine"]
 	path = yakuyomi-engine
 	url = https://github.com/AyoubDroubi/yakuyomi-engine.git
+[submodule "llm/llama.cpp"]
+	path = llm/llama.cpp
+	url = https://github.com/ggml-org/llama.cpp.git

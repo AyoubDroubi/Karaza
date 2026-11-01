@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import eu.kanade.tachiyomi.data.translation.local.LocalModel
+import eu.kanade.tachiyomi.data.translation.local.LocalTranslator
 import li.joye.yakuyomi.engine.BatchTranslation
 import li.joye.yakuyomi.engine.PageResult
 import li.joye.yakuyomi.engine.PageTranslation
@@ -99,7 +101,7 @@ class TranslationEngineService(private val context: Context) {
      * 故此處只看 key + 模型，否則即時翻會被 translationEnabled 靜默擋掉。
      */
     fun isReady(): Boolean {
-        if (apiKey().isBlank()) return false
+        if (!TranslationEngineConfig.translatorReady(translationPreferences)) return false
         if (TranslationEngineConfig.isProviderBaseMissing(translationPreferences)) return false
         return TranslationEngineConfig.modelsResolvable(context)
     }
@@ -293,12 +295,19 @@ class TranslationEngineService(private val context: Context) {
             // 去字法照呼叫端傳入（佇列逐章帶來的去字法），其餘參數（語言/緒數/排版…）照使用者設定。
             val cfg = TranslationEngineConfig.buildEngineConfig(translationPreferences, methodRaw)
             TraceLog.log("svc", "ensureEngine.create.start")
+            // On-device provider: the engine gets the local model instead of the cloud LLM (no API key involved).
+            val localTranslator = if (TranslationEngineConfig.usesLocalModel(translationPreferences)) {
+                LocalTranslator(context, Injekt.get<LocalModel>().file, translationPreferences.targetLangName.get())
+            } else {
+                null
+            }
             val built = Yakuyomi.create(
                 bundle.models,
                 bundle.alphabet,
                 apiKey(),
                 cfg,
                 typeface = TranslationFonts.forTarget(context, translationPreferences.targetLangName.get()),
+                translator = localTranslator,
             )
             TraceLog.log("svc", "ensureEngine.create.done")
             engine = built

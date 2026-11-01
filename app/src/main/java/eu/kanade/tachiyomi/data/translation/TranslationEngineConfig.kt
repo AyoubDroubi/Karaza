@@ -3,6 +3,7 @@ package eu.kanade.tachiyomi.data.translation
 import android.content.Context
 import androidx.core.net.toUri
 import com.hippo.unifile.UniFile
+import eu.kanade.tachiyomi.data.translation.local.LocalModel
 import li.joye.yakuyomi.engine.EngineConfig
 import li.joye.yakuyomi.engine.LlmProviders
 import li.joye.yakuyomi.engine.ModelSet
@@ -202,6 +203,20 @@ object TranslationEngineConfig {
      * 自架 / 自訂 provider（sakura/custom）是否缺 API base。給 isReady 擋下——base 空＝聊天端點空＝必失敗，
      * 與其讓整章標 Failed，不如 isReady 先回 false（不啟動）。內建端點的 provider 一律回 false（不受影響）。
      */
+    /** The on-device model is the selected translation provider. */
+    fun usesLocalModel(prefs: TranslationPreferences): Boolean = prefs.provider.get() == LocalModel.PROVIDER_ID
+
+    /**
+     * The translator side is usable: the on-device model is downloaded and this phone can run it, or a cloud
+     * provider has its API key (and API base where one is needed).
+     */
+    fun translatorReady(prefs: TranslationPreferences): Boolean =
+        if (usesLocalModel(prefs)) {
+            LocalModel.isSupported && Injekt.get<LocalModel>().isReady()
+        } else {
+            prefs.activeApiKey().isNotBlank() && !isProviderBaseMissing(prefs)
+        }
+
     fun isProviderBaseMissing(prefs: TranslationPreferences): Boolean {
         val preset = LlmProviders.byId(prefs.provider.get())
         return preset.baseEditable && prefs.apiBase.get().isBlank()
