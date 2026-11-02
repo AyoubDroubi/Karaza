@@ -761,8 +761,9 @@ object SettingsTranslationScreen : SearchableSettings {
                         },
                     ),
                     // LLM 取樣溫度：低＝更一致貼字直譯、高＝更靈活但可能偏離；多數人不用動（進階、存字串 parse+clamp 0–1）。
+                    // The on-device model always decodes greedily without thinking, so both rows would do nothing there.
                     adv(
-                        showAdvanced,
+                        showAdvanced && !isLocal,
                         prefs.temperature,
                         stringResource(MR.strings.pref_translation_temperature),
                         stringResource(MR.strings.pref_translation_temperature_desc) + curSuffix,
@@ -774,7 +775,7 @@ object SettingsTranslationScreen : SearchableSettings {
                         title = stringResource(MR.strings.pref_translation_thinking),
                         subtitle = stringResource(MR.strings.pref_translation_thinking_summary),
                         titleBadge = advBadge,
-                    ).takeIf { showAdvanced },
+                    ).takeIf { showAdvanced && !isLocal },
                 ).toImmutableList(),
             ),
             // —— 語言 ——
