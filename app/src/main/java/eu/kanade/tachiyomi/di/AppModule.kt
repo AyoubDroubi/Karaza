@@ -136,6 +136,7 @@ class AppModule(val app: Application) : InjektModule {
         // Yakuyomi：翻譯相關單例（引擎服務/佇列管理/已翻快取/模型下載）。
         addSingletonFactory { TranslationManager(app) }
         addSingletonFactory { ModelDownloadManager(app) }
+        addSingletonFactory { eu.kanade.tachiyomi.data.translation.local.LocalModel(app) }
         addSingletonFactory { TranslationCache(app) }
         addSingletonFactory { TranslationEngineService(app) }
         addSingletonFactory { TranslationStatsStore(app) }

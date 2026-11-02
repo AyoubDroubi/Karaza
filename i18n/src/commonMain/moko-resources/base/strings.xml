@@ -524,6 +524,16 @@
     <string name="translate_all_downloaded_title">Translate all downloaded chapters?</string>
     <string name="translate_all_downloaded_confirm">%1$d chapters from %2$d titles will be queued. Free API keys can run out of their daily limit; if that happens the queue pauses itself and you can resume it later.</string>
     <string name="translate_all_downloaded_none">Nothing to translate: every downloaded chapter is already translated or queued.</string>
+    <string name="pref_translation_provider_local">On this phone (offline)</string>
+    <string name="pref_translation_local_model">On-device model: %1$s</string>
+    <string name="pref_translation_local_unsupported">Not available on this device (needs a 64-bit ARM phone)</string>
+    <string name="pref_translation_local_missing">Not downloaded · about 2.1 GB, Wi-Fi recommended · tap to download</string>
+    <string name="pref_translation_local_downloading">Downloading %1$d%% · tap to pause (it resumes where it stopped)</string>
+    <string name="pref_translation_local_verifying">Checking the downloaded file…</string>
+    <string name="pref_translation_local_ready">Ready · translates without internet, API key or daily limits</string>
+    <string name="pref_translation_local_failed">Failed: %1$s · tap to retry</string>
+    <string name="pref_translation_local_delete">Delete the on-device model</string>
+    <string name="pref_translation_local_delete_confirm">This frees about 2.1 GB. You can download it again later.</string>
     <string name="pref_translation_batching">Translate several pages per request</string>
     <string name="pref_translation_batching_summary">Sends 2–8 pages to the AI at once: about 5× fewer requests (free daily limits last much longer) and more context for the dialogue. Turn off to go back to one request per page.</string>
     <string name="translation_daily_quota_title">Daily translation limit reached</string>

@@ -99,7 +99,7 @@ class PageTranslator(private val context: Context) {
     fun isReady(): Boolean {
         if (!translationPreferences.translationMasterEnabled.get()) return false
         if (!translationPreferences.translationEnabled.get()) return false
-        if (apiKey().isBlank()) return false
+        if (!TranslationEngineConfig.translatorReady(translationPreferences)) return false
         if (TranslationEngineConfig.isProviderBaseMissing(translationPreferences)) return false
         return TranslationEngineConfig.modelsResolvable(context)
     }
