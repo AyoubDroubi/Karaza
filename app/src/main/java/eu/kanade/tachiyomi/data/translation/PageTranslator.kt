@@ -19,6 +19,8 @@ import eu.kanade.tachiyomi.data.nightread.NightPerfProbe
 import eu.kanade.tachiyomi.data.nightread.NightPump
 import eu.kanade.tachiyomi.data.nightread.NightTicket
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.Deferred
 import li.joye.yakuyomi.engine.PreparedPage
 import li.joye.yakuyomi.engine.PrepareResult
 import li.joye.yakuyomi.engine.PageTranslation
@@ -225,7 +227,9 @@ class PageTranslator(private val context: Context) {
                         val lock = run.enter(img, name) ?: return@launch
                         val bmp = run.decode(img, name) ?: return@launch
                         try {
-                            run.land(img, name, lock, bmp, engineService.translatePage(bmp, run.method))
+                            val r = engineService.translatePage(bmp, run.method)
+                            run.countSingleRequest(r)
+                            run.land(img, name, lock, bmp, r)
                         } catch (c: CancellationException) {
                             throw c
                         } catch (t: Throwable) {
@@ -247,9 +251,10 @@ class PageTranslator(private val context: Context) {
 
     /**
      * Several pages per LLM request. Three overlapping stages:
-     *  1. prepare (detection + OCR, bitmap released right away) runs ahead in page order, half of [pipelineDepth] at a time,
+     *  1. prepare (detection + OCR, bitmap released right away) runs ahead in page order (permits taken in order by one
+     *     producer), half of [pipelineDepth] at a time,
      *     at most [BATCH_AHEAD_PAGES] pages ahead of what has landed (bounds memory);
-     *  2. pages are grouped in reading order into batches: the first batch is small ([BATCH_FIRST_PAGES]) so the first
+     *  2. pages are grouped in reading order into batches: the first batch is one page ([BATCH_FIRST_PAGES]) so the first
      *     translated page shows up quickly while reading live, later ones are sized by [BATCH_TARGET_PAGES] (shrinking
      *     after an answer with missing lines, growing back after clean ones, within 2..[BATCH_MAX_PAGES]) and by an OCR
      *     text budget ([BATCH_CHAR_BUDGET]); at most [BATCHES_IN_FLIGHT] requests are in flight;
@@ -258,52 +263,28 @@ class PageTranslator(private val context: Context) {
      * next run (nothing of them was written).
      */
     private suspend fun translatePagesBatched(run: ChapterRun, pending: List<UniFile>, shouldStop: () -> Boolean) {
-        // Separate gates so finishing a translated batch never queues behind pages that are only being prepared
-        // (the first translated page must show up quickly while reading live).
-        val prepareGate = Semaphore((pipelineDepth(run.method) / 2).coerceAtLeast(1))
-        val completeGate = Semaphore(pipelineDepth(run.method))
+        // Native work (detection/OCR, inpaint/render) stays within [pipelineDepth] in total, like the one-by-one path.
+        // Prepare additionally gets at most half of it, so finishing a translated batch never waits behind more than a
+        // couple of pages that are only being prepared (the first translated page must show up quickly while reading).
+        val depth = pipelineDepth(run.method)
+        val nativeGate = Semaphore(depth)
+        val prepareGate = Semaphore((depth / 2).coerceAtLeast(1))
         val ahead = Semaphore(BATCH_AHEAD_PAGES)
         val inFlight = Semaphore(BATCHES_IN_FLIGHT)
         val target = java.util.concurrent.atomic.AtomicInteger(BATCH_TARGET_PAGES)
         coroutineScope {
-            // Stage 1: one job per page, started in order (Semaphore is fair, so pages are prepared in order).
-            val prepared = pending.map { img ->
-                async(Dispatchers.Default) {
-                    ahead.acquire()
-                    var handedOver = false
-                    try {
-                        if (shouldStop()) return@async null
-                        val name = img.name ?: return@async null
-                        prepareGate.withPermit {
-                            val lock = run.enter(img, name) ?: return@withPermit null
-                            val bmp = run.decode(img, name) ?: return@withPermit null
-                            val result = try {
-                                engineService.preparePage(bmp, run.method)
-                            } catch (c: CancellationException) {
-                                throw c
-                            } catch (t: Throwable) {
-                                run.pageException(name, t)
-                                run.progressOne()
-                                return@withPermit null
-                            } finally {
-                                if (!bmp.isRecycled) bmp.recycle()
-                            }
-                            when (result) {
-                                is PrepareResult.Ready -> {
-                                    handedOver = true
-                                    ReadyPage(img, name, lock, result.page)
-                                }
-                                is PrepareResult.Done -> {
-                                    // No text (Skipped) or detection/OCR failure: lands like before, no LLM request.
-                                    run.land(img, name, lock, null, result.result)
-                                    run.progressOne()
-                                    null
-                                }
-                            }
-                        }
-                    } finally {
-                        if (!handedOver) ahead.release()
+            // Stage 1. One producer takes the `ahead` permits strictly in page order before starting each page, so a
+            // later page can never hold the permit an earlier page (which stage 2 waits for) needs.
+            val prepared = Channel<Deferred<ReadyPage?>>(Channel.UNLIMITED)
+            val producer = launch {
+                try {
+                    for (img in pending) {
+                        if (shouldStop()) break
+                        ahead.acquire()
+                        prepared.send(async(Dispatchers.Default) { prepareOne(run, img, ahead, prepareGate, nativeGate) })
                     }
+                } finally {
+                    prepared.close()
                 }
             }
 
@@ -311,8 +292,8 @@ class PageTranslator(private val context: Context) {
             fun sendBatch(pages: List<ReadyPage>) = launch(Dispatchers.Default) {
                 try {
                     val bt = engineService.translateBatch(pages.map { it.prepared.queries }, run.method)
-                    run.addBatch(bt.requests)
-                    if (bt.hadMissingLines) {
+                    run.addBatch(bt.requests, bt.promptTokens, bt.completionTokens)
+                    if (bt.failed || bt.hadMissingLines) {
                         target.updateAndGet { (it / 2).coerceAtLeast(BATCH_MIN_PAGES) }
                     } else {
                         target.updateAndGet { (it + 1).coerceAtMost(BATCH_MAX_PAGES) }
@@ -320,7 +301,10 @@ class PageTranslator(private val context: Context) {
                     pages.mapIndexed { i, p ->
                         launch {
                             try {
-                                completeGate.withPermit { completeAndLand(run, p, bt.pages[i]) }
+                                val tr = bt.pages.getOrElse(i) {
+                                    PageTranslation(p.prepared.queries, error = "No answer for this page in the batch")
+                                }
+                                nativeGate.withPermit { completeAndLand(run, p, tr) }
                             } finally {
                                 ahead.release()
                             }
@@ -335,20 +319,22 @@ class PageTranslator(private val context: Context) {
             val batch = ArrayList<ReadyPage>()
             var chars = 0
             var sent = 0
-            fun flush() {
-                if (batch.isEmpty()) return
+            var stopped = false
+            // Sends what is collected once a request slot is free; false (and the batch dropped) when stopping.
+            suspend fun flush(): Boolean {
+                if (batch.isEmpty()) return true
+                inFlight.acquire()
+                if (shouldStop()) {
+                    inFlight.release()
+                    return false
+                }
                 val pages = batch.toList()
                 batch.clear()
                 chars = 0
                 sent++
                 sendBatch(pages)
+                return true
             }
-            suspend fun flushWhenSlotFree() {
-                if (batch.isEmpty()) return
-                inFlight.acquire()
-                flush()
-            }
-            var stopped = false
             for (d in prepared) {
                 if (shouldStop()) {
                     stopped = true
@@ -356,21 +342,76 @@ class PageTranslator(private val context: Context) {
                 }
                 val page = d.await() ?: continue
                 val len = page.prepared.textLength
-                if (batch.isNotEmpty() && chars + len > BATCH_CHAR_BUDGET) flushWhenSlotFree()
+                if (batch.isNotEmpty() && chars + len > BATCH_CHAR_BUDGET && !flush()) {
+                    batch += page
+                    stopped = true
+                    break
+                }
                 batch += page
                 chars += len
                 val limit = if (sent == 0) BATCH_FIRST_PAGES else target.get()
-                // A very large page (big mask in memory) goes out with what is collected so far.
-                if (batch.size >= limit || page.prepared.approxBytes > BATCH_LARGE_PAGE_BYTES) flushWhenSlotFree()
+                // A very large page goes out with what is collected so far.
+                if ((batch.size >= limit || page.prepared.approxBytes > BATCH_LARGE_PAGE_BYTES) && !flush()) {
+                    stopped = true
+                    break
+                }
             }
-            if (stopped || shouldStop()) {
-                // Not sent: release their slots and stop preparing further pages; they are redone next run.
-                batch.forEach { _ -> ahead.release() }
+            if (!stopped && !flush()) stopped = true
+            if (stopped) {
+                // Unsent pages are dropped and redone next run (nothing of them was written). Their `ahead` slots are
+                // not given back: nothing acquires them any more once the producer is cancelled.
                 batch.clear()
-                prepared.forEach { it.cancel() }
-            } else {
-                flushWhenSlotFree()
+                producer.cancel()
+                while (true) {
+                    val d = prepared.tryReceive().getOrNull() ?: break
+                    d.cancel()
+                }
             }
+        }
+    }
+
+    /** Batch stage 1 for one page (its `ahead` permit is already taken; released here unless the page is handed on). */
+    private suspend fun prepareOne(
+        run: ChapterRun,
+        img: UniFile,
+        ahead: Semaphore,
+        prepareGate: Semaphore,
+        nativeGate: Semaphore,
+    ): ReadyPage? {
+        var handedOver = false
+        try {
+            val name = img.name ?: return null
+            return prepareGate.withPermit {
+                nativeGate.withPermit {
+                    val lock = run.enter(img, name) ?: return@withPermit null
+                    val bmp = run.decode(img, name) ?: return@withPermit null
+                    try {
+                        when (val result = engineService.preparePage(bmp, run.method)) {
+                            is PrepareResult.Ready -> {
+                                handedOver = true
+                                ReadyPage(img, name, lock, result.page)
+                            }
+                            is PrepareResult.Done -> {
+                                // No text (Skipped) or detection/OCR failure: lands like before, no AI request.
+                                run.land(img, name, lock, null, result.result)
+                                run.progressOne()
+                                null
+                            }
+                        }
+                    } catch (c: CancellationException) {
+                        throw c
+                    } catch (t: Throwable) {
+                        // Same isolation as the one-by-one path: this page is logged, the chapter goes on.
+                        run.pageException(name, t)
+                        run.progressOne()
+                        null
+                    } finally {
+                        if (!bmp.isRecycled) bmp.recycle()
+                    }
+                }
+            }
+        } finally {
+            if (!handedOver) ahead.release()
         }
     }
 
@@ -420,9 +461,21 @@ class PageTranslator(private val context: Context) {
             onProgress(processed, total)
         }
 
-        suspend fun addBatch(requestCount: Int) = stateMutex.withLock {
+        suspend fun addBatch(requestCount: Int, prompt: Int, completion: Int) = stateMutex.withLock {
             requests += requestCount
+            promptTokens += prompt
+            completionTokens += completion
             batches++
+        }
+
+        /** One-by-one path: count the AI request a page result implies (Translated, or an LLM answer/failure). */
+        suspend fun countSingleRequest(r: PageResult) = stateMutex.withLock {
+            val usedLlm = when (r) {
+                is PageResult.Translated -> true
+                is PageResult.Skipped -> r.stats.promptTokens > 0
+                is PageResult.Failed -> r.reason.startsWith("No text translated")
+            }
+            if (usedLlm) requests++
         }
 
         /**
@@ -2714,7 +2767,7 @@ class PageTranslator(private val context: Context) {
     companion object {
         // Multi-page batching (see [translatePagesBatched]).
         /** First batch of a chapter: small, so the first translated page appears quickly while reading live. */
-        private const val BATCH_FIRST_PAGES = 2
+        private const val BATCH_FIRST_PAGES = 1
         /** Starting batch size after the first one; adapts between [BATCH_MIN_PAGES] and [BATCH_MAX_PAGES]. */
         private const val BATCH_TARGET_PAGES = 5
         private const val BATCH_MIN_PAGES = 2
