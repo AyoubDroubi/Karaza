@@ -5,6 +5,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import eu.kanade.tachiyomi.R
 import eu.kanade.tachiyomi.data.notification.Notifications
+import li.joye.yakuyomi.engine.LlmTranslator
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
 
@@ -19,7 +20,7 @@ import tachiyomi.i18n.MR
 object DailyQuota {
 
     /** Prefix of the engine's error for a used-up daily quota (see the engine's LlmTranslator). */
-    const val MARKER = "Daily quota for this model is used up"
+    const val MARKER = LlmTranslator.DAILY_QUOTA_MESSAGE
 
     @Volatile
     private var lastHitAt = 0L
