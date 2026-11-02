@@ -9,4 +9,4 @@ add_subdirectory(${LLAMA_SRC} build-llama)
 
 add_library(karaza_llm SHARED karaza_llm.cpp)
 target_include_directories(karaza_llm PRIVATE ${LLAMA_SRC}/include ${LLAMA_SRC}/ggml/include)
-target_link_libraries(karaza_llm llama ggml android log)
+target_link_libraries(karaza_llm llama ggml android log dl)

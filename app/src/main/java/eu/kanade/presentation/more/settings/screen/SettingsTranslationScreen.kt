@@ -257,6 +257,8 @@ object SettingsTranslationScreen : SearchableSettings {
                     TextButton(
                         onClick = {
                             confirmDeleteLocal = false
+                            // Free the loaded model first (RAM, and the disk space of the mapped file).
+                            Injekt.get<eu.kanade.tachiyomi.data.translation.TranslationEngineService>().shutdownAsync()
                             localModel.delete()
                         },
                     ) { Text(text = stringResource(MR.strings.action_delete)) }
@@ -666,7 +668,12 @@ object SettingsTranslationScreen : SearchableSettings {
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(MR.strings.pref_translation_local_delete),
                         onClick = { confirmDeleteLocal = true },
-                    ).takeIf { isLocal && localState == LocalModel.State.Ready },
+                    ).takeIf {
+                        isLocal && (
+                            localState == LocalModel.State.Ready ||
+                                (localState is LocalModel.State.Failed && localModel.hasFiles())
+                            )
+                    },
                     Preference.PreferenceItem.EditTextPreference(
                         preference = prefs.apiBase,
                         title = stringResource(MR.strings.pref_translation_api_base),

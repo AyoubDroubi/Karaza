@@ -56,6 +56,17 @@ class LocalModel(private val context: Context) {
         if (job?.isActive == true) return
         job = scope.launch {
             try {
+                // Complete file left without its marker (app killed between saving and marking): just verify it.
+                if (file.length() == SIZE && !verifiedMarker.exists()) {
+                    _state.value = State.Verifying
+                    if (sha256(file) == SHA256) {
+                        verifiedMarker.writeText(SHA256)
+                        _state.value = State.Ready
+                        return@launch
+                    }
+                    file.delete()
+                }
+                _state.value = State.Downloading(partFile.length().coerceAtMost(SIZE), SIZE)
                 fetch()
                 _state.value = State.Verifying
                 val got = sha256(partFile)
@@ -80,6 +91,9 @@ class LocalModel(private val context: Context) {
     fun cancelDownload() {
         job?.cancel()
     }
+
+    /** A finished or partial download is on disk (it can be deleted). */
+    fun hasFiles(): Boolean = file.exists() || partFile.exists()
 
     fun delete() {
         job?.cancel()
@@ -145,7 +159,9 @@ class LocalModel(private val context: Context) {
         const val DISPLAY_NAME = "Index-Translate 2B (Q8_0)"
 
         const val FILE_NAME = "Index-Translate-2B.Q8_0.gguf"
-        const val URL = "https://huggingface.co/IndexTeam/Index-Translate-2B-GGUF/resolve/main/$FILE_NAME"
+        /** Pinned to a repository commit, so a later re-upload cannot break the pinned size and checksum. */
+        const val URL = "https://huggingface.co/IndexTeam/Index-Translate-2B-GGUF/resolve/" +
+            "449c9e6457b3632d328c6cbb78ae8e8e0c8059a5/$FILE_NAME"
         const val SIZE = 2_076_674_560L
         const val SHA256 = "a09d287f41d297206947a2e51acc29dd03c8b22356111fdb1e289c0c97c173f3"
         private const val REPORT_EVERY = 4L * 1024 * 1024

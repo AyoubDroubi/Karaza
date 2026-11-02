@@ -3,7 +3,13 @@ package eu.kanade.tachiyomi.data.translation.local
 import android.content.Context
 import app.karaza.llm.LocalLlm
 import eu.kanade.tachiyomi.crash.TraceLog
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -12,14 +18,18 @@ import li.joye.yakuyomi.engine.BatchTranslator
 import li.joye.yakuyomi.engine.LineProtocol
 import li.joye.yakuyomi.engine.PageTranslation
 import java.io.File
+import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.coroutineContext
 
 /**
  * Translation with the on-device model (see [LocalModel]). Uses the model's own instruction (Index-Translate is
  * trained on a short Chinese "translate into X, output only the translation" prompt) plus the numbered-line rule,
  * exactly as tested on a phone, inside the model's ChatML template with thinking turned off.
  *
- * The model is loaded on first use and kept until the engine closes ([close]). One generation runs at a time.
- * Failures throw (instead of returning the source text) so a page fails and is retried rather than being marked done.
+ * Lines are sent in chunks of at most [CHUNK_CHARS] characters so prompt + answer always fit the context (a single
+ * very text-heavy page is split too). The model is loaded on first use and kept until the engine closes ([close]).
+ * One generation runs at a time on a dedicated thread; cancelling the calling coroutine stops it within a token.
  */
 class LocalTranslator(
     private val context: Context,
@@ -29,12 +39,15 @@ class LocalTranslator(
 ) : BatchTranslator, AutoCloseable {
 
     private val mutex = Mutex()
+
     @Volatile
     private var llm: LocalLlm? = null
 
+    /** Single-page path: partial answers are kept (missing lines fall back and are filtered); only a failed run throws. */
     override suspend fun translate(queries: List<String>): List<String> {
-        val page = translatePages(listOf(queries)).pages.first()
-        page.error?.let { throw IllegalStateException(it) }
+        val batch = translatePages(listOf(queries))
+        val page = batch.pages.first()
+        if (batch.failed) throw IllegalStateException(page.error ?: "On-device translation failed")
         return page.translations
     }
 
@@ -43,14 +56,22 @@ class LocalTranslator(
         val flat = pages.flatten()
         val t0 = System.currentTimeMillis()
         return try {
-            val parsed = generateLines(flat).toMutableMap()
-            var requests = 1
-            val missing = LineProtocol.missing(flat, parsed)
-            if (missing.isNotEmpty()) {
-                // Same recovery as the cloud translator: ask once more for just the missing lines.
+            val parsed = HashMap<Int, String>()
+            var requests = 0
+            var hadMissing = false
+            for (chunk in chunks(flat)) {
+                val queries = chunk.map { flat[it] }
+                val got = generateLines(queries).toMutableMap()
                 requests++
-                val again = generateLines(missing.map { flat[it] })
-                missing.forEachIndexed { k, i -> again[k + 1]?.takeIf { it.isNotBlank() }?.let { parsed[i + 1] = it } }
+                val missing = LineProtocol.missing(queries, got)
+                if (missing.isNotEmpty()) {
+                    // Same recovery as the cloud translator: ask once more for just the missing lines.
+                    hadMissing = true
+                    requests++
+                    val again = generateLines(missing.map { queries[it] })
+                    missing.forEachIndexed { k, i -> again[k + 1]?.takeIf { it.isNotBlank() }?.let { got[i + 1] = it } }
+                }
+                chunk.forEachIndexed { k, globalIndex -> got[k + 1]?.let { parsed[globalIndex + 1] = it } }
             }
             val ms = System.currentTimeMillis() - t0
             var offset = 0
@@ -64,8 +85,8 @@ class LocalTranslator(
                     translateMs = ms,
                 )
             }
-            BatchTranslation(out, requests = requests, hadMissingLines = missing.isNotEmpty())
-        } catch (e: kotlinx.coroutines.CancellationException) {
+            BatchTranslation(out, requests = requests, hadMissingLines = hadMissing)
+        } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
             val err = "On-device model: ${e.message ?: e.javaClass.simpleName}"
@@ -74,38 +95,87 @@ class LocalTranslator(
         }
     }
 
-    private suspend fun generateLines(queries: List<String>): Map<Int, String> = withContext(Dispatchers.Default) {
-        val prompt = template(instruction(targetLang) + "\n\n" + LineProtocol.numbered(queries))
-        // Room for the answer: Arabic needs more tokens than the English source; bounded by the context size.
-        val maxTokens = (queries.sumOf { it.length } * 2 + 32 * queries.size).coerceIn(256, MAX_ANSWER_TOKENS)
-        val raw = mutex.withLock {
-            val model = llm ?: LocalLlm.load(context, modelFile.absolutePath, CONTEXT_TOKENS, threads).also {
+    /** Consecutive index ranges of [lines] with at most [CHUNK_CHARS] characters (a longer single line goes alone). */
+    private fun chunks(lines: List<String>): List<List<Int>> {
+        val out = ArrayList<List<Int>>()
+        var cur = ArrayList<Int>()
+        var chars = 0
+        lines.forEachIndexed { i, line ->
+            if (cur.isNotEmpty() && (chars + line.length > CHUNK_CHARS || cur.size >= CHUNK_LINES)) {
+                out += cur
+                cur = ArrayList()
+                chars = 0
+            }
+            cur += i
+            chars += line.length
+        }
+        if (cur.isNotEmpty()) out += cur
+        return out
+    }
+
+    private suspend fun generateLines(queries: List<String>): Map<Int, String> {
+        // A single line longer than the chunk budget is cut so prompt + answer still fit the context.
+        val safe = queries.map { if (it.length > CHUNK_CHARS) it.take(CHUNK_CHARS) else it }
+        val prompt = template(instruction(targetLang) + "\n\n" + LineProtocol.numbered(safe))
+        // Room for the answer: Arabic needs more tokens than the English source.
+        val maxTokens = (safe.sumOf { it.length } * 2 + 32 * safe.size).coerceIn(256, MAX_ANSWER_TOKENS)
+        val answer = mutex.withLock {
+            coroutineContext.ensureActive()
+            val model = llm ?: withContext(dispatcher) {
+                LocalLlm.load(context, modelFile.absolutePath, CONTEXT_TOKENS, threads)
+            }.also {
                 llm = it
                 TraceLog.log("llm", "loaded ${modelFile.name} threads=$threads ctx=$CONTEXT_TOKENS")
             }
-            val start = System.currentTimeMillis()
-            model.generate(prompt, maxTokens).also {
-                TraceLog.log("llm", "lines=${queries.size} ms=${System.currentTimeMillis() - start} out=${it.length}")
+            model.resetCancel()
+            coroutineScope {
+                // Cancelling this coroutine (pause, leaving the chapter) stops the native generation right away.
+                val finished = AtomicBoolean(false)
+                val watcher = launch {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        if (!finished.get()) model.cancel()
+                    }
+                }
+                try {
+                    val start = System.currentTimeMillis()
+                    withContext(dispatcher) { model.generate(prompt, maxTokens) }.also {
+                        TraceLog.log(
+                            "llm",
+                            "lines=${safe.size} ms=${System.currentTimeMillis() - start} out=${it.text.length} complete=${it.complete}",
+                        )
+                    }
+                } finally {
+                    finished.set(true)
+                    watcher.cancel()
+                }
             }
         }
-        LineProtocol.parse(raw)
-    }
-
-    /** Stops a running generation (pause / cancel); the call then fails and the pages are retried later. */
-    fun cancel() {
-        llm?.cancel()
+        val parsed = LineProtocol.parse(answer.text)
+        // Cut off by the token limit: the last line may be half written, so treat it as missing (it is retried).
+        if (!answer.complete) parsed.keys.maxOrNull()?.let { return parsed - it }
+        return parsed
     }
 
     override fun close() {
         llm?.cancel()
-        // Free after the running generation (if any) has stopped.
-        kotlinx.coroutines.runBlocking { mutex.withLock { llm?.close(); llm = null } }
+        // Free after a running generation (if any) has stopped.
+        runBlocking { mutex.withLock { llm?.close(); llm = null } }
     }
 
     companion object {
         private const val CONTEXT_TOKENS = 4096
         private const val MAX_ANSWER_TOKENS = 2048
         private const val DEFAULT_THREADS = 4
+
+        /** Source characters per generation: about 300–900 prompt tokens, leaving room for the answer. */
+        private const val CHUNK_CHARS = 900
+        private const val CHUNK_LINES = 40
+
+        /** All generations run on one dedicated thread (they block for seconds to minutes). */
+        private val dispatcher = Executors.newSingleThreadExecutor { r -> Thread(r, "karaza-llm") }
+            .asCoroutineDispatcher()
 
         /** ChatML with an empty thinking block = thinking off (the model's own template does the same). */
         internal fun template(user: String): String =
