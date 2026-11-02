@@ -892,8 +892,8 @@ class MangaViewModel(
                 it.translationStatus != TranslationItem.Status.TRANSLATING
         }
         val (failed, fresh) = candidates.partition { it.translationStatus == TranslationItem.Status.ERROR }
-        if (failed.isNotEmpty()) translationManager.retry(failed.map { it.id })
-        val ordered = fresh.sortedWith(compareBy<ChapterList.Item>({ it.chapter.read }, { -it.chapter.sourceOrder }))
+        if (failed.isNotEmpty()) translationManager.retry(failed.map { it.id }, translationsOnly = true)
+        val ordered = fresh.sortedByDescending { it.chapter.sourceOrder }
         if (ordered.isNotEmpty()) runChapterTranslateAction(ordered)
         viewModelScope.launch {
             snackbarHostState.showSnackbar(

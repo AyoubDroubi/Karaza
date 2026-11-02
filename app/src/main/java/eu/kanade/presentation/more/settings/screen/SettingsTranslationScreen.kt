@@ -617,6 +617,7 @@ object SettingsTranslationScreen : SearchableSettings {
                             MR.strings.pref_translation_api_key_summary,
                             providerName,
                         ),
+                        secret = true,
                     ),
                     Preference.PreferenceItem.EditTextPreference(
                         preference = prefs.model,

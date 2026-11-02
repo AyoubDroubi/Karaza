@@ -70,3 +70,26 @@ jobs:
           path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 14
+
+      # Unit tests run after the APK is uploaded, so a failing test never blocks getting the build.
+      # The engine repo is a fork (forks do not run Actions by default), so its tests run here.
+      - name: Engine unit tests
+        run: |
+          set -o pipefail
+          cd yakuyomi-engine
+          chmod +x ./gradlew
+          ./gradlew :inference-core:testDebugUnitTest :engine:testDebugUnitTest --no-daemon 2>&1 | tee ../test.log
+
+      - name: App translation unit tests
+        run: |
+          set -o pipefail
+          ./gradlew :app:testDebugUnitTest --tests 'eu.kanade.tachiyomi.data.translation.*' --no-daemon 2>&1 | tee -a test.log
+
+      - name: Report test failures
+        if: failure()
+        run: |
+          [ -f test.log ] || exit 0
+          grep -E 'FAILED|AssertionError|expected:|What went wrong|^e: ' test.log | head -15 | while IFS= read -r l; do
+            echo "::error title=Test failure::$(printf '%s' "$l" | sed 's/%/%25/g')"
+          done
+

@@ -422,7 +422,7 @@
     <string name="quickstart_what_title">On-device, bring-your-own-key</string>
     <string name="quickstart_what_body">Detection, OCR and text removal all run on your phone. Only the OCR\'d text goes to the LLM provider you pick — using your own API key and endpoint. Your images, and the detection / OCR / erase steps, never leave the device. There is no analytics or telemetry.\n\nCloud translation may cost money, billed by your provider. Tapping Got it at the end means you understand this.</string>
     <string name="quickstart_setup_title">Three things to get ready</string>
-    <string name="quickstart_setup_body">1. Pick a provider and paste your API key.\nSettings → Translation → Provider. Default is DeepSeek; OpenAI, Gemini, Groq, Qwen, OpenRouter and self-hosted (Sakura / custom) also work. Paste the key from your provider\'s dashboard — it is encrypted on this device. For a self-hosted or custom provider, also fill in the API base.\n\n2. Get the models (detector, OCR, text-removal).\nSettings → Translation → Models → Download models (about 250 MB, verified). Or bring your own: drop the model files into the models folder in your storage location. The Model status row shows a check or cross for each.\n\n3. Pick your languages.\nDefault is Japanese → Traditional Chinese (Taiwan). Change the target or source any time.</string>
+    <string name="quickstart_setup_body">1. Pick a provider and paste your API key.\nSettings → Translation → Provider. Default is DeepSeek; OpenAI, Gemini, Groq, Qwen, OpenRouter and self-hosted (Sakura / custom) also work. Paste the key from your provider\'s dashboard — it is encrypted on this device. For a self-hosted or custom provider, also fill in the API base.\n\n2. Get the models (detector, OCR, text-removal).\nSettings → Translation → Models → Download models (about 250 MB, verified). Or bring your own: drop the model files into the models folder in your storage location. The Model status row shows a check or cross for each.\n\n3. Pick your languages.\nDefault is English → Arabic. Change the target or source any time.</string>
     <string name="quickstart_workflows_title">Two ways to translate</string>
     <string name="quickstart_workflows_body">Translate on download — turn on Translate chapters on download. Every chapter you download is then translated automatically in the background, and the page images are replaced in place. Best when you download ahead and read later.\n\nLive (read-as-you-go) — turn on Live translation, a separate switch. When you open an unread chapter it is translated in the background and pages swap in as they become ready (a Translating X/Y pill shows at the top-left). Opening an undownloaded chapter downloads it first, then translates. Use Live translation categories to limit it to, or exclude, certain library categories.\n\nThe two switches are independent: use either, both, or neither — and both sit under the master Enable translation switch at the top of the page. Turn that off and nothing translates.</string>
     <string name="quickstart_manual_title">By hand, and keeping it tidy</string>
@@ -430,7 +430,7 @@
     <string name="quickstart_action_done">Got it</string>
     <!-- Enhancements guide (a swipeable tour of everything this fork adds on top of mihon) -->
     <string name="enhancements_guide_title">Karaza enhancements</string>
-    <string name="enhancements_guide_about_summary">Everything this fork adds on top of mihon</string>
+    <string name="enhancements_guide_about_summary">Translation, Arabic support and the other features Karaza adds</string>
     <string name="enhancements_guide_open">See all enhancements</string>
     <string name="enhancements_guide_action_done">Done</string>
     <!-- Page 1: Translation -->
@@ -522,7 +522,7 @@
     <string name="action_translate_all_downloaded">Translate all downloaded</string>
     <string name="translate_all_downloaded_counting">Counting downloaded chapters…</string>
     <string name="translate_all_downloaded_title">Translate all downloaded chapters?</string>
-    <string name="translate_all_downloaded_confirm">%1$d chapters from %2$d titles will be queued, unread first. Free API keys can run out of their daily limit; if that happens the queue pauses itself and you can resume it later.</string>
+    <string name="translate_all_downloaded_confirm">%1$d chapters from %2$d titles will be queued. Free API keys can run out of their daily limit; if that happens the queue pauses itself and you can resume it later.</string>
     <string name="translate_all_downloaded_none">Nothing to translate: every downloaded chapter is already translated or queued.</string>
     <string name="translation_daily_quota_title">Daily translation limit reached</string>
     <string name="translation_daily_quota_text">The AI provider\'s daily limit is used up, so the translation queue was paused. Resume it from the Queue tab once the limit resets.</string>
@@ -1257,7 +1257,7 @@
 
     <!-- Crash screen -->
     <string name="crash_screen_title">Whoops!</string>
-    <string name="crash_screen_description">%s ran into an unexpected error. We suggest you share the crash logs in our support channel on Discord.</string>
+    <string name="crash_screen_description">%s ran into an unexpected error. Please share the crash logs in a new issue on the app\'s GitHub page so it can be fixed.</string>
     <string name="crash_screen_restart_application">Restart the application</string>
 
     <!-- Stats screen -->
@@ -1429,19 +1429,7 @@
     <string name="migrationListScreen.progressDialog.cancelLabel">Cancel</string>
     <string name="migrationListScreen.matchWithoutChapterToast">No chapters found, this entry cannot be used for migration</string>
 
-    <string name="supportUsScreen.perks">Patrons get access to exclusive channels, with more perks to come.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (preferred)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza is currently backed by %d+ patrons. We want to thank each and everyone of you. Let's make Karaza even better together.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">For alternative options or any related questions, join our Discord server.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
 
-    <string name="donationCampaign.title">Enjoying the app?</string>
-    <string name="donationCampaign.paragraph1">Hi! I’m the main developer behind Karaza, and I’d like to ask you to consider supporting its development financially. With enough support, I’ll be able to work on Karaza full-time and focus on long-standing issues as well as highly requested features.</string>
-    <string name="donationCampaign.paragraph2">You can donate through either Patreon (preferred) or OpenCollective. If you have questions or would like to support using alternative methods, feel free to reach out to me through Karaza's Discord server.</string>
-    <string name="donationCampaign.paragraph3">Regardless, Karaza will continue to be maintained by me and the volunteers, and it will stay open source.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Dismiss</string>
 
     <!-- Karaza: translation settings -->
     <string name="pref_translation_group_provider">Provider</string>

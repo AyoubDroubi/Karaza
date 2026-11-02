@@ -618,7 +618,6 @@
     <string name="missing_storage_permission">ストレージ権限を持っていません</string>
     <string name="skipped_reason_not_always_update">シリーズの更新が不要なためスキップしました</string>
     <string name="action_search_hint">検索…</string>
-    <string name="crash_screen_description">%s で予期せぬエラーが発生しました。クラッシュログを Discord のサポートチャンネルで共有することをお勧めします。</string>
     <string name="invalid_location">無効な場所: %s</string>
     <string name="unknown_title">不明なタイトル</string>
     <string name="error_user_agent_string_invalid">ユーザーエージェント文字列が無効です</string>
@@ -868,11 +867,6 @@
     <string name="migrationConfigScreen.selectNoneLabel">すべて選択解除</string>
     <string name="migrationConfigScreen.additionalSearchQueryLabel">追加キーワード（任意）</string>
     <string name="migrationConfigScreen.additionalSearchQuerySupportingText">キーワードを追加することで、検索結果を絞り込むのに役立ちます</string>
-    <string name="donationCampaign.title">このアプリは気に入っていただけましたか？</string>
-    <string name="donationCampaign.paragraph1">こんにちは！Karaza のメイン開発者です。Karaza の開発を資金面でご支援いただけないでしょうか。十分なご支援をいただければ、Karaza の開発に専念し、長年の課題解決や多くのユーザーから要望のあった機能開発に集中できるようになります。</string>
-    <string name="donationCampaign.paragraph2">寄付は Patreon（推奨）または OpenCollective を通じて行うことができます。ご質問がある場合や、別の方法で支援をご希望の場合は、Karaza の Discord サーバーからお気軽にご連絡ください。</string>
-    <string name="donationCampaign.paragraph3">いずれにせよ、Karaza は私とボランティアによって引き続きメンテナンスされ、オープンソースのまま維持されます。</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
     <string name="migrationListScreenTitle">移行</string>
     <string name="migrationListScreenTitleWithProgress">移行（%1$d/%2$d）</string>
     <string name="migrationListScreen.copyActionLabel">コピー</string>
@@ -891,13 +885,6 @@
     <string name="migrationListScreen.migrateDialog.migrateLabel">移行</string>
     <string name="migrationListScreen.migrateDialog.cancelLabel">キャンセル</string>
     <string name="migrationListScreen.progressDialog.cancelLabel">キャンセル</string>
-    <string name="supportUsScreen.perks">支援者は限定チャンネルにアクセスできるほか、今後さらに多くの特典が追加される予定です。</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon（推奨）</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza は現在、%d 人以上の支援者の方々にご支援いただいています。皆様一人ひとりに心より感謝申し上げます。共に Karaza をさらに素晴らしいものにしていきましょう。</string>
-    <string name="supportUsScreen.contactForDetailsMessage">代替案や関連するご質問については、Discord サーバーにご参加ください。</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">閉じる</string>
     <string name="pref_vertical_navigator">垂直な章ナビゲーターを使用</string>
     <string name="pref_vertical_navigator_height">垂直ナビゲーターの高さ</string>
     <string name="pref_webtoon_vertical_navigator_on_left">垂直ナビゲーターを左側に配置</string>

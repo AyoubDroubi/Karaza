@@ -152,6 +152,8 @@ sealed class Preference {
             override val enabled: Boolean = true,
             override val titleBadge: String? = null,
             override val onValueChanged: suspend (value: String) -> Boolean = { true },
+            /** Secret value (API key): masked in the editor except the last 4 characters, password keyboard. */
+            val secret: Boolean = false,
         ) : PreferenceItem<String, Boolean>() {
             override val icon: ImageVector? = null
         }

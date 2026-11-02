@@ -650,7 +650,6 @@
     <string name="track_remove_start_date_conf_text">Dit gaat je eerder geselcteerde startdatum %s verwijderen</string>
     <string name="delete_downloaded">Download verwijderen</string>
     <string name="skipped_reason_not_always_update">Overgeslagen omdat deze serie geen updates vereist</string>
-    <string name="crash_screen_description">%s is een onverwachte fout tegengekomen. We raden u aan de crashlogboeken te delen in ons ondersteuningskanaal op Discord.</string>
     <string name="pref_debug_info">Foutopsporingsinformatie</string>
     <string name="label_completed_titles">Voltooide titels</string>
     <string name="pref_update_only_in_release_period">Buiten verwachte vrijgave periode</string>
@@ -896,17 +895,5 @@
     <string name="extensionStoresScreen.deleteStore.title">Extensiewinkel verwijderen</string>
     <string name="extensionStoresScreen.deleteStore.body">Wil je de extensiewinkel \"%1$s\" (%2$s) verwijderen?</string>
     <string name="pref_webtoon_vertical_navigator_on_left">Plaats verticale navigator aan de linkerkant</string>
-    <string name="supportUsScreen.perks">Donateurs krijgen toegang tot exclusieve kanalen, met meer voordelen in de toekomst.</string>
-    <string name="supportUsScreen.donationPlatform.patreon">Patreon (bij voorkeur)</string>
-    <string name="supportUsScreen.donationPlatform.opencollective">OpenCollective</string>
-    <string name="supportUsScreen.currentlySupportedBy">Karaza wordt op dit moment gesteund door %d+ donateurs. Wij willen ieder van jullie bedanken. Laten we Karaza samen nog beter maken.</string>
-    <string name="supportUsScreen.contactForDetailsMessage">Voor alternatieve opties of gerelateerde vragen, wordt lid van onze Discord server.</string>
-    <string name="supportUsScreen.contactPlatform">Discord</string>
-    <string name="donationCampaign.title">Bevalt de app je?</string>
-    <string name="donationCampaign.paragraph1">Hoi! Ik ben de hoofddeveloper van Karaza en ik wil je vragen om te overwegen de ontwikkeling financieel te ondersteunen. Met genoeg steun zal ik voltijds aan Karaza kunnen werken en mij kunnen focussen op lang bestaande problemen alsook veelgevraagde functies.</string>
-    <string name="donationCampaign.paragraph2">Je kan doneren via Patreon (bij voorkeur) of OpenCollective. Als je vragen hebt of op een andere manier wil steunen, kan je altijd naar mij uitreiken via Karaza\'s Discord server.</string>
-    <string name="donationCampaign.paragraph3">Hoe dan ook, Karaza zal blijven onderhouden worden door mij en de vrijwilligers, en het zal open source blijven.</string>
-    <string name="donationCampaign.contactPlatform">Discord</string>
-    <string name="donationCampaign.dismiss">Afwijzen</string>
     <string name="considering">Aan het overwegen</string>
 </resources>

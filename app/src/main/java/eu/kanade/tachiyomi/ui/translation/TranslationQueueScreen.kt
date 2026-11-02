@@ -1,5 +1,8 @@
 package eu.kanade.tachiyomi.ui.translation
 
+import tachiyomi.core.common.util.system.logcat
+import logcat.LogPriority
+import kotlinx.coroutines.CancellationException
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.lifecycle.viewModelScope
@@ -1050,8 +1053,15 @@ private class TranslationQueueViewModel(
         translateAllScan?.cancel()
         _translateAll.value = TranslateAllUi.Counting(0, 0)
         translateAllScan = viewModelScope.launch {
-            val targets = translationManager.scanUntranslatedDownloaded { done, total ->
-                _translateAll.update { if (it is TranslateAllUi.Counting) TranslateAllUi.Counting(done, total) else it }
+            val targets = try {
+                translationManager.scanUntranslatedDownloaded { done, total ->
+                    _translateAll.update { if (it is TranslateAllUi.Counting) TranslateAllUi.Counting(done, total) else it }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                logcat(LogPriority.ERROR, e) { "Translate all downloaded: scan failed" }
+                emptyList()
             }
             _translateAll.update {
                 if (it !is TranslateAllUi.Counting) it
