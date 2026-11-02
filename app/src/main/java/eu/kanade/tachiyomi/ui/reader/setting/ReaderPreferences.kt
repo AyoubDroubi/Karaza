@@ -1,0 +1,301 @@
+package eu.kanade.tachiyomi.ui.reader.setting
+
+import android.os.Build
+import androidx.compose.ui.graphics.BlendMode
+import dev.icerock.moko.resources.StringResource
+import tachiyomi.core.common.preference.Preference
+import tachiyomi.core.common.preference.PreferenceStore
+import tachiyomi.core.common.preference.getEnum
+import tachiyomi.core.common.preference.getEnumSet
+import tachiyomi.i18n.MR
+
+class ReaderPreferences(
+    preferenceStore: PreferenceStore,
+) {
+
+    // region General
+
+    val pageTransitions: Preference<Boolean> = preferenceStore.getBoolean("pref_enable_transitions_key", true)
+
+    val flashOnPageChange: Preference<Boolean> = preferenceStore.getBoolean("pref_reader_flash", false)
+
+    val flashDurationMillis: Preference<Int> = preferenceStore.getInt("pref_reader_flash_duration", MILLI_CONVERSION)
+
+    val flashPageInterval: Preference<Int> = preferenceStore.getInt("pref_reader_flash_interval", 1)
+
+    val flashColor: Preference<FlashColor> = preferenceStore.getEnum("pref_reader_flash_mode", FlashColor.BLACK)
+
+    val doubleTapAnimSpeed: Preference<Int> = preferenceStore.getInt("pref_double_tap_anim_speed", 500)
+
+    val showPageNumber: Preference<Boolean> = preferenceStore.getBoolean("pref_show_page_number_key", true)
+
+    val verticalNavigator: Preference<Set<ReadingMode>> = preferenceStore.getEnumSet(
+        "pref_vertical_navigator",
+        emptySet(),
+    )
+
+    val verticalNavigatorOnLeft: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_vertical_navigator_on_left",
+        false,
+    )
+
+    val verticalNavigatorHeight: Preference<Int> = preferenceStore.getInt(
+        "pref_vertical_navigator_height",
+        65,
+    )
+
+    val showReadingMode: Preference<Boolean> = preferenceStore.getBoolean("pref_show_reading_mode", true)
+
+    val fullscreen: Preference<Boolean> = preferenceStore.getBoolean("fullscreen", true)
+
+    val drawUnderCutout: Preference<Boolean> = preferenceStore.getBoolean("cutout_short", true)
+
+    val keepScreenOn: Preference<Boolean> = preferenceStore.getBoolean("pref_keep_screen_on_key", false)
+
+    val defaultReadingMode: Preference<Int> = preferenceStore.getInt(
+        "pref_default_reading_mode_key",
+        ReadingMode.RIGHT_TO_LEFT.flagValue,
+    )
+
+    // Yakuyomi：平板/展開態的閱讀模式。預設 DEFAULT＝跟隨手機（defaultReadingMode）；非 DEFAULT 時，
+    // 裝置處於平板 UI（外觀→平板介面 自動/一律/橫向）且該本未明確指定模式時改用此模式。
+    val tabletReadingMode: Preference<Int> = preferenceStore.getInt(
+        "pref_tablet_reading_mode_key",
+        ReadingMode.DEFAULT.flagValue,
+    )
+
+    // Yakuyomi：自動偵測 webtoon——該本未指定閱讀模式時，若頁面是長條圖（高 > 寬*3，typical manhwa/webtoon）
+    // → 自動改用連續直捲；只覆寫「跟隨預設」的本（per-manga 明確指定者不動）。預設關（開關優先）。
+    val autoDetectWebtoon: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_auto_detect_webtoon_key",
+        false,
+    )
+
+    val defaultOrientationType: Preference<Int> = preferenceStore.getInt(
+        "pref_default_orientation_type_key",
+        ReaderOrientation.FREE.flagValue,
+    )
+
+    val webtoonDoubleTapZoomEnabled: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_enable_double_tap_zoom_webtoon",
+        true,
+    )
+
+    val imageScaleType: Preference<Int> = preferenceStore.getInt("pref_image_scale_type_key", 1)
+
+    val zoomStart: Preference<Int> = preferenceStore.getInt("pref_zoom_start_key", 1)
+
+    val readerTheme: Preference<Int> = preferenceStore.getInt("pref_reader_theme_key", 1)
+
+    /**
+     * Yakuyomi 夜讀模式（純顯示層開關）：開著時，有夜讀版（章節夾 `.yakuyomi/` 裡的夜讀檔，檔名見 `NightPages`；
+     * 由夜讀佇列離線產生）的頁改顯示夜讀版；沒有夜讀版的頁照常顯示原圖（永不擋讀、不顯示比原圖更糟的東西）。
+     * 只被 loader 的 stream lambda 在**每次解碼時**讀取、不改任何檔案 → 切換後對已載入頁 `reload()` 即立即生效。
+     * 預設關（夜讀版本身也是選配、預設不產）。
+     */
+    val nightReadMode: Preference<Boolean> = preferenceStore.getBoolean("yaku_night_read_mode", false)
+
+    /**
+     * Yakuyomi 夜讀懸浮鈕的位置：`<side>` 或 `<side>:<yFrac>`（side＝`L`／`R`，物理左右、不隨閱讀方向翻轉；yFrac＝可移動
+     * 範圍內的垂直比例 0..1，用比例存，旋轉螢幕或折疊機展開後位置仍合理）。預設 `R`＝右緣、使用者拖曳前沒有 yFrac，
+     * 用「距底 96dp」規則。解析／換算見 `NightFabPosition`。
+     */
+    val nightFabPosition: Preference<String> = preferenceStore.getString("yaku_night_fab_position", "R")
+
+    val alwaysShowChapterTransition: Preference<Boolean> = preferenceStore.getBoolean(
+        "always_show_chapter_transition",
+        true,
+    )
+
+    val cropBorders: Preference<Boolean> = preferenceStore.getBoolean("crop_borders", false)
+
+    val navigateToPan: Preference<Boolean> = preferenceStore.getBoolean("navigate_pan", true)
+
+    val landscapeZoom: Preference<Boolean> = preferenceStore.getBoolean("landscape_zoom", true)
+
+    val cropBordersWebtoon: Preference<Boolean> = preferenceStore.getBoolean("crop_borders_webtoon", false)
+
+    val webtoonSidePadding: Preference<Int> = preferenceStore.getInt("webtoon_side_padding", WEBTOON_PADDING_MIN)
+
+    val readerHideThreshold: Preference<ReaderHideThreshold> = preferenceStore.getEnum(
+        "reader_hide_threshold",
+        ReaderHideThreshold.LOW,
+    )
+
+    val folderPerManga: Preference<Boolean> = preferenceStore.getBoolean("create_folder_per_manga", false)
+
+    val skipRead: Preference<Boolean> = preferenceStore.getBoolean("skip_read", false)
+
+    val skipFiltered: Preference<Boolean> = preferenceStore.getBoolean("skip_filtered", true)
+
+    val skipDupe: Preference<Boolean> = preferenceStore.getBoolean("skip_dupe", false)
+
+    val webtoonDisableZoomOut: Preference<Boolean> = preferenceStore.getBoolean("webtoon_disable_zoom_out", false)
+
+    // endregion
+
+    // region Split two-page spread
+
+    val dualPageSplitPaged: Preference<Boolean> = preferenceStore.getBoolean("pref_dual_page_split", false)
+
+    val dualPageInvertPaged: Preference<Boolean> = preferenceStore.getBoolean("pref_dual_page_invert", false)
+
+    val dualPageSplitWebtoon: Preference<Boolean> = preferenceStore.getBoolean("pref_dual_page_split_webtoon", false)
+
+    val dualPageInvertWebtoon: Preference<Boolean> = preferenceStore.getBoolean("pref_dual_page_invert_webtoon", false)
+
+    val dualPageRotateToFit: Preference<Boolean> = preferenceStore.getBoolean("pref_dual_page_rotate", false)
+
+    val dualPageRotateToFitInvert: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_dual_page_rotate_invert",
+        false,
+    )
+
+    val dualPageRotateToFitWebtoon: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_dual_page_rotate_webtoon",
+        false,
+    )
+
+    val dualPageRotateToFitInvertWebtoon: Preference<Boolean> = preferenceStore.getBoolean(
+        "pref_dual_page_rotate_invert_webtoon",
+        false,
+    )
+
+    // Yakuyomi 對開（double-page）版面：填滿方式（0=寬度為主、1=高度為主）。
+    val doublePageFillMode: Preference<Int> = preferenceStore.getInt("yaku_double_page_fill", 0)
+
+    // Yakuyomi 對開版面：對齊（0=置中優先、1=靠邊優先＝靠頁碼小那側，側別由閱讀方向決定）。
+    val doublePageAlign: Preference<Int> = preferenceStore.getInt("yaku_double_page_align", 0)
+
+    // endregion
+
+    // region Color filter
+
+    val customBrightness: Preference<Boolean> = preferenceStore.getBoolean("pref_custom_brightness_key", false)
+
+    val customBrightnessValue: Preference<Int> = preferenceStore.getInt("custom_brightness_value", 0)
+
+    val colorFilter: Preference<Boolean> = preferenceStore.getBoolean("pref_color_filter_key", false)
+
+    val colorFilterValue: Preference<Int> = preferenceStore.getInt("color_filter_value", 0)
+
+    val colorFilterMode: Preference<Int> = preferenceStore.getInt("color_filter_mode", 0)
+
+    val grayscale: Preference<Boolean> = preferenceStore.getBoolean("pref_grayscale", false)
+
+    val invertedColors: Preference<Boolean> = preferenceStore.getBoolean("pref_inverted_colors", false)
+
+    // endregion
+
+    // region Controls
+
+    val readWithLongTap: Preference<Boolean> = preferenceStore.getBoolean("reader_long_tap", true)
+
+    val readWithVolumeKeys: Preference<Boolean> = preferenceStore.getBoolean("reader_volume_keys", false)
+
+    val readWithVolumeKeysInverted: Preference<Boolean> = preferenceStore.getBoolean(
+        "reader_volume_keys_inverted",
+        false,
+    )
+
+    val navigationModePager: Preference<Int> = preferenceStore.getInt("reader_navigation_mode_pager", 0)
+
+    val navigationModeWebtoon: Preference<Int> = preferenceStore.getInt("reader_navigation_mode_webtoon", 0)
+
+    val pagerNavInverted: Preference<TappingInvertMode> = preferenceStore.getEnum(
+        "reader_tapping_inverted",
+        TappingInvertMode.NONE,
+    )
+
+    val webtoonNavInverted: Preference<TappingInvertMode> = preferenceStore.getEnum(
+        "reader_tapping_inverted_webtoon",
+        TappingInvertMode.NONE,
+    )
+
+    val showNavigationOverlayNewUser: Preference<Boolean> = preferenceStore.getBoolean(
+        "reader_navigation_overlay_new_user",
+        true,
+    )
+
+    val showNavigationOverlayOnStart: Preference<Boolean> = preferenceStore.getBoolean(
+        "reader_navigation_overlay_on_start",
+        false,
+    )
+
+    // endregion
+
+    enum class FlashColor {
+        BLACK,
+        WHITE,
+        WHITE_BLACK,
+    }
+
+    enum class TappingInvertMode(
+        val titleRes: StringResource,
+        val shouldInvertHorizontal: Boolean = false,
+        val shouldInvertVertical: Boolean = false,
+    ) {
+        NONE(MR.strings.tapping_inverted_none),
+        HORIZONTAL(MR.strings.tapping_inverted_horizontal, shouldInvertHorizontal = true),
+        VERTICAL(MR.strings.tapping_inverted_vertical, shouldInvertVertical = true),
+        BOTH(MR.strings.tapping_inverted_both, shouldInvertHorizontal = true, shouldInvertVertical = true),
+    }
+
+    enum class ReaderHideThreshold(val threshold: Int) {
+        HIGHEST(5),
+        HIGH(13),
+        LOW(31),
+        LOWEST(47),
+    }
+
+    companion object {
+        const val WEBTOON_PADDING_MIN = 0
+        const val WEBTOON_PADDING_MAX = 25
+
+        const val MILLI_CONVERSION = 100
+
+        val TapZones = listOf(
+            MR.strings.label_default,
+            MR.strings.l_nav,
+            MR.strings.kindlish_nav,
+            MR.strings.edge_nav,
+            MR.strings.right_and_left_nav,
+            MR.strings.disabled_nav,
+        )
+
+        val ImageScaleType = listOf(
+            MR.strings.scale_type_fit_screen,
+            MR.strings.scale_type_stretch,
+            MR.strings.scale_type_fit_width,
+            MR.strings.scale_type_fit_height,
+            MR.strings.scale_type_original_size,
+            MR.strings.scale_type_smart_fit,
+        )
+
+        val ZoomStart = listOf(
+            MR.strings.zoom_start_automatic,
+            MR.strings.zoom_start_left,
+            MR.strings.zoom_start_right,
+            MR.strings.zoom_start_center,
+        )
+
+        val ColorFilterMode = buildList {
+            addAll(
+                listOf(
+                    MR.strings.label_default to BlendMode.SrcOver,
+                    MR.strings.filter_mode_multiply to BlendMode.Modulate,
+                    MR.strings.filter_mode_screen to BlendMode.Screen,
+                ),
+            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                addAll(
+                    listOf(
+                        MR.strings.filter_mode_overlay to BlendMode.Overlay,
+                        MR.strings.filter_mode_lighten to BlendMode.Lighten,
+                        MR.strings.filter_mode_darken to BlendMode.Darken,
+                    ),
+                )
+            }
+        }
+    }
+}

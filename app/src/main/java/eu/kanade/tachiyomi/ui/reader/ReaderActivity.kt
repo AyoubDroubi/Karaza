@@ -1,0 +1,1260 @@
+package eu.kanade.tachiyomi.ui.reader
+
+import android.annotation.SuppressLint
+import android.app.assist.AssistContent
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
+import android.graphics.Paint
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.view.KeyEvent
+import android.view.MotionEvent
+import android.view.View
+import android.view.View.LAYER_TYPE_HARDWARE
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.core.content.getSystemService
+import androidx.core.graphics.Insets
+import androidx.core.net.toUri
+import androidx.core.transition.doOnEnd
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.google.android.material.transition.platform.MaterialContainerTransform
+import com.hippo.unifile.UniFile
+import eu.kanade.core.util.ifSourcesLoaded
+import eu.kanade.domain.base.BasePreferences
+import eu.kanade.presentation.reader.DisplayRefreshHost
+import eu.kanade.presentation.reader.OrientationSelectDialog
+import eu.kanade.presentation.reader.ReRenderMethodDialog
+import eu.kanade.presentation.reader.ReaderChapterListDialog
+import eu.kanade.presentation.reader.ReaderContentOverlay
+import eu.kanade.presentation.reader.ReaderLiveTranslateIndicator
+import eu.kanade.presentation.reader.ReaderPageActionsDialog
+import eu.kanade.presentation.reader.ReaderPageIndicator
+import eu.kanade.presentation.reader.ReadingModeSelectDialog
+import eu.kanade.presentation.reader.appbars.ReaderAppBars
+import eu.kanade.presentation.reader.components.ChapterNavigatorType
+import eu.kanade.presentation.reader.components.ReaderNightFloatingControl
+import eu.kanade.presentation.reader.settings.ReaderSettingsDialog
+import eu.kanade.tachiyomi.R
+import eu.kanade.tachiyomi.data.coil.TachiyomiImageDecoder
+import eu.kanade.tachiyomi.data.nightread.NightAvailability
+import eu.kanade.tachiyomi.data.notification.NotificationReceiver
+import eu.kanade.tachiyomi.data.notification.Notifications
+import eu.kanade.tachiyomi.databinding.ReaderActivityBinding
+import eu.kanade.tachiyomi.source.online.HttpSource
+import eu.kanade.tachiyomi.ui.base.activity.BaseActivity
+import eu.kanade.tachiyomi.ui.main.MainActivity
+import eu.kanade.tachiyomi.ui.reader.ReaderViewModel.SetAsCoverResult.AddToLibraryFirst
+import eu.kanade.tachiyomi.ui.reader.ReaderViewModel.SetAsCoverResult.Error
+import eu.kanade.tachiyomi.ui.reader.ReaderViewModel.SetAsCoverResult.Success
+import eu.kanade.tachiyomi.ui.reader.loader.DirectoryPageLoader
+import eu.kanade.tachiyomi.ui.reader.loader.DownloadPageLoader
+import eu.kanade.tachiyomi.ui.reader.loader.HttpPageLoader
+import eu.kanade.tachiyomi.ui.reader.loader.TranslatingPageLoader
+import eu.kanade.tachiyomi.ui.reader.model.ReaderChapter
+import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
+import eu.kanade.tachiyomi.ui.reader.model.ViewerChapters
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderOrientation
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderPreferences
+import eu.kanade.tachiyomi.ui.reader.setting.ReaderSettingsViewModel
+import eu.kanade.tachiyomi.ui.reader.setting.ReadingMode
+import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
+import eu.kanade.tachiyomi.ui.reader.viewer.pager.PagerViewer
+import eu.kanade.tachiyomi.ui.webview.WebViewActivity
+import eu.kanade.tachiyomi.util.system.isNightMode
+import eu.kanade.tachiyomi.util.system.isTabletUiMode
+import eu.kanade.tachiyomi.util.system.openInBrowser
+import eu.kanade.tachiyomi.util.system.toShareIntent
+import eu.kanade.tachiyomi.util.system.toast
+import eu.kanade.tachiyomi.util.view.setComposeContent
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.sample
+import kotlinx.coroutines.launch
+import logcat.LogPriority
+import tachiyomi.core.common.Constants
+import tachiyomi.core.common.i18n.stringResource
+import tachiyomi.core.common.util.lang.launchIO
+import tachiyomi.core.common.util.lang.launchNonCancellable
+import tachiyomi.core.common.util.system.logcat
+import tachiyomi.domain.translation.service.TranslationPreferences
+import tachiyomi.i18n.MR
+import tachiyomi.presentation.core.util.collectAsState
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
+import java.io.ByteArrayOutputStream
+import kotlin.time.Duration.Companion.seconds
+
+class ReaderActivity : BaseActivity() {
+
+    companion object {
+        fun newIntent(context: Context, mangaId: Long?, chapterId: Long?): Intent {
+            return Intent(context, ReaderActivity::class.java).apply {
+                putExtra("manga", mangaId)
+                putExtra("chapter", chapterId)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+        }
+    }
+
+    private val readerPreferences = Injekt.get<ReaderPreferences>()
+    private val preferences = Injekt.get<BasePreferences>()
+
+    /** 夜讀表層總開關（[TranslationPreferences.nightReadEnabled]）：關時懸浮鈕不組合、長按選單不給夜讀項。 */
+    private val translationPreferences = Injekt.get<TranslationPreferences>()
+
+    /** 夜讀懸浮鈕的「這頁在這一檔沒有差異」提示：每 +1 一次就短暫顯示（Activity 重建歸零、不重播）。 */
+    private var nightNoDifferenceHint by mutableIntStateOf(0)
+
+    lateinit var binding: ReaderActivityBinding
+
+    val viewModel by viewModels<ReaderViewModel>()
+    private var assistUrl: String? = null
+
+    /**
+     * Configuration at reader level, like background color or forced orientation.
+     */
+    private var config: ReaderConfig? = null
+
+    private var menuToggleToast: Toast? = null
+    private var readingModeToast: Toast? = null
+    private val displayRefreshHost = DisplayRefreshHost()
+
+    private val windowInsetsController by lazy { WindowInsetsControllerCompat(window, window.decorView) }
+
+    private var loadingIndicator: ReaderProgressIndicator? = null
+
+    var isScrollingThroughPages = false
+        private set
+
+    /**
+     * Called when the activity is created. Initializes the presenter and configuration.
+     */
+    override fun onCreate(savedInstanceState: Bundle?) {
+        registerSecureActivity(this)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_OPEN,
+                R.anim.shared_axis_x_push_enter,
+                R.anim.shared_axis_x_push_exit,
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.shared_axis_x_push_enter, R.anim.shared_axis_x_push_exit)
+        }
+
+        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        super.onCreate(savedInstanceState)
+
+        binding = ReaderActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.setComposeOverlay()
+
+        if (!viewModel.hasValidArgs) {
+            finish()
+            return
+        }
+
+        NotificationReceiver.dismissNotification(
+            this,
+            viewModel.mangaId.hashCode(),
+            Notifications.ID_NEW_CHAPTERS,
+        )
+
+        config = ReaderConfig()
+        setMenuVisibility(viewModel.state.value.menuVisible)
+
+        // Yakuyomi：初始化平板 UI 狀態（決定未指定 per-manga 模式時的預設閱讀模式），須在建立 viewer 前。
+        viewModel.setTabletUiState(resources.configuration.isTabletUiMode())
+
+        // Finish when incognito mode is disabled
+        preferences.incognitoMode.changes()
+            .drop(1)
+            .onEach { if (!it) finish() }
+            .launchIn(lifecycleScope)
+
+        viewModel.state
+            .map { it.initError }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .onEach(::setInitialChapterError)
+            .launchIn(lifecycleScope)
+
+        viewModel.state
+            .map { it.isLoadingAdjacentChapter }
+            .distinctUntilChanged()
+            .onEach(::setProgressDialog)
+            .launchIn(lifecycleScope)
+
+        viewModel.state
+            .map { it.manga }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .onEach { updateViewer() }
+            .launchIn(lifecycleScope)
+
+        viewModel.state
+            .map { it.viewerChapters }
+            .distinctUntilChanged()
+            .filterNotNull()
+            .onEach(::setChapters)
+            .launchIn(lifecycleScope)
+
+        viewModel.eventFlow
+            .onEach { event ->
+                when (event) {
+                    ReaderViewModel.Event.ReloadViewerChapters -> {
+                        viewModel.state.value.viewerChapters?.let(::setChapters)
+                    }
+                    ReaderViewModel.Event.RebuildViewer -> {
+                        // Yakuyomi：自動偵測 webtoon 切模式後重建 viewer——updateViewer 依新模式換 viewer、
+                        // setChapters 把章節頁重新塞進去（停在 requestedPage）。
+                        updateViewer()
+                        viewModel.state.value.viewerChapters?.let(::setChapters)
+                    }
+                    ReaderViewModel.Event.PageChanged -> {
+                        displayRefreshHost.flash()
+                    }
+                    is ReaderViewModel.Event.SetOrientation -> {
+                        setOrientation(event.orientation)
+                    }
+                    is ReaderViewModel.Event.SavedImage -> {
+                        onSaveImageResult(event.result)
+                    }
+                    is ReaderViewModel.Event.ShareImage -> {
+                        onShareImageResult(event.uri, event.page)
+                    }
+                    is ReaderViewModel.Event.CopyImage -> {
+                        onCopyImageResult(event.uri)
+                    }
+                    is ReaderViewModel.Event.SetCoverResult -> {
+                        onSetAsCoverResult(event.result)
+                    }
+                    ReaderViewModel.Event.ReRenderStarted -> {
+                        // 開始重繪提示：頁面同時顯示 per-page 轉圈圈（「重繪中」指示）；IO 約 2–8s。
+                        toast(stringResource(MR.strings.reader_rerendering))
+                    }
+                    is ReaderViewModel.Event.ReRenderResult -> {
+                        // 重繪結果提示：成功＝頁已重繪（holder 已自動刷新）；失敗＝無素材或出錯（原圖保留不動）。
+                        val res = if (event.success) {
+                            MR.strings.reader_rerender_done
+                        } else {
+                            MR.strings.reader_rerender_failed
+                        }
+                        toast(stringResource(res))
+                    }
+                    ReaderViewModel.Event.ReRenderNoMaterials -> {
+                        // 這頁沒有重繪素材：重繪對話框沒開，說明原因（不是出錯）
+                        toast(stringResource(MR.strings.reader_rerender_no_materials))
+                    }
+                    ReaderViewModel.Event.TranslatePageNoOriginal -> {
+                        toast(stringResource(MR.strings.reader_translate_page_no_original))
+                    }
+                    ReaderViewModel.Event.TranslatePageTooLarge -> {
+                        toast(stringResource(MR.strings.reader_translate_page_too_large))
+                    }
+                    ReaderViewModel.Event.TranslatePageStarted -> {
+                        // 開始翻譯當頁提示：頁面同時顯示 per-page 轉圈圈；IO 約數秒。
+                        toast(stringResource(MR.strings.reader_translating_page))
+                    }
+                    is ReaderViewModel.Event.TranslatePageResult -> {
+                        // 翻譯當頁結果：成功＝頁已覆蓋（holder 已自動刷新）；失敗/略過＝原圖保留不動（§11）。
+                        val res = if (event.success) {
+                            MR.strings.reader_translate_page_done
+                        } else {
+                            MR.strings.reader_translate_page_failed
+                        }
+                        toast(stringResource(res))
+                    }
+                    ReaderViewModel.Event.ChapterTranslateStarted -> {
+                        toast(stringResource(MR.strings.reader_translate_chapter_started))
+                    }
+                    ReaderViewModel.Event.ChapterNightStarted -> {
+                        toast(stringResource(MR.strings.reader_nightread_chapter_started))
+                    }
+                    ReaderViewModel.Event.NightModelsUnavailable -> {
+                        toast(stringResource(MR.strings.nightread_missing_models))
+                    }
+                    ReaderViewModel.Event.NightUnsupported -> {
+                        toast(stringResource(MR.strings.nightread_needs_loose_download))
+                    }
+                    is ReaderViewModel.Event.NightGenerating -> {
+                        // 剛開跑還不知道頁數（total 0）：不顯示「0/0」
+                        toast(
+                            if (event.total > 0) {
+                                stringResource(MR.strings.nightread_generating_progress, event.done, event.total)
+                            } else {
+                                stringResource(MR.strings.nightread_generating)
+                            },
+                        )
+                    }
+                    ReaderViewModel.Event.NightQueued -> {
+                        toast(stringResource(MR.strings.nightread_queued_waiting))
+                    }
+                    ReaderViewModel.Event.NightQueuePaused -> {
+                        toast(stringResource(MR.strings.nightread_queue_paused))
+                    }
+                    ReaderViewModel.Event.NightTierNoDifference -> {
+                        nightNoDifferenceHint++
+                    }
+                    ReaderViewModel.Event.NightDownloadStarted -> {
+                        toast(stringResource(MR.strings.nightread_online_download_started))
+                    }
+                    ReaderViewModel.Event.NightDownloadWaiting -> {
+                        toast(stringResource(MR.strings.nightread_online_download_waiting))
+                    }
+                    ReaderViewModel.Event.ChapterTranslateStopped -> {
+                        toast(stringResource(MR.strings.reader_translate_chapter_stopped))
+                    }
+                    is ReaderViewModel.Event.TranslateModelsUnavailable -> {
+                        // 模型缺 / 舊版 → 明確引導去設定下載/更新，不再靜默或用 generic 失敗冒充。
+                        toast(
+                            stringResource(
+                                if (event.outdated) {
+                                    MR.strings.translation_models_outdated_action
+                                } else {
+                                    MR.strings.translation_models_missing_action
+                                },
+                            ),
+                        )
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
+    }
+
+    private fun ReaderActivityBinding.setComposeOverlay(): Unit = composeOverlay.setComposeContent {
+        val state by viewModel.state.collectAsState()
+        val showPageNumber by readerPreferences.showPageNumber.collectAsState()
+        // 夜讀模式即時值（懸浮鈕的日常／夜讀狀態）。
+        val nightReadMode by viewModel.nightReadMode.collectAsState()
+        // 夜讀表層總開關（「其他」頁／設定 › 夜讀）：關＝懸浮鈕不組合、長按選單的夜讀項也不給。
+        val nightReadEnabled by viewModel.nightReadEnabled.collectAsState()
+        val nightTier by viewModel.nightTier.collectAsState()
+        val nightFabPosition by readerPreferences.nightFabPosition.collectAsState()
+        val einkMode by preferences.einkMode.collectAsState()
+        val settingsviewModel = remember {
+            ReaderSettingsViewModel(
+                readerState = viewModel.state,
+                onChangeReadingMode = viewModel::setMangaReadingMode,
+                onChangeOrientation = viewModel::setMangaOrientationType,
+            )
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (!state.menuVisible && showPageNumber) {
+                ReaderPageIndicator(
+                    currentPage = state.currentPage,
+                    totalPages = state.totalPages,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding(),
+                )
+            }
+
+            // 夜讀懸浮控制：總開關開才組合（關＝畫面上什麼都沒有）；選單開著時淡出、不吃觸控（同頁碼與即時翻指示器，
+            // 也免得疊到上下的 app bar；選單開著時同樣的功能在閱讀設定面板裡）。組合在 [ContentOverlay]（自訂亮度的黑色
+            // 遮罩、色彩濾鏡）**之前**：跟頁面一起被調暗，夜裡不會是一顆比頁面亮的光點（遮罩不吃觸控，點擊不受影響）。
+            if (nightReadEnabled) {
+                ReaderNightFloatingControl(
+                    menuVisible = state.menuVisible,
+                    nightOn = nightReadMode,
+                    tier = nightTier,
+                    availability = state.nightAvailability,
+                    progress = state.nightProgress?.ring,
+                    generating = state.nightProgress != null,
+                    noDifferenceHint = nightNoDifferenceHint,
+                    position = nightFabPosition,
+                    onPositionChange = { readerPreferences.nightFabPosition.set(it) },
+                    onNightModeChange = viewModel::setNightMode,
+                    onTierSelect = viewModel::setNightTier,
+                    onTierUnavailable = viewModel::requestChapterNightRender,
+                    einkMode = einkMode,
+                )
+            }
+
+            ContentOverlay(state = state)
+
+            // 即時翻譯指示器：當前章正在翻譯/排隊時，左上角（狀態列下方）顯示小藥丸。
+            // 進度為 null（當前章不在佇列）→ 整個不組合、不顯示。
+            // 選單開啟時隱藏，避免疊到頂部 app bar 的返回鈕／章名（選單開著時章資訊已在 app bar）；
+            // 這是「選單收起」狀態下的常駐進度。Surface 不可點 ⇒ 觸控穿透、不影響點擊切換選單。
+            if (!state.menuVisible) {
+                state.liveTranslateProgress?.let { progress ->
+                    ReaderLiveTranslateIndicator(
+                        translating = !progress.queued,
+                        done = progress.done,
+                        total = progress.total,
+                        loading = state.engineLoading,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .statusBarsPadding()
+                            .padding(8.dp),
+                    )
+                }
+            }
+
+            AppBars(state = state)
+        }
+
+        val onDismissRequest = viewModel::closeDialog
+        when (val dialog = state.dialog) {
+            is ReaderViewModel.Dialog.Loading -> {
+                AlertDialog(
+                    onDismissRequest = {},
+                    confirmButton = {},
+                    text = {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CircularProgressIndicator()
+                            Text(stringResource(MR.strings.loading))
+                        }
+                    },
+                )
+            }
+            is ReaderViewModel.Dialog.Settings -> {
+                ReaderSettingsDialog(
+                    onDismissRequest = onDismissRequest,
+                    onShowMenus = { setMenuVisibility(true) },
+                    onHideMenus = { setMenuVisibility(false) },
+                    viewModel = settingsviewModel,
+                )
+            }
+            is ReaderViewModel.Dialog.ReadingModeSelect -> {
+                ReadingModeSelectDialog(
+                    onDismissRequest = onDismissRequest,
+                    viewModel = settingsviewModel,
+                    onChange = { stringRes ->
+                        menuToggleToast?.cancel()
+                        if (!readerPreferences.showReadingMode.get()) {
+                            menuToggleToast = toast(stringRes)
+                        }
+                    },
+                )
+            }
+            is ReaderViewModel.Dialog.OrientationModeSelect -> {
+                OrientationSelectDialog(
+                    onDismissRequest = onDismissRequest,
+                    viewModel = settingsviewModel,
+                    onChange = { stringRes ->
+                        menuToggleToast?.cancel()
+                        menuToggleToast = toast(stringRes)
+                    },
+                )
+            }
+            is ReaderViewModel.Dialog.PageActions -> {
+                val page = dialog.page
+                // 已下載章＝頁圖在磁碟（可重繪/可單頁翻）；DownloadPageLoader＝已下載、TranslatingPageLoader＝即時翻（同樣落盤）。
+                val pageOnDisk = page.chapter.pageLoader is DownloadPageLoader ||
+                    page.chapter.pageLoader is TranslatingPageLoader
+                // 夜讀項（日常／夜讀切換已移到常駐懸浮鈕，這裡不再重複）：先過夜讀表層總開關；再要求頁圖在鬆散資料夾
+                // （已下載／即時翻／本機來源目錄章；壓縮檔章、線上章＝UNSUPPORTED）。
+                val nightCapable = nightReadEnabled &&
+                    (pageOnDisk || page.chapter.pageLoader is DirectoryPageLoader) &&
+                    state.nightAvailability != NightAvailability.UNSUPPORTED
+                // 「為這一話產生夜讀版」（沒有夜讀版）／「重新產生夜讀版」（只有舊版單檔）：不在夜讀佇列時才給。
+                val nightGenerate = nightCapable && state.nightProgress == null &&
+                    (
+                        state.nightAvailability == NightAvailability.NONE ||
+                            state.nightAvailability == NightAvailability.LEGACY
+                        )
+                // 「以目前設定重新產生這一話」（已有可切檔位的夜讀版；改了亮度後用）：強制重做、新鮮的頁也重做。這章已在夜讀佇列（排隊或
+                // 產生中）時不給：再按一次會停掉正在跑的那輪、以新的開跑時間重來，已重做好的頁全部白做。
+                val nightRegenerate = nightCapable && state.nightAvailability == NightAvailability.READY &&
+                    state.nightProgress == null
+                // 「更新夜讀版」（app 更新改了夜讀規則、這章有舊規則產生的頁）：一般排入，產生端只重做舊版頁（不強制）。
+                // 只有舊版單檔的章已經由上面的「重新產生夜讀版」涵蓋，這裡只給可切檔位的章。
+                val nightUpdate = nightRegenerate && state.nightOutdated
+                // 線上章（還沒下載）：同樣給「為這一話產生夜讀版」，按了問要不要先下載（ReaderViewModel.requestOnlineChapterNight）
+                val nightOnline = nightReadEnabled && page.chapter.pageLoader is HttpPageLoader &&
+                    state.nightProgress == null
+                ReaderPageActionsDialog(
+                    onDismissRequest = onDismissRequest,
+                    onSetAsCover = viewModel::setAsCover,
+                    onShare = viewModel::shareImage,
+                    onSave = viewModel::saveImage,
+                    // 只有已下載章（頁圖在磁碟、可能留有重繪素材）才顯示「重繪」鈕；線上/封存頁無素材，不給此選項。
+                    onReRender = { viewModel.openReRenderDialog(page) }.takeIf { pageOnDisk },
+                    // 「翻譯這頁」：只在已下載章提供（單頁進引擎翻、就地覆蓋）；線上章本里程碑先不給。
+                    onTranslatePage = viewModel::translateThisPage.takeIf { pageOnDisk },
+                    // 「開始/中止這話翻譯」：依當前章是否在翻譯佇列（liveTranslateProgress != null）二選一顯示。
+                    onStartChapterTranslate = viewModel::startChapterTranslate,
+                    onStopChapterTranslate = viewModel::stopChapterTranslate,
+                    isChapterTranslating = state.liveTranslateProgress != null,
+                    onStartChapterNightRender = { viewModel.startChapterNightRender() }.takeIf { nightGenerate }
+                        ?: viewModel::requestOnlineChapterNight.takeIf { nightOnline },
+                    nightLegacy = state.nightAvailability == NightAvailability.LEGACY,
+                    onRegenerateChapterNight = { viewModel.startChapterNightRender(force = true) }
+                        .takeIf { nightRegenerate },
+                    onUpdateChapterNight = { viewModel.startChapterNightRender() }.takeIf { nightUpdate },
+                )
+            }
+            is ReaderViewModel.Dialog.ReRenderMethod -> {
+                ReRenderMethodDialog(
+                    onDismissRequest = onDismissRequest,
+                    onSelect = { method -> viewModel.reRenderPage(method) },
+                )
+            }
+            is ReaderViewModel.Dialog.ChapterList -> {
+                ReaderChapterListDialog(
+                    onDismissRequest = onDismissRequest,
+                    chapters = viewModel.getReaderChapters(),
+                    currentChapterId = viewModel.currentChapterId,
+                    onSelectChapter = viewModel::loadChapterFromList,
+                )
+            }
+            is ReaderViewModel.Dialog.NightGenerateConfirm -> {
+                // 懸浮鈕點了不可用的檔位：確認後把這一話排入夜讀佇列（兩檔一次產生）
+                AlertDialog(
+                    onDismissRequest = onDismissRequest,
+                    text = {
+                        Text(
+                            stringResource(
+                                if (dialog.legacy) {
+                                    MR.strings.nightread_regenerate_confirm
+                                } else {
+                                    MR.strings.nightread_generate_confirm
+                                },
+                            ),
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { viewModel.startChapterNightRender() }) {
+                            Text(stringResource(MR.strings.action_ok))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(stringResource(MR.strings.action_cancel))
+                        }
+                    },
+                )
+            }
+            is ReaderViewModel.Dialog.NightDownloadConfirm -> {
+                // 線上章要夜讀：先下載（鬆散資料夾）、下載完自動產生夜讀版並重載這一話
+                AlertDialog(
+                    onDismissRequest = onDismissRequest,
+                    text = { Text(stringResource(MR.strings.nightread_online_download_confirm)) },
+                    confirmButton = {
+                        TextButton(onClick = viewModel::startOnlineNightDownload) {
+                            Text(stringResource(MR.strings.action_download))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = onDismissRequest) {
+                            Text(stringResource(MR.strings.action_cancel))
+                        }
+                    },
+                )
+            }
+            null -> {}
+        }
+    }
+
+    /**
+     * Called when the activity is destroyed. Cleans up the viewer, configuration and any view.
+     */
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.state.value.viewer?.destroy()
+        config = null
+        menuToggleToast?.cancel()
+        readingModeToast?.cancel()
+    }
+
+    override fun onPause() {
+        lifecycleScope.launchNonCancellable {
+            viewModel.updateHistory()
+        }
+        super.onPause()
+    }
+
+    /**
+     * Set menu visibility again on activity resume to apply immersive mode again if needed.
+     * Helps with rotations.
+     */
+    override fun onResume() {
+        super.onResume()
+        viewModel.restartReadTimer()
+        setMenuVisibility(viewModel.state.value.menuVisible)
+    }
+
+    /**
+     * Called when the window focus changes. It sets the menu visibility to the last known state
+     * to apply immersive mode again if needed.
+     */
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            setMenuVisibility(viewModel.state.value.menuVisible)
+        }
+    }
+
+    override fun onProvideAssistContent(outContent: AssistContent) {
+        super.onProvideAssistContent(outContent)
+        assistUrl?.let { outContent.webUri = it.toUri() }
+    }
+
+    /**
+     * Called when the user clicks the back key or the button on the toolbar. The call is
+     * delegated to the presenter.
+     */
+    override fun finish() {
+        viewModel.onActivityFinish()
+        super.finish()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            overrideActivityTransition(
+                OVERRIDE_TRANSITION_CLOSE,
+                R.anim.shared_axis_x_pop_enter,
+                R.anim.shared_axis_x_pop_exit,
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            overridePendingTransition(R.anim.shared_axis_x_pop_enter, R.anim.shared_axis_x_pop_exit)
+        }
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent?): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_N) {
+            loadNextChapter()
+            return true
+        } else if (keyCode == KeyEvent.KEYCODE_P) {
+            loadPreviousChapter()
+            return true
+        }
+        return super.onKeyUp(keyCode, event)
+    }
+
+    /**
+     * Dispatches a key event. If the viewer doesn't handle it, call the default implementation.
+     */
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val handled = viewModel.state.value.viewer?.handleKeyEvent(event) ?: false
+        return handled || super.dispatchKeyEvent(event)
+    }
+
+    /**
+     * Dispatches a generic motion event. If the viewer doesn't handle it, call the default
+     * implementation.
+     */
+    override fun dispatchGenericMotionEvent(event: MotionEvent): Boolean {
+        val handled = viewModel.state.value.viewer?.handleGenericMotionEvent(event) ?: false
+        return handled || super.dispatchGenericMotionEvent(event)
+    }
+
+    @Composable
+    private fun ContentOverlay(state: ReaderViewModel.State) {
+        val flashOnPageChange by readerPreferences.flashOnPageChange.collectAsState()
+
+        val colorOverlayEnabled by readerPreferences.colorFilter.collectAsState()
+        val colorOverlay by readerPreferences.colorFilterValue.collectAsState()
+        val colorOverlayMode by readerPreferences.colorFilterMode.collectAsState()
+        val colorOverlayBlendMode = remember(colorOverlayMode) {
+            ReaderPreferences.ColorFilterMode.getOrNull(colorOverlayMode)?.second
+        }
+
+        ReaderContentOverlay(
+            brightness = state.brightnessOverlayValue,
+            color = colorOverlay.takeIf { colorOverlayEnabled },
+            colorBlendMode = colorOverlayBlendMode,
+        )
+
+        if (flashOnPageChange) {
+            DisplayRefreshHost(hostState = displayRefreshHost)
+        }
+    }
+
+    @Composable
+    fun AppBars(state: ReaderViewModel.State) {
+        if (!ifSourcesLoaded()) {
+            return
+        }
+
+        val isHttpSource = viewModel.getSource() is HttpSource
+
+        val cropBorderPaged by readerPreferences.cropBorders.collectAsState()
+        val cropBorderWebtoon by readerPreferences.cropBordersWebtoon.collectAsState()
+        val isPagerType = ReadingMode.isPagerType(viewModel.getMangaReadingMode())
+        // Yakuyomi：對開模式才提供「位移」鈕。
+        val doublePageViewer = (state.viewer as? PagerViewer)?.takeIf { it.isDoublePage }
+        val cropEnabled = if (isPagerType) cropBorderPaged else cropBorderWebtoon
+
+        val verticalNavigatorModes by readerPreferences.verticalNavigator.collectAsState()
+        val verticalNavigator = verticalNavigatorModes.contains(
+            ReadingMode.fromPreference(viewModel.getMangaReadingMode()),
+        )
+        val verticalNavigatorOnLeft by readerPreferences.verticalNavigatorOnLeft.collectAsState()
+        val verticalNavigatorHeight by readerPreferences.verticalNavigatorHeight.collectAsState()
+
+        ReaderAppBars(
+            visible = state.menuVisible,
+
+            mangaTitle = state.manga?.title,
+            chapterTitle = state.currentChapter?.chapter?.name,
+            navigateUp = onBackPressedDispatcher::onBackPressed,
+            onClickTopAppBar = ::openMangaScreen,
+            bookmarked = state.bookmarked,
+            onToggleBookmarked = viewModel::toggleChapterBookmark,
+            onOpenInWebView = ::openChapterInWebView.takeIf { isHttpSource },
+            onOpenInBrowser = ::openChapterInBrowser.takeIf { isHttpSource },
+            onShare = ::shareChapter.takeIf { isHttpSource },
+
+            chapterNavigatorType = if (!verticalNavigator) {
+                // Yakuyomi：用 PagerViewer.isRtl 判斷（涵蓋 R2LPagerViewer 與 R2LDoublePagerViewer）——
+                // 雙頁對開的 R2LDoublePagerViewer 不是 R2LPagerViewer 子類，上游的 `is R2LPagerViewer` 會漏判、進度條方向反掉。
+                if ((state.viewer as? PagerViewer)?.isRtl == true) {
+                    ChapterNavigatorType.HORIZONTAL_RTL
+                } else {
+                    ChapterNavigatorType.HORIZONTAL_LTR
+                }
+            } else {
+                if (verticalNavigatorOnLeft) {
+                    ChapterNavigatorType.VERTICAL_LEFT
+                } else {
+                    ChapterNavigatorType.VERTICAL_RIGHT
+                }
+            },
+            verticalNavigatorHeight = verticalNavigatorHeight / 100f,
+            onNextChapter = ::loadNextChapter,
+            enabledNext = state.viewerChapters?.nextChapter != null,
+            onPreviousChapter = ::loadPreviousChapter,
+            enabledPrevious = state.viewerChapters?.prevChapter != null,
+            currentPage = state.currentPage,
+            totalPages = state.totalPages,
+            onPageIndexChange = {
+                isScrollingThroughPages = true
+                moveToPageIndex(it)
+            },
+            onPageIndexChangeFinished = {
+                isScrollingThroughPages = false
+            },
+
+            readingMode = ReadingMode.fromPreference(
+                viewModel.getMangaReadingMode(resolveDefault = false),
+            ),
+            onClickReadingMode = viewModel::openReadingModeSelectDialog,
+            orientation = ReaderOrientation.fromPreference(
+                viewModel.getMangaOrientation(resolveDefault = false),
+            ),
+            onClickOrientation = viewModel::openOrientationModeSelectDialog,
+            cropEnabled = cropEnabled,
+            onClickCropBorder = {
+                val enabled = viewModel.toggleCropBorders()
+                menuToggleToast?.cancel()
+                menuToggleToast = toast(if (enabled) MR.strings.on else MR.strings.off)
+            },
+            onClickSettings = viewModel::openSettingsDialog,
+            onClickChapterList = viewModel::openChapterListDialog,
+            onClickShiftDoublePage = doublePageViewer?.let { { it.shiftCurrentChapter() } },
+        )
+    }
+
+    /**
+     * Sets the visibility of the menu according to [visible].
+     */
+    private fun setMenuVisibility(visible: Boolean) {
+        viewModel.showMenus(visible)
+        if (visible) {
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+        } else if (readerPreferences.fullscreen.get()) {
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+
+    /**
+     * Called from the presenter when a manga is ready. Used to instantiate the appropriate viewer.
+     */
+    private fun updateViewer() {
+        val prevViewer = viewModel.state.value.viewer
+        val newViewer = ReadingMode.toViewer(viewModel.getMangaReadingMode(), this)
+
+        if (window.sharedElementEnterTransition is MaterialContainerTransform) {
+            // Wait until transition is complete to avoid crash on API 26
+            window.sharedElementEnterTransition.doOnEnd {
+                setOrientation(viewModel.getMangaOrientation())
+            }
+        } else {
+            setOrientation(viewModel.getMangaOrientation())
+        }
+
+        // Destroy previous viewer if there was one
+        if (prevViewer != null) {
+            prevViewer.destroy()
+            binding.viewerContainer.removeAllViews()
+        }
+        viewModel.onViewerLoaded(newViewer)
+        updateViewerInset(readerPreferences.fullscreen.get(), readerPreferences.drawUnderCutout.get())
+        binding.viewerContainer.addView(newViewer.getView())
+
+        if (readerPreferences.showReadingMode.get()) {
+            showReadingModeToast(viewModel.getMangaReadingMode())
+        }
+
+        loadingIndicator = ReaderProgressIndicator(this)
+        binding.readerContainer.addView(loadingIndicator)
+
+        startPostponedEnterTransition()
+    }
+
+    private fun openMangaScreen() {
+        viewModel.manga?.id?.let { id ->
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    action = Constants.SHORTCUT_MANGA
+                    putExtra(Constants.MANGA_EXTRA, id)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                },
+            )
+        }
+    }
+
+    private fun openChapterInWebView() {
+        val manga = viewModel.manga ?: return
+        val source = viewModel.getSource() ?: return
+        assistUrl?.let {
+            val intent = WebViewActivity.newIntent(this@ReaderActivity, it, source.id, manga.title)
+            startActivity(intent)
+        }
+    }
+
+    private fun openChapterInBrowser() {
+        assistUrl?.let {
+            openInBrowser(it.toUri(), forceDefaultBrowser = false)
+        }
+    }
+
+    private fun shareChapter() {
+        assistUrl?.let {
+            val intent = it.toUri().toShareIntent(this, type = "text/plain")
+            startActivity(intent)
+        }
+    }
+
+    private fun showReadingModeToast(mode: Int) {
+        try {
+            readingModeToast?.cancel()
+            readingModeToast = toast(ReadingMode.fromPreference(mode).stringRes)
+        } catch (_: ArrayIndexOutOfBoundsException) {
+            logcat(LogPriority.ERROR) { "Unknown reading mode: $mode" }
+        }
+    }
+
+    /**
+     * Called from the presenter whenever a new [viewerChapters] have been set. It delegates the
+     * method to the current viewer, but also set the subtitle on the toolbar, and
+     * hides or disables the reader prev/next buttons if there's a prev or next chapter
+     */
+    @SuppressLint("RestrictedApi")
+    private fun setChapters(viewerChapters: ViewerChapters) {
+        binding.readerContainer.removeView(loadingIndicator)
+        viewModel.state.value.viewer?.setChapters(viewerChapters)
+
+        lifecycleScope.launchIO {
+            viewModel.getChapterUrl()?.let { url ->
+                assistUrl = url
+            }
+        }
+    }
+
+    /**
+     * Called from the presenter if the initial load couldn't load the pages of the chapter. In
+     * this case the activity is closed and a toast is shown to the user.
+     */
+    private fun setInitialChapterError(error: Throwable) {
+        logcat(LogPriority.ERROR, error)
+        finish()
+        toast(error.message)
+    }
+
+    /**
+     * Called from the presenter whenever it's loading the next or previous chapter. It shows or
+     * dismisses a non-cancellable dialog to prevent user interaction according to the value of
+     * [show]. This is only used when the next/previous buttons on the toolbar are clicked; the
+     * other cases are handled with chapter transitions on the viewers and chapter preloading.
+     */
+    private fun setProgressDialog(show: Boolean) {
+        if (show) {
+            viewModel.showLoadingDialog()
+        } else {
+            viewModel.closeDialog()
+        }
+    }
+
+    /**
+     * Moves the viewer to the given page [index]. It does nothing if the viewer is null or the
+     * page is not found.
+     */
+    private fun moveToPageIndex(index: Int) {
+        val viewer = viewModel.state.value.viewer ?: return
+        val currentChapter = viewModel.state.value.currentChapter ?: return
+        val page = currentChapter.pages?.getOrNull(index) ?: return
+        viewer.moveToPage(page)
+    }
+
+    /**
+     * Tells the presenter to load the next chapter and mark it as active. The progress dialog
+     * should be automatically shown.
+     */
+    private fun loadNextChapter() {
+        lifecycleScope.launch {
+            viewModel.loadNextChapter()
+            moveToPageIndex(0)
+        }
+    }
+
+    /**
+     * Tells the presenter to load the previous chapter and mark it as active. The progress dialog
+     * should be automatically shown.
+     */
+    private fun loadPreviousChapter() {
+        lifecycleScope.launch {
+            viewModel.loadPreviousChapter()
+            moveToPageIndex(0)
+        }
+    }
+
+    /**
+     * Called from the viewer whenever a [page] is marked as active. It updates the values of the
+     * bottom menu and delegates the change to the presenter.
+     * Yakuyomi：[visible]＝畫面上看得到的頁（雙頁對開＝兩頁；條漫傳 null＝不確定），給夜讀換檔位的「沒有差異」提示用。
+     */
+    fun onPageSelected(page: ReaderPage, visible: List<ReaderPage>? = listOf(page)) {
+        viewModel.onPageSelected(page, visible)
+    }
+
+    /**
+     * Called from the viewer whenever a [page] is long clicked. A bottom sheet with a list of
+     * actions to perform is shown.
+     */
+    fun onPageLongTap(page: ReaderPage) {
+        viewModel.openPageDialog(page)
+    }
+
+    /**
+     * Called from the viewer when the given [chapter] should be preloaded. It should be called when
+     * the viewer is reaching the beginning or end of a chapter or the transition page is active.
+     */
+    fun requestPreloadChapter(chapter: ReaderChapter) {
+        lifecycleScope.launchIO { viewModel.preload(chapter) }
+    }
+
+    /**
+     * Called from the viewer to toggle the visibility of the menu. It's implemented on the
+     * viewer because each one implements its own touch and key events.
+     */
+    fun toggleMenu() {
+        setMenuVisibility(!viewModel.state.value.menuVisible)
+    }
+
+    /**
+     * Called from the viewer to show the menu.
+     */
+    fun showMenu() {
+        if (!viewModel.state.value.menuVisible) {
+            setMenuVisibility(true)
+        }
+    }
+
+    /**
+     * Called from the viewer to hide the menu.
+     */
+    fun hideMenu() {
+        if (viewModel.state.value.menuVisible) {
+            setMenuVisibility(false)
+        }
+    }
+
+    /**
+     * Called from the presenter when a page is ready to be shared. It shows Android's default
+     * sharing tool.
+     */
+    private fun onShareImageResult(uri: Uri, page: ReaderPage) {
+        val manga = viewModel.manga ?: return
+        val chapter = page.chapter.chapter
+
+        val intent = uri.toShareIntent(
+            context = applicationContext,
+            message = stringResource(MR.strings.share_page_info, manga.title, chapter.name, page.number),
+        )
+        startActivity(intent)
+    }
+
+    private fun onCopyImageResult(uri: Uri) {
+        val clipboardManager = applicationContext.getSystemService<ClipboardManager>() ?: return
+        val clipData = ClipData.newUri(applicationContext.contentResolver, "", uri)
+        clipboardManager.setPrimaryClip(clipData)
+    }
+
+    /**
+     * Called from the presenter when a page is saved or fails. It shows a message or logs the
+     * event depending on the [result].
+     */
+    private fun onSaveImageResult(result: ReaderViewModel.SaveImageResult) {
+        when (result) {
+            is ReaderViewModel.SaveImageResult.Success -> {
+                toast(MR.strings.picture_saved)
+            }
+            is ReaderViewModel.SaveImageResult.Error -> {
+                logcat(LogPriority.ERROR, result.error)
+            }
+        }
+    }
+
+    /**
+     * Called from the presenter when a page is set as cover or fails. It shows a different message
+     * depending on the [result].
+     */
+    private fun onSetAsCoverResult(result: ReaderViewModel.SetAsCoverResult) {
+        toast(
+            when (result) {
+                Success -> MR.strings.cover_updated
+                AddToLibraryFirst -> MR.strings.notification_first_add_to_library
+                Error -> MR.strings.notification_cover_update_failed
+            },
+        )
+    }
+
+    /**
+     * Forces the user preferred [orientation] on the activity.
+     */
+    private fun setOrientation(orientation: Int) {
+        val newOrientation = ReaderOrientation.fromPreference(orientation)
+        if (newOrientation.flag != requestedOrientation) {
+            requestedOrientation = newOrientation.flag
+        }
+    }
+
+    /**
+     * Updates viewer inset depending on fullscreen reader preferences.
+     */
+    private fun updateViewerInset(fullscreen: Boolean, drawUnderCutout: Boolean) {
+        if (!::binding.isInitialized) return
+        val view = binding.viewerContainer
+
+        view.applyInsetsPadding(ViewCompat.getRootWindowInsets(view), fullscreen, drawUnderCutout)
+        ViewCompat.setOnApplyWindowInsetsListener(view) { view, windowInsets ->
+            view.applyInsetsPadding(windowInsets, fullscreen, drawUnderCutout)
+            windowInsets
+        }
+    }
+
+    private fun View.applyInsetsPadding(
+        windowInsets: WindowInsetsCompat?,
+        fullscreen: Boolean,
+        drawUnderCutout: Boolean,
+    ) {
+        val insets = when {
+            !fullscreen -> windowInsets?.getInsets(WindowInsetsCompat.Type.systemBars())
+            !drawUnderCutout -> windowInsets?.getInsets(WindowInsetsCompat.Type.displayCutout())
+            else -> null
+        }
+            ?: Insets.NONE
+
+        setPadding(insets.left, insets.top, insets.right, insets.bottom)
+    }
+
+    /**
+     * Class that handles the user preferences of the reader.
+     */
+    private inner class ReaderConfig {
+
+        private fun getCombinedPaint(grayscale: Boolean, invertedColors: Boolean): Paint {
+            return Paint().apply {
+                colorFilter = ColorMatrixColorFilter(
+                    ColorMatrix().apply {
+                        if (grayscale) {
+                            setSaturation(0f)
+                        }
+                        if (invertedColors) {
+                            postConcat(
+                                ColorMatrix(
+                                    floatArrayOf(
+                                        -1f, 0f, 0f, 0f, 255f,
+                                        0f, -1f, 0f, 0f, 255f,
+                                        0f, 0f, -1f, 0f, 255f,
+                                        0f, 0f, 0f, 1f, 0f,
+                                    ),
+                                ),
+                            )
+                        }
+                    },
+                )
+            }
+        }
+
+        private val grayBackgroundColor = Color.rgb(0x20, 0x21, 0x25)
+
+        /*
+         * Initializes the reader subscriptions.
+         */
+        init {
+            readerPreferences.readerTheme.changes()
+                .onEach { theme ->
+                    binding.readerContainer.setBackgroundColor(
+                        when (theme) {
+                            0 -> Color.WHITE
+                            2 -> grayBackgroundColor
+                            3 -> automaticBackgroundColor()
+                            else -> Color.BLACK
+                        },
+                    )
+                }
+                .launchIn(lifecycleScope)
+
+            preferences.displayProfile.changes()
+                .onEach { setDisplayProfile(it) }
+                .launchIn(lifecycleScope)
+
+            readerPreferences.keepScreenOn.changes()
+                .onEach(::setKeepScreenOn)
+                .launchIn(lifecycleScope)
+
+            readerPreferences.customBrightness.changes()
+                .onEach(::setCustomBrightness)
+                .launchIn(lifecycleScope)
+
+            combine(
+                readerPreferences.grayscale.changes(),
+                readerPreferences.invertedColors.changes(),
+            ) { grayscale, invertedColors -> grayscale to invertedColors }
+                .onEach { (grayscale, invertedColors) ->
+                    setLayerPaint(grayscale, invertedColors)
+                }
+                .launchIn(lifecycleScope)
+
+            combine(
+                readerPreferences.fullscreen.changes(),
+                readerPreferences.drawUnderCutout.changes(),
+            ) { fullscreen, drawUnderCutout -> fullscreen to drawUnderCutout }
+                .onEach { (fullscreen, drawUnderCutout) ->
+                    updateViewerInset(fullscreen, drawUnderCutout)
+                }
+                .launchIn(lifecycleScope)
+        }
+
+        /**
+         * Picks background color for [ReaderActivity] based on light/dark theme preference
+         */
+        private fun automaticBackgroundColor(): Int {
+            return if (baseContext.isNightMode()) {
+                grayBackgroundColor
+            } else {
+                Color.WHITE
+            }
+        }
+
+        /**
+         * Sets the display profile to [path].
+         */
+        private fun setDisplayProfile(path: String) {
+            val file = UniFile.fromUri(baseContext, path.toUri())
+            if (file != null && file.exists()) {
+                val inputStream = file.openInputStream()
+                val outputStream = ByteArrayOutputStream()
+                inputStream.use { input ->
+                    outputStream.use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                val data = outputStream.toByteArray()
+                SubsamplingScaleImageView.setDisplayProfile(data)
+                TachiyomiImageDecoder.displayProfile = data
+            }
+        }
+
+        /**
+         * Sets the keep screen on mode according to [enabled].
+         */
+        private fun setKeepScreenOn(enabled: Boolean) {
+            if (enabled) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            }
+        }
+
+        /**
+         * Sets the custom brightness overlay according to [enabled].
+         */
+        private fun setCustomBrightness(enabled: Boolean) {
+            if (enabled) {
+                readerPreferences.customBrightnessValue.changes()
+                    .sample(0.1.seconds)
+                    .onEach(::setCustomBrightnessValue)
+                    .launchIn(lifecycleScope)
+            } else {
+                setCustomBrightnessValue(0)
+            }
+        }
+
+        /**
+         * Sets the brightness of the screen. Range is [-75, 100].
+         * From -75 to -1 a semi-transparent black view is overlaid with the minimum brightness.
+         * From 1 to 100 it sets that value as brightness.
+         * 0 sets system brightness and hides the overlay.
+         */
+        private fun setCustomBrightnessValue(value: Int) {
+            // Calculate and set reader brightness.
+            val readerBrightness = when {
+                value > 0 -> {
+                    value / 100f
+                }
+                value < 0 -> {
+                    0.01f
+                }
+                else -> WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
+            window.attributes = window.attributes.apply { screenBrightness = readerBrightness }
+
+            viewModel.setBrightnessOverlayValue(value)
+        }
+        private fun setLayerPaint(grayscale: Boolean, invertedColors: Boolean) {
+            val paint = if (grayscale || invertedColors) getCombinedPaint(grayscale, invertedColors) else null
+            binding.viewerContainer.setLayerType(LAYER_TYPE_HARDWARE, paint)
+        }
+    }
+}

@@ -1,0 +1,333 @@
+package eu.kanade.tachiyomi.ui.reader.viewer.pager
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.view.LayoutInflater
+import androidx.core.view.isVisible
+import eu.kanade.presentation.util.formattedMessage
+import eu.kanade.tachiyomi.databinding.ReaderErrorBinding
+import eu.kanade.tachiyomi.source.model.Page
+import eu.kanade.tachiyomi.ui.reader.model.InsertPage
+import eu.kanade.tachiyomi.ui.reader.model.ReaderPage
+import eu.kanade.tachiyomi.ui.reader.viewer.ReaderPageImageView
+import eu.kanade.tachiyomi.ui.reader.viewer.ReaderProgressIndicator
+import eu.kanade.tachiyomi.ui.webview.WebViewActivity
+import eu.kanade.tachiyomi.widget.ViewPagerAdapter
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import logcat.LogPriority
+import okio.Buffer
+import okio.BufferedSource
+import tachiyomi.core.common.i18n.stringResource
+import tachiyomi.core.common.util.lang.launchIO
+import tachiyomi.core.common.util.lang.withIOContext
+import tachiyomi.core.common.util.lang.withUIContext
+import tachiyomi.core.common.util.system.ImageUtil
+import tachiyomi.core.common.util.system.logcat
+import tachiyomi.i18n.MR
+
+/**
+ * View of the ViewPager that contains a page of a chapter.
+ */
+@SuppressLint("ViewConstructor")
+class PagerPageHolder(
+    readerThemedContext: Context,
+    val viewer: PagerViewer,
+    val page: ReaderPage,
+) : ReaderPageImageView(readerThemedContext), ViewPagerAdapter.PositionableView {
+
+    /**
+     * Item that identifies this view. Needed by the adapter to not recreate views.
+     */
+    override val item
+        get() = page
+
+    /**
+     * Loading progress bar to indicate the current progress.
+     */
+    private var progressIndicator: ReaderProgressIndicator? = null // = ReaderProgressIndicator(readerThemedContext)
+
+    /**
+     * Error layout to show when the image fails to load.
+     */
+    private var errorLayout: ReaderErrorBinding? = null
+
+    private val scope = MainScope()
+
+    /**
+     * Job for loading the page and processing changes to the page's status.
+     */
+    private var loadJob: Job? = null
+
+    init {
+        loadJob = scope.launch { loadPageAndProcessStatus() }
+    }
+
+    /**
+     * Called when this view is detached from the window. Unsubscribes any active subscription.
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        loadJob?.cancel()
+        loadJob = null
+    }
+
+    private fun initProgressIndicator() {
+        if (progressIndicator == null) {
+            progressIndicator = ReaderProgressIndicator(context)
+            addView(progressIndicator)
+        }
+    }
+
+    /**
+     * Loads the page and processes changes to the page's status.
+     *
+     * Returns immediately if the page has no PageLoader.
+     * Otherwise, this function does not return. It will continue to process status changes until
+     * the Job is cancelled.
+     */
+    private suspend fun loadPageAndProcessStatus() {
+        val loader = page.chapter.pageLoader ?: return
+
+        supervisorScope {
+            launchIO {
+                loader.loadPage(page)
+            }
+            // 即時翻譯換頁：頁圖被就地覆蓋成譯圖後 loader 呼叫 page.reload()（單調遞增計數）。把 reloadFlow 併進
+            // statusFlow 的**同一個** collectLatest（combine）：reload 一變就以當前 state（Ready）重發 → collectLatest
+            // **取消上一個 setImage**（含綁定當下還在跑的原圖 decode）再跑新的 → 最新（譯圖）必勝；
+            // 也不會被 status 同值（Ready→Ready）conflate。修「檔已翻好但畫面卡原文」（兩個獨立 setImage 競爭、慢的原圖 decode 最後完成而勝出；尤其載入競態 / 第一頁）。
+            // 雙頁分割的後半頁（InsertPage）不在章節的頁清單裡、沒人呼叫它的 reload()：連 parent 的 reloadFlow 一起聽，
+            // 切日常／夜讀、換檔位時後半頁才會跟著重畫（stream 本來就是 parent 的）。
+            val reloads = (page as? InsertPage)?.let { insert ->
+                combine(page.reloadFlow, insert.parent.reloadFlow) { a, b -> a to b }
+            } ?: page.reloadFlow
+            combine(page.statusFlow, reloads) { state, _ -> state }.collectLatest { state ->
+                when (state) {
+                    Page.State.Queue -> setQueued()
+                    Page.State.LoadPage -> setLoading()
+                    Page.State.DownloadImage -> {
+                        setDownloading()
+                        page.progressFlow.collectLatest { value ->
+                            progressIndicator?.setProgress(value)
+                        }
+                    }
+                    Page.State.Ready -> setImage()
+                    is Page.State.Error -> setError(state.error)
+                }
+            }
+        }
+    }
+
+    /**
+     * Called when the page is queued.
+     */
+    private fun setQueued() {
+        initProgressIndicator()
+        progressIndicator?.show()
+        removeErrorLayout()
+    }
+
+    /**
+     * Called when the page is loading.
+     */
+    private fun setLoading() {
+        initProgressIndicator()
+        progressIndicator?.show()
+        removeErrorLayout()
+    }
+
+    /**
+     * Called when the page is downloading.
+     */
+    private fun setDownloading() {
+        initProgressIndicator()
+        progressIndicator?.show()
+        removeErrorLayout()
+    }
+
+    /**
+     * Called when the page is ready.
+     */
+    private suspend fun setImage() {
+        progressIndicator?.setProgress(0)
+
+        val streamFn = page.stream ?: return
+        // 同一頁重新解碼（切日常／夜讀、換夜讀檔位、譯圖換上）：保住目前的縮放與位置（第一次載入＝null、照初始縮放）。
+        val restore = captureState()
+
+        try {
+            val (source, isAnimated, background) = withIOContext {
+                val source = streamFn().use { process(item, Buffer().readFrom(it)) }
+                // Yakuyomi：自動偵測 webtoon——先用快速 gate（總開關開 + 未切過 + 該本未指定模式）避免每頁多做 bounds decode；
+                // 過 gate 才量長寬比，長條圖（高 > 寬*3）→ 通知 viewModel 切連續直捲並重建 viewer。
+                if (viewer.activity.viewModel.isAutoWebtoonEligible() && ImageUtil.isStripImage(source)) {
+                    withUIContext { viewer.activity.viewModel.onAutoWebtoonDetected() }
+                }
+                val isAnimated = ImageUtil.isAnimatedAndSupported(source)
+                val background = if (!isAnimated && viewer.config.automaticBackground) {
+                    ImageUtil.chooseBackground(context, source.peek().inputStream())
+                } else {
+                    null
+                }
+                Triple(source, isAnimated, background)
+            }
+            withUIContext {
+                setImage(
+                    source,
+                    isAnimated,
+                    Config(
+                        zoomDuration = viewer.config.doubleTapAnimDuration,
+                        minimumScaleType = viewer.config.imageScaleType,
+                        cropBorders = viewer.config.imageCropBorders,
+                        zoomStartPosition = viewer.config.imageZoomType,
+                        landscapeZoom = viewer.config.landscapeZoom,
+                    ),
+                    restore,
+                )
+                if (!isAnimated) {
+                    pageBackground = background
+                }
+                removeErrorLayout()
+            }
+        } catch (e: Throwable) {
+            logcat(LogPriority.ERROR, e)
+            withUIContext {
+                setError(e)
+            }
+        }
+    }
+
+    private fun process(page: ReaderPage, imageSource: BufferedSource): BufferedSource {
+        // Yakuyomi：對開模式下不分割/不旋轉（兩頁已並排呈現）。
+        if (viewer.isDoublePage) {
+            return imageSource
+        }
+        if (viewer.config.dualPageRotateToFit) {
+            return rotateDualPage(imageSource)
+        }
+
+        if (!viewer.config.dualPageSplit) {
+            return imageSource
+        }
+
+        if (page is InsertPage) {
+            return splitInHalf(imageSource)
+        }
+
+        val isDoublePage = ImageUtil.isWideImage(imageSource)
+        if (!isDoublePage) {
+            return imageSource
+        }
+
+        onPageSplit(page)
+
+        return splitInHalf(imageSource)
+    }
+
+    private fun rotateDualPage(imageSource: BufferedSource): BufferedSource {
+        val isDoublePage = ImageUtil.isWideImage(imageSource)
+        return if (isDoublePage) {
+            val rotation = if (viewer.config.dualPageRotateToFitInvert) -90f else 90f
+            ImageUtil.rotateImage(imageSource, rotation)
+        } else {
+            imageSource
+        }
+    }
+
+    private fun splitInHalf(imageSource: BufferedSource): BufferedSource {
+        var side = when {
+            viewer is L2RPagerViewer && page is InsertPage -> ImageUtil.Side.RIGHT
+            viewer !is L2RPagerViewer && page is InsertPage -> ImageUtil.Side.LEFT
+            viewer is L2RPagerViewer && page !is InsertPage -> ImageUtil.Side.LEFT
+            viewer !is L2RPagerViewer && page !is InsertPage -> ImageUtil.Side.RIGHT
+            else -> error("We should choose a side!")
+        }
+
+        if (viewer.config.dualPageInvert) {
+            side = when (side) {
+                ImageUtil.Side.RIGHT -> ImageUtil.Side.LEFT
+                ImageUtil.Side.LEFT -> ImageUtil.Side.RIGHT
+            }
+        }
+
+        return ImageUtil.splitInHalf(imageSource, side)
+    }
+
+    private fun onPageSplit(page: ReaderPage) {
+        val newPage = InsertPage(page)
+        viewer.onPageSplit(page, newPage)
+    }
+
+    /**
+     * Called when the page has an error.
+     */
+    private fun setError(error: Throwable?) {
+        progressIndicator?.hide()
+        showErrorLayout(error)
+    }
+
+    override fun onImageLoaded() {
+        super.onImageLoaded()
+        progressIndicator?.hide()
+    }
+
+    /**
+     * Called when an image fails to decode.
+     */
+    override fun onImageLoadError(error: Throwable?) {
+        super.onImageLoadError(error)
+        setError(error)
+    }
+
+    /**
+     * Called when an image is zoomed in/out.
+     */
+    override fun onScaleChanged(newScale: Float) {
+        super.onScaleChanged(newScale)
+        viewer.activity.hideMenu()
+    }
+
+    private fun showErrorLayout(error: Throwable?): ReaderErrorBinding {
+        if (errorLayout == null) {
+            errorLayout = ReaderErrorBinding.inflate(LayoutInflater.from(context), this, true)
+            errorLayout?.actionRetry?.viewer = viewer
+            errorLayout?.actionRetry?.setOnClickListener {
+                page.chapter.pageLoader?.retryPage(page)
+            }
+        }
+
+        val imageUrl = page.imageUrl
+        errorLayout?.actionOpenInWebView?.isVisible = imageUrl != null
+        if (imageUrl != null) {
+            if (imageUrl.startsWith("http", true)) {
+                errorLayout?.actionOpenInWebView?.viewer = viewer
+                errorLayout?.actionOpenInWebView?.setOnClickListener {
+                    val sourceId = viewer.activity.viewModel.manga?.source
+
+                    val intent = WebViewActivity.newIntent(context, imageUrl, sourceId)
+                    context.startActivity(intent)
+                }
+            }
+        }
+
+        errorLayout?.errorMessage?.text = with(context) { error?.formattedMessage }
+            ?: context.stringResource(MR.strings.decode_image_error)
+
+        errorLayout?.root?.isVisible = true
+        return errorLayout!!
+    }
+
+    /**
+     * Removes the decode error layout from the holder, if found.
+     */
+    private fun removeErrorLayout() {
+        errorLayout?.root?.isVisible = false
+        errorLayout = null
+    }
+}
