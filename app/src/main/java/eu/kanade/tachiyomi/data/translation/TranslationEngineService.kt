@@ -13,7 +13,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import li.joye.yakuyomi.engine.BatchTranslation
 import li.joye.yakuyomi.engine.PageResult
+import li.joye.yakuyomi.engine.PageTranslation
+import li.joye.yakuyomi.engine.PrepareResult
+import li.joye.yakuyomi.engine.PreparedPage
 import li.joye.yakuyomi.engine.TranslationEngine
 import li.joye.yakuyomi.engine.Yakuyomi
 import logcat.LogPriority
@@ -156,6 +160,81 @@ class TranslationEngineService(private val context: Context) {
         } finally {
             inFlight.decrementAndGet()
             TraceLog.log("svc", "translatePage.concurrent.done inFlight=${inFlight.get()}")
+        }
+    }
+
+    // ------------------------------------------------------------------ multi-page batches (see engine Batch.kt)
+
+    /** Batch step 1: detection + OCR of [src] (not recycled). Engine unavailable → a Done(Failed) result. */
+    suspend fun preparePage(src: Bitmap, methodRaw: String): PrepareResult =
+        withEngine(methodRaw, native = true, onUnavailable = { PrepareResult.Done(PageResult.Failed(it)) }) {
+            it.prepare(src)
+        }
+
+    /** Batch step 2: one request for several pages' lines. Engine unavailable → every page fails with that reason. */
+    suspend fun translateBatch(pages: List<List<String>>, methodRaw: String): BatchTranslation =
+        withEngine(
+            methodRaw,
+            native = false,
+            onUnavailable = { reason -> BatchTranslation(pages.map { PageTranslation(it, error = reason) }, 0, false) },
+        ) { it.translateBatch(pages) }
+
+    /** Batch step 3: finish a prepared page on [src] (the page decoded again; not recycled). */
+    suspend fun completePage(
+        src: Bitmap,
+        prepared: PreparedPage,
+        translation: PageTranslation,
+        methodRaw: String,
+    ): PageResult =
+        withEngine(methodRaw, native = true, onUnavailable = { PageResult.Failed(it) }) {
+            it.complete(src, prepared, translation)
+        }
+
+    /**
+     * Same engine handling as [translatePage]: make sure the engine exists, count the call as in flight (so the engine
+     * is never closed under it), and run the first native inference of a freshly built engine alone under the lock
+     * (warm-up, see [translatePage]); later calls run concurrently. [native] = false for network-only work, which
+     * neither needs nor counts as the warm-up.
+     */
+    private suspend fun <T> withEngine(
+        methodRaw: String,
+        native: Boolean,
+        onUnavailable: (String) -> T,
+        block: suspend (TranslationEngine) -> T,
+    ): T {
+        val failed: (Throwable) -> T = { e ->
+            logcat(LogPriority.ERROR, e) { "engine call failed" }
+            onUnavailable(e.message ?: context.stringResource(MR.strings.translate_exception))
+        }
+        var concurrent: TranslationEngine? = null
+        val handled: Result<T>? = mutex.withLock {
+            val e = ensureEngine(methodRaw)
+                ?: return@withLock Result.success(onUnavailable(context.stringResource(MR.strings.engine_unavailable)))
+            inFlight.incrementAndGet()
+            if (native && !warmedUp) {
+                try {
+                    Result.success(block(e).also { warmedUp = true })
+                } catch (ex: kotlinx.coroutines.CancellationException) {
+                    throw ex
+                } catch (ex: Throwable) {
+                    Result.success(failed(ex))
+                } finally {
+                    inFlight.decrementAndGet()
+                }
+            } else {
+                concurrent = e
+                null
+            }
+        }
+        if (handled != null) return handled.getOrThrow()
+        return try {
+            block(concurrent!!)
+        } catch (ex: kotlinx.coroutines.CancellationException) {
+            throw ex
+        } catch (ex: Throwable) {
+            failed(ex)
+        } finally {
+            inFlight.decrementAndGet()
         }
     }
 

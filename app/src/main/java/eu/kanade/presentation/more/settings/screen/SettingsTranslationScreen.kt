@@ -629,6 +629,11 @@ object SettingsTranslationScreen : SearchableSettings {
                             )
                         },
                     ),
+                    Preference.PreferenceItem.SwitchPreference(
+                        preference = prefs.translationBatching,
+                        title = stringResource(MR.strings.pref_translation_batching),
+                        subtitle = stringResource(MR.strings.pref_translation_batching_summary),
+                    ),
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(MR.strings.pref_translation_fetch_models),
                         subtitle = if (fetchingModels) {

@@ -28,8 +28,8 @@ class TranslationStatsStore(
 
     /** 累加當日一筆（章/頁/token）。今天 key＝裝置本地日期。全 0 不寫。 */
     @Synchronized
-    fun record(chapters: Int, pages: Int, promptTokens: Int, completionTokens: Int) {
-        if (chapters == 0 && pages == 0 && promptTokens == 0 && completionTokens == 0) return
+    fun record(chapters: Int, pages: Int, promptTokens: Int, completionTokens: Int, requests: Int = 0) {
+        if (chapters == 0 && pages == 0 && promptTokens == 0 && completionTokens == 0 && requests == 0) return
         val key = LocalDate.now().toString()
         val cur = read(key)
         val next = DayRecord(
@@ -37,6 +37,7 @@ class TranslationStatsStore(
             pages = cur.pages + pages,
             promptTokens = cur.promptTokens + promptTokens,
             completionTokens = cur.completionTokens + completionTokens,
+            requests = cur.requests + requests,
         )
         prefs.edit { putString(key, json.encodeToString(next)) }
     }
@@ -48,7 +49,7 @@ class TranslationStatsStore(
             val rec = (v as? String)
                 ?.let { runCatching { json.decodeFromString<DayRecord>(it) }.getOrNull() }
                 ?: return@mapNotNull null
-            DayStat(date, rec.chapters, rec.pages, rec.promptTokens, rec.completionTokens)
+            DayStat(date, rec.chapters, rec.pages, rec.promptTokens, rec.completionTokens, rec.requests)
         }.sortedBy { it.date }
 
     private fun read(key: String): DayRecord =
@@ -63,6 +64,8 @@ class TranslationStatsStore(
         val pages: Int,
         val promptTokens: Long,
         val completionTokens: Long,
+        /** AI requests made (counted since batching; 0 for older days). */
+        val requests: Int = 0,
     )
 
     @Serializable
@@ -71,5 +74,6 @@ class TranslationStatsStore(
         val pages: Int = 0,
         val promptTokens: Long = 0,
         val completionTokens: Long = 0,
+        val requests: Int = 0,
     )
 }

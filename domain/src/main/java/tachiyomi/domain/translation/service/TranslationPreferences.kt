@@ -129,6 +129,9 @@ class TranslationPreferences(
     /** 保留重繪素材：翻完每頁另存遮罩 + 文字區 + 原圖，日後可換去字方法低成本重繪（免重跑 OCR/翻譯）；約多一倍儲存。 */
     val keepMaterials = preferenceStore.getBoolean("pref_translation_keep_materials", false)
 
+    /** Translate several pages per AI request (fewer requests, more context); off = one request per page. */
+    val translationBatching = preferenceStore.getBoolean("pref_translation_batching", true)
+
     /**
      * 夜讀**表層總開關**（預設關；放「其他」頁翻譯總開關旁、不在設定頁裡）。
      * 關＝**隱藏所有夜讀入口**（章節列夜讀指示器、多選底部選單月亮鈕、reader 長壓切換鈕、reader 設定勾選、
