@@ -333,6 +333,7 @@ class PageTranslator(private val context: Context) {
                                         TraceLog.log("page", "$name failed: ${r.reason.take(60)}")
                                         logcat(LogPriority.WARN) { "翻譯失敗 $name：${r.reason}" }
                                         errors.appendLine("$name\t${r.reason}")
+                                        DailyQuota.note(r.reason)
                                     }
                                 }
                             } catch (c: CancellationException) {
@@ -570,6 +571,7 @@ class PageTranslator(private val context: Context) {
                 }
                 is PageResult.Failed -> {
                     logcat(LogPriority.WARN) { "翻譯這頁失敗 $pageFileName：${r.reason}" } // 網路/引擎：留原圖、可重試
+                    DailyQuota.note(r.reason)
                     SinglePageResult.NOT_TRANSLATED
                 }
             }

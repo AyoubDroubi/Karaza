@@ -879,6 +879,34 @@ class MangaViewModel(
     }
 
     /**
+     * Overflow › "Translate downloaded": queue every downloaded chapter of this title that isn't translated
+     * yet — unread first, then in reading order. Chapters that failed earlier are retried in place;
+     * chapters already queued or translating are left alone. Reuses [runChapterTranslateAction], so the
+     * model check and the local-EPUB exclusion apply exactly as for a manual selection.
+     */
+    fun translateAllDownloaded() {
+        val state = successState ?: return
+        val candidates = state.chapters.filter {
+            it.isDownloaded && !it.isTranslated &&
+                it.translationStatus != TranslationItem.Status.QUEUE &&
+                it.translationStatus != TranslationItem.Status.TRANSLATING
+        }
+        val (failed, fresh) = candidates.partition { it.translationStatus == TranslationItem.Status.ERROR }
+        if (failed.isNotEmpty()) translationManager.retry(failed.map { it.id })
+        val ordered = fresh.sortedWith(compareBy<ChapterList.Item>({ it.chapter.read }, { -it.chapter.sourceOrder }))
+        if (ordered.isNotEmpty()) runChapterTranslateAction(ordered)
+        viewModelScope.launch {
+            snackbarHostState.showSnackbar(
+                if (candidates.isEmpty()) {
+                    context.stringResource(MR.strings.translate_downloaded_none)
+                } else {
+                    context.stringResource(MR.strings.translate_downloaded_queued, candidates.size)
+                },
+            )
+        }
+    }
+
+    /**
      * Yakuyomi 繼續擷取（詳情頁 overflow → [eu.kanade.tachiyomi.ui.capture.CaptureScreen]）：組出要帶入的
      * （書名, 來源網址）。只對 local 漫畫有意義（呼叫端已 gate）。
      *

@@ -188,6 +188,7 @@ class MangaScreen(
             }.takeIf { successState.manga.favorite },
             // 重繪全本：用目前去字設定重做本作已下載且已翻的章（空集合由 viewModel 提示）。硬總開關關時隱藏。
             onReRenderAllClicked = viewModel::runMangaReRenderAction.takeIf { translationMasterEnabled },
+            onTranslateDownloadedClicked = viewModel::translateAllDownloaded,
             // Yakuyomi 繼續擷取（只 local 漫畫）：讀漫畫層來源網址 + 選對得回原夾的書名 → 開回擷取工具（S2）。
             onContinueCaptureClicked = {
                 scope.launch {

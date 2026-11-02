@@ -516,6 +516,16 @@
     <string name="pref_translation_lang_russian">Russian</string>
     <string name="pref_translation_lang_arabic">Arabic</string>
     <string name="pref_translation_diagnostics">Diagnostics</string>
+    <string name="action_translate_downloaded">Translate downloaded</string>
+    <string name="translate_downloaded_queued">Queued %1$d chapters for translation</string>
+    <string name="translate_downloaded_none">All downloaded chapters are already translated or queued</string>
+    <string name="action_translate_all_downloaded">Translate all downloaded</string>
+    <string name="translate_all_downloaded_counting">Counting downloaded chapters…</string>
+    <string name="translate_all_downloaded_title">Translate all downloaded chapters?</string>
+    <string name="translate_all_downloaded_confirm">%1$d chapters from %2$d titles will be queued, unread first. Free API keys can run out of their daily limit; if that happens the queue pauses itself and you can resume it later.</string>
+    <string name="translate_all_downloaded_none">Nothing to translate: every downloaded chapter is already translated or queued.</string>
+    <string name="translation_daily_quota_title">Daily translation limit reached</string>
+    <string name="translation_daily_quota_text">The AI provider\'s daily limit is used up, so the translation queue was paused. Resume it from the Queue tab once the limit resets.</string>
     <string name="pref_translation_test_ai">Test AI connection</string>
     <string name="pref_translation_test_ai_summary">Send a short sample through %1$s with your key, model and language, and show the result or the exact error</string>
     <string name="pref_translation_testing">Testing…</string>
