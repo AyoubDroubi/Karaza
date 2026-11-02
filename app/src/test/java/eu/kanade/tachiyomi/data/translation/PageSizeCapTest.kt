@@ -57,14 +57,14 @@ class PageSizeCapTest {
     fun `錯誤檔原因寫出尺寸、百萬像素與上限，不含分隔用的 tab 與換行`() {
         val reason = PageSizeCap.tooLargeReason(7000, 9000)
         reason shouldContain "7000×9000"
-        reason shouldContain "63.0 百萬像素"
-        reason shouldContain "上限 40 百萬像素"
-        reason shouldContain "保留原圖"
+        reason shouldContain "63.0 MP"
+        reason shouldContain "limit 40 MP"
+        reason shouldContain "original kept"
         reason shouldNotContain "\t"
         reason shouldNotContain "\n"
         // 小數點固定用「.」，不跟系統語系變成「,」
-        PageSizeCap.tooLargeReason(5000, 8001) shouldContain "40.0 百萬像素"
-        PageSizeCap.tooLargeReason(6001, 7001) shouldContain "42.0 百萬像素"
+        PageSizeCap.tooLargeReason(5000, 8001) shouldContain "40.0 MP"
+        PageSizeCap.tooLargeReason(6001, 7001) shouldContain "42.0 MP"
     }
 
     @Test

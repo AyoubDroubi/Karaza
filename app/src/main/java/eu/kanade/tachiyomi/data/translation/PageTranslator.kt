@@ -201,7 +201,7 @@ class PageTranslator(private val context: Context) {
                                 PageEntry.RECOVER_FAILED -> {
                                     // 原檔寫不回去：頁檔可能是譯圖或半截檔，這輪不碰它（記號留著、下輪再試），不讓壞檔進引擎。
                                     stateMutex.withLock {
-                                        errors.appendLine("$name\t上次翻譯被中斷，素材裡的原檔寫不回頁檔（下次重試）")
+                                        errors.appendLine("$name\tPrevious translation was interrupted and the original page could not be restored (will retry)")
                                         processed++
                                         onProgress(processed, total)
                                     }
@@ -342,7 +342,7 @@ class PageTranslator(private val context: Context) {
                                 TraceLog.log("page", "$name EXCEPTION ${t.javaClass.simpleName}: ${t.message}")
                                 logcat(LogPriority.ERROR, t) { "翻譯頁例外（已隔離、續其他頁）$name" }
                                 stateMutex.withLock {
-                                    errors.appendLine("$name\t例外 ${t.javaClass.simpleName}: ${t.message}")
+                                    errors.appendLine("$name\tException ${t.javaClass.simpleName}: ${t.message}")
                                 }
                             } finally {
                                 if (!bmp.isRecycled) bmp.recycle() // 任何出口（成功/略過/失敗/例外）都回收，避免併發下 bitmap 堆積 → OOM
@@ -363,7 +363,7 @@ class PageTranslator(private val context: Context) {
             throw c // 整個 drain 被 cancel（暫停/關即時翻/行程收）→ 傳播、別當章例外記；已翻頁有 manifest、resume 續補
         } catch (e: Throwable) {
             logcat(LogPriority.ERROR, e) { "translateChapter 例外（保留原圖）" }
-            errors.appendLine("(chapter)\t例外 ${e.javaClass.simpleName}: ${e.message}")
+            errors.appendLine("(chapter)\tException ${e.javaClass.simpleName}: ${e.message}")
         }
         // 把逐頁失敗原因寫進該話資料夾（.yakuyomi_errors.txt）；本輪全無錯 → 清掉舊錯誤檔。
         // 之前幾輪記下的「頁圖太大」行要留著：那些頁已進清單、這輪沒處理（不在 pending），整檔重寫會讓原因消失。
@@ -1310,7 +1310,7 @@ class PageTranslator(private val context: Context) {
             deleteNightFiles(chapter.matDir, NightPages.oldFormatNames(name))
             // 6. 規則版本記號：std 落地之後才寫（中途被殺＝新頁看起來像舊版、下次多做一次，不會讓舊頁冒充新版）
             if (!writeRulesStamp(chapter, name)) {
-                chapter.stampFailed("$name\t規則版本記號寫不出來（這頁會一直顯示可更新，這章標失敗、重試只補這種頁）")
+                chapter.stampFailed("$name\tCould not write the rules-version marker (page keeps showing as updatable; chapter marked failed, a retry redoes only such pages)")
             }
             val scaled = stats.scaledTo?.let { "${it.first}x${it.second}" } ?: "-"
             val line = "detect=${stats.detectMs}ms mask=${stats.maskMs}ms render=${stats.renderMs}ms " +
@@ -2360,7 +2360,7 @@ class PageTranslator(private val context: Context) {
         return runCatching {
             val base = OriginalMaterial.base(pageName)
             val dir = materialsDir(chapterDir)
-                ?: return "素材存失敗：無法建立 .karaza 子夾（此儲存位置可能不支援，建議改用內部儲存）"
+                ?: return "Saving materials failed: could not create the .karaza folder (this storage location may not support it; try internal storage)"
             if (!originalSaved) {
                 // 後備：原檔位元組沒複製成 → 照舊把解碼後的原圖存成有損 WEBP（API≥30 用 WEBP_LOSSY，否則舊 WEBP）。
                 val webpFmt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -2440,7 +2440,7 @@ class PageTranslator(private val context: Context) {
     ): String? {
         return runCatching {
             val dir = materialsDir(chapterDir)
-                ?: return "夜讀素材存失敗：無法建立 .karaza 子夾（此儲存位置可能不支援，建議改用內部儲存）"
+                ?: return "Saving night-reading materials failed: could not create the .karaza folder (this storage location may not support it; try internal storage)"
             if (dir.findFile(NightTextBoxes.materialsJsonName(pageName))?.isFile == true) {
                 TraceLog.log("page", "$pageName night materials skipped: full materials json present")
                 return null
